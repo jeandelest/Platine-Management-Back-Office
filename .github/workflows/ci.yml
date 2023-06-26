@@ -23,6 +23,10 @@ jobs:
           name: jar
           path: target/*.jar
   release:
+    if: |
+      github.event_name == 'push' || 
+      github.event.pull_request.head.repo.owner.login == github.event.pull_request.base.repo.owner.login
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current branch
@@ -44,7 +48,9 @@ jobs:
           prerelease: false
   docker:
     needs: build
-    if: ${{ github.event_name == 'push' }}
+    if: |
+      github.event_name == 'push' || 
+      github.event.pull_request.head.repo.owner.login == github.event.pull_request.base.repo.owner.login
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
