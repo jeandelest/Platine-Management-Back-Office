@@ -22,6 +22,26 @@ jobs:
         with:
           name: jar
           path: target/*.jar
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - name: Get current version
+        id: version
+        run: echo "version=$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - run: echo ${{steps.version.outputs.version}}
+      - uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{steps.version.outputs.version}}
+          name: Release ${{steps.version.outputs.version}}
+          draft: false
+          generate_release_notes: true
+          prerelease: false
   docker:
     needs: build
     if: ${{ github.event_name == 'push' }}
