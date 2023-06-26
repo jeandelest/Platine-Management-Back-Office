@@ -60,7 +60,7 @@ jobs:
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          name: inseefr/platine-management-api
+          name: inseefr/platine-management-back-office
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           tags: "latest,${{steps.version.outputs.pom_version}}"
