@@ -54,6 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{needs.get_version.outputs.version}}
+          target_commitish: ${{ github.head_ref || github.ref }}
           name: Release ${{needs.get_version.outputs.version}}
           draft: false
           generate_release_notes: true
