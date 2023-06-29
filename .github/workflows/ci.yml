@@ -26,8 +26,7 @@ jobs:
   get_version:
     needs: build
     if: |
-      github.event_name == 'push' || 
-      github.event.pull_request.head.repo.owner.login == github.event.pull_request.base.repo.owner.login
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
       version: ${{steps.version.outputs.version}}
