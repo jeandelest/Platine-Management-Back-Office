@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17.0.7_7-jre
 WORKDIR /application
 RUN rm -rf /application
 ADD target/*.jar /application/app.jar
