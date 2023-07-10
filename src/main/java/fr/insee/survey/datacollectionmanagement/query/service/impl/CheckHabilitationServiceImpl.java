@@ -109,7 +109,7 @@ public class CheckHabilitationServiceImpl implements CheckHabilitationService {
                     resp.setHabilitated(false);
                     return new ResponseEntity<>(resp, HttpStatus.OK);*/
                     resp.setHabilitated(true);
-                    LOGGER.warn("User '{}' has responsable or gestionnaire profile - check habilitation: true", idec);
+                    LOGGER.warn("User '{}' has {} profile - check habilitation: true", idec, userRole);
                     return new ResponseEntity<>(resp, HttpStatus.OK);
                 }
 
