@@ -85,14 +85,14 @@ public class CheckHabilitationServiceImpl implements CheckHabilitationService {
             if(isUserInRole(roles, applicationConfig.getRoleInternalUser())) {
                 if (user.isPresent()) {
                     String userRole;
-                    List<String> accreditedSources = new ArrayList<>();
+                    //List<String> accreditedSources = new ArrayList<>();
                     userRole = user.get().getRole().toString();
                     if (userRole.equals(User.UserRoleType.assistance)) {
                         resp.setHabilitated(false);
                         LOGGER.warn("User '{}' has assistance profile - check habilitation: false", idec);
                         return new ResponseEntity<>(resp, HttpStatus.OK);
                     }
-                    accreditedSources = userService.findAccreditedSources(user.get().getIdentifier());
+                    /*accreditedSources = userService.findAccreditedSources(user.get().getIdentifier());
                     Optional<Campaign> campaign = campaignService.findById(campaignId);
                     if (campaign.isPresent()) {
                         String sourceSearched = campaign.get().getSurvey().getSource().getId();
@@ -107,6 +107,9 @@ public class CheckHabilitationServiceImpl implements CheckHabilitationService {
                     }
                     LOGGER.warn("Check habilitation of user {} for accessing survey-unit {} of campaign {} - campaign doesn't exist - check habilitation:false", idec, idSu, campaign);
                     resp.setHabilitated(false);
+                    return new ResponseEntity<>(resp, HttpStatus.OK);*/
+                    resp.setHabilitated(true);
+                    LOGGER.warn("User '{}' has {} profile - check habilitation: true", idec, userRole);
                     return new ResponseEntity<>(resp, HttpStatus.OK);
                 }
 
