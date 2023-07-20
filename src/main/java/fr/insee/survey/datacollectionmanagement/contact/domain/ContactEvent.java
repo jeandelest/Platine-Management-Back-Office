@@ -27,7 +27,7 @@ import lombok.ToString;
 public class ContactEvent {
 
     public enum ContactEventType {
-        create, update, merged, firstConnect
+        create, update, merged, firstConnect, reinitPassword
     }
 
     @Id
