@@ -142,7 +142,7 @@ public class ContactController {
 
         try {
             contact = convertToEntity(contactDto);
-        } catch (ParseException e) {
+        } catch (ParseException  e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse contact");
         } catch (NoSuchElementException e) {
             LOGGER.info("Creating contact with the identifier {}", contactDto.getIdentifier());
