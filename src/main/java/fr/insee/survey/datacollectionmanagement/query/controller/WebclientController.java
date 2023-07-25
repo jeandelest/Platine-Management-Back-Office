@@ -111,7 +111,7 @@ public class WebclientController {
             throws JsonProcessingException {
 
         log.info("Put questioning for webclients {}", questioningWebclientDto.toString());
-        String modelName = StringUtils.lowerCase(questioningWebclientDto.getModelName());
+        String modelName = questioningWebclientDto.getModelName();
         String idSu = StringUtils.upperCase(questioningWebclientDto.getSurveyUnit().getIdSu());
         String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
 
