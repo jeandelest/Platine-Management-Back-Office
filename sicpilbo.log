@@ -504,3 +504,118 @@ Consider defining a bean of type 'org.springframework.boot.info.BuildProperties'
 2023-juil.-25 13:19:38 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.tagsSorter: alpha
 2023-juil.-25 13:19:38 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - ===========================================================================
 2023-juil.-25 13:19:38 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.DatacollectionManagementApplication - Started DatacollectionManagementApplication in 21.833 seconds (JVM running for 23.137)
+2023-juil.-25 15:52:50 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.DatacollectionManagementApplication - Starting DatacollectionManagementApplication using Java 17 on P100058596 with PID 19984 (C:\Users\EWSYP6\Documents\GitProjects\GitHub\Platine-Management-Back-Office\target\classes started by EWSYP6 in C:\Users\EWSYP6\Documents\GitProjects\GitHub\Platine-Management-Back-Office)
+2023-juil.-25 15:52:50 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.DatacollectionManagementApplication - No active profile set, falling back to 1 default profile: "default"
+2023-juil.-25 15:52:50 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-juil.-25 15:52:50 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2023-juil.-25 15:52:53 PM ID: User: Method: Path: [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-juil.-25 15:52:53 PM ID: User: Method: Path: [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 320 ms. Found 23 JPA repository interfaces.
+2023-juil.-25 15:52:55 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-juil.-25 15:52:55 PM ID: User: Method: Path: [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2023-juil.-25 15:52:55 PM ID: User: Method: Path: [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.76]
+2023-juil.-25 15:52:55 PM ID: User: Method: Path: [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-juil.-25 15:52:55 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4588 ms
+2023-juil.-25 15:52:56 PM ID: User: Method: Path: [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-juil.-25 15:52:56 PM ID: User: Method: Path: [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2023-juil.-25 15:52:56 PM ID: User: Method: Path: [restartedMain] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-juil.-25 15:52:56 PM ID: User: Method: Path: [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-juil.-25 15:52:57 PM ID: User: Method: Path: [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-juil.-25 15:52:57 PM ID: User: Method: Path: [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.PostgreSQLDialect
+2023-juil.-25 15:52:58 PM ID: User: Method: Path: [restartedMain] WARN  Hibernate Types - You should use Hypersistence Optimizer to speed up your Hibernate application!
+2023-juil.-25 15:52:58 PM ID: User: Method: Path: [restartedMain] WARN  Hibernate Types - For more details, go to https://vladmihalcea.com/hypersistence-optimizer/
+2023-juil.-25 15:52:58 PM ID: User: Method: Path: [restartedMain] INFO  Hibernate Types - 
+ _    _                           _     _
+| |  | |                         (_)   | |
+| |__| |_   _ _ __   ___ _ __ ___ _ ___| |_ ___ _ __   ___ ___
+|  __  | | | | '_ \ / _ \ '__/ __| / __| __/ _ \ '_ \ / __/ _ \
+| |  | | |_| | |_) |  __/ |  \__ \ \__ \ ||  __/ | | | (_|  __/
+|_|  |_|\__, | .__/ \___|_|  |___/_|___/\__\___|_| |_|\___\___|
+         __/ | |
+        |___/|_|
+
+           ____        _   _           _
+          / __ \      | | (_)         (_)
+         | |  | |_ __ | |_ _ _ __ ___  _ _______ _ __
+         | |  | | '_ \| __| | '_ ` _ \| |_  / _ \ '__|
+         | |__| | |_) | |_| | | | | | | |/ /  __/ |
+          \____/| .__/ \__|_|_| |_| |_|_/___\___|_|
+                | |
+                |_|
+
+2023-juil.-25 15:52:58 PM ID: User: Method: Path: [restartedMain] INFO  Hibernate Types - Check out the README page for more info about the Hypersistence Optimizer banner https://github.com/vladmihalcea/hibernate-types#how-to-remove-the-hypersistence-optimizer-banner-from-the-log
+2023-juil.-25 15:53:04 PM ID: User: Method: Path: [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-juil.-25 15:53:04 PM ID: User: Method: Path: [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-juil.-25 15:53:09 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.util.Dataloader - 9 orders in database
+2023-juil.-25 15:53:09 PM ID: User: Method: Path: [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-juil.-25 15:53:10 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 4 endpoint(s) beneath base path '/actuator'
+2023-juil.-25 15:53:10 PM ID: User: Method: Path: [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@61ed76bc, org.springframework.security.web.context.SecurityContextPersistenceFilter@65bf96fa, org.springframework.security.web.header.HeaderWriterFilter@1af7f426, org.springframework.web.filter.CorsFilter@780c1cde, org.springframework.security.web.authentication.logout.LogoutFilter@53826783, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@53638313, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@653d3b15, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@400e3ac2, org.springframework.security.web.access.ExceptionTranslationFilter@69043624, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@6d4e96c1]
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - ================================ Properties ================================
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.api.questioning.url: http://localhost:8081
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.auth.mode: noauth
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.auth.realm: myRealm
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.auth.server-url: http://localhost:8180/auth
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.cors.allowedOrigin: *
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.roles.admin.role: admin
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.roles.internal.user.role: internalUser
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.roles.respondent.role: respondent
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - fr.insee.datacollectionmanagement.roles.webclient.role: webclient
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - jwt.id-claim: preferred_username
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - jwt.role-claim: myRoleClaim
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.file.clean-history-on-start: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.file.max-history: 1460
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.file.max-size: 10MB
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.file.name: sicpilbo.log
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.file.total-size-cap: 500MB
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.level.root: INFO
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.pattern.console: %d{yyyy-MMM-dd HH:mm:ss a} ID:%X{id} %blue(User:%X{user}) %yellow(Method:%X{method}) %green(Path:%X{path}) [%t] %clr(%-5level) %logger{36} - %msg%n
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - logging.pattern.file: %d{yyyy-MMM-dd HH:mm:ss a} ID:%X{id} User:%X{user} Method:%X{method} Path:%X{path} [%t] %-5level %logger{36} - %msg%n
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.application.name: datacollection-management-api
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.beaninfo.ignore: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.datasource.driverClassName: org.postgresql.Driver
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.datasource.hikari.maximum-pool-size: 16
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.datasource.hikari.minimum-idle: 16
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.datasource.url: jdbc:postgresql://dvsicpilbolg001:1983/di_pg_sicpilbo_dv01
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.datasource.username: user_sicpilbo
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.freemarker.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.graphql.graphiql.enabled: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.groovy.template.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.h2.console.enabled: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.jpa.hibernate.ddl-auto: update
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.jpa.properties.hibernate.jdbc.batch_size: 100
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.jpa.properties.hibernate.order_inserts: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.mustache.servlet.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.mvc.log-resolved-exception: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.output.ansi.enabled: always
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.reactor.netty.shutdown-quiet-period: 0s
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.security.oauth2.resourceserver.jwt.issuer-uri: http://localhost:8180/auth/realms/myRealm
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.template.provider.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.thymeleaf.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.web.resources.cache.period: 0
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - spring.web.resources.chain.cache: false
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.pathsToMatch: /**
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.enabled: true
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.oauth.additionalQueryStringParams.kc_idp_hint: sso-insee
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.oauth.client-id: myClient
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.oauth2RedirectUrl: /swagger-ui/oauth2-redirect.html
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.operations-sorter: alpha
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.path: /
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - springdoc.swagger-ui.tagsSorter: alpha
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.config.PropertyLogger - ===========================================================================
+2023-juil.-25 15:53:11 PM ID: User: Method: Path: [restartedMain] INFO  f.i.s.d.DatacollectionManagementApplication - Started DatacollectionManagementApplication in 21.248 seconds (JVM running for 22.179)
+2023-juil.-25 15:53:43 PM ID: User: Method: Path: [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-juil.-25 15:53:43 PM ID: User: Method: Path: [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-juil.-25 15:53:43 PM ID: User: Method: Path: [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2023-juil.-25 15:53:43 PM ID:0871fc73-a791-4800-a9ec-3a936f33defe User: Method:PUT Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-1] INFO  f.i.s.d.config.LogInterceptor - [GUEST] - [PUT] - [/api/contacts/ZZZZZZZ]
+2023-juil.-25 15:53:43 PM ID:0871fc73-a791-4800-a9ec-3a936f33defe User: Method:PUT Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-1] INFO  f.i.s.d.c.a.u.AuthorizeMethodDecider - role :admin has been found
+2023-juil.-25 15:53:43 PM ID:0871fc73-a791-4800-a9ec-3a936f33defe User: Method:PUT Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-1] INFO  f.i.s.d.c.c.ContactController - Creating contact with the identifier ZZZZZZZ
+2023-juil.-25 15:54:06 PM ID:dfb0b951-acb8-4a61-b6b4-9c6d2e6c4789 User: Method:DELETE Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-2] INFO  f.i.s.d.config.LogInterceptor - [GUEST] - [DELETE] - [/api/contacts/ZZZZZZZ]
+2023-juil.-25 15:54:06 PM ID:dfb0b951-acb8-4a61-b6b4-9c6d2e6c4789 User: Method:DELETE Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-2] INFO  f.i.s.d.c.a.u.AuthorizeMethodDecider - role :admin has been found
+2023-juil.-25 15:54:06 PM ID:dfb0b951-acb8-4a61-b6b4-9c6d2e6c4789 User: Method:DELETE Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-2] INFO  f.i.s.d.c.c.ContactController - Delete contact ZZZZZZZ
+2023-juil.-25 15:54:22 PM ID:2d444c62-29ee-4f84-9cc1-0a510582bf11 User: Method:GET Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-3] INFO  f.i.s.d.config.LogInterceptor - [GUEST] - [GET] - [/api/contacts/ZZZZZZZ]
+2023-juil.-25 15:54:22 PM ID:2d444c62-29ee-4f84-9cc1-0a510582bf11 User: Method:GET Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-3] INFO  f.i.s.d.c.a.u.AuthorizeMethodDecider - role :admin has been found
+2023-juil.-25 15:54:33 PM ID:2c0682ca-7fdc-4ba1-83a8-e052df53a408 User: Method:PUT Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-4] INFO  f.i.s.d.config.LogInterceptor - [GUEST] - [PUT] - [/api/contacts/ZZZZZZZ]
+2023-juil.-25 15:54:33 PM ID:2c0682ca-7fdc-4ba1-83a8-e052df53a408 User: Method:PUT Path:/api/contacts/ZZZZZZZ [http-nio-8080-exec-4] WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `fr.insee.survey.datacollectionmanagement.contact.domain.Contact$Gender` from String "Madame": not one of the values accepted for Enum class: [Undefined, Female, Male]; nested exception is com.fasterxml.jackson.databind.exc.InvalidFormatException: Cannot deserialize value of type `fr.insee.survey.datacollectionmanagement.contact.domain.Contact$Gender` from String "Madame": not one of the values accepted for Enum class: [Undefined, Female, Male]<EOL> at [Source: (org.springframework.util.StreamUtils$NonClosingInputStream); line: 4, column: 15] (through reference chain: fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto["civility"])]
+2023-juil.-25 15:54:33 PM ID:65283536-d5d0-46b5-9ab7-d1d54606f2b7 User: Method:PUT Path:/error [http-nio-8080-exec-4] INFO  f.i.s.d.config.LogInterceptor - [GUEST] - [PUT] - [/error]

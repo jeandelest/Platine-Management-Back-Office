@@ -202,7 +202,7 @@ public class ContactControllerTest {
         jo.put("lastName", contact.getLastName());
         jo.put("firstName", contact.getFirstName());
         jo.put("email", contact.getEmail());
-        jo.put("civility", contact.getGender().equals(Gender.Male) ? "Mr" : "Mme");
+        jo.put("civility", contact.getGender());
         return jo.toString();
     }
 
@@ -212,7 +212,7 @@ public class ContactControllerTest {
         jo.put("lastName", contact.getLastName());
         jo.put("firstName", contact.getFirstName());
         jo.put("email", contact.getEmail());
-        jo.put("civility", contact.getGender().equals(Gender.Male) ? "Mr" : "Mme");
+        jo.put("civility", contact.getGender());
         jo.put("address", createJsonAddress(contact));
         return jo.toString();
 
