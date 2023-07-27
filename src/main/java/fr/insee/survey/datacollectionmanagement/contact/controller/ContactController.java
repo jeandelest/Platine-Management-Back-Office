@@ -142,7 +142,7 @@ public class ContactController {
 
         try {
             contact = convertToEntity(contactDto);
-        } catch (ParseException e) {
+        } catch (ParseException  e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse contact");
         } catch (NoSuchElementException e) {
             LOGGER.info("Creating contact with the identifier {}", contactDto.getIdentifier());
@@ -196,15 +196,13 @@ public class ContactController {
 
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
-        String civility = contact.getGender().equals(Gender.Male) ? "Mr" : "Mme";
-        contactDto.setCivility(civility);
+        contactDto.setCivility(contact.getGender());
         return contactDto;
     }
 
     private ContactFirstLoginDto convertToFirstLoginDto(Contact contact) {
         ContactFirstLoginDto contactFirstLoginDto = modelMapper.map(contact, ContactFirstLoginDto.class);
-        String civility = contact.getGender().equals(Gender.Male) ? "Mr" : "Mme";
-        contactFirstLoginDto.setCivility(civility);
+        contactFirstLoginDto.setCivility(contact.getGender());
         contactFirstLoginDto.setFirstConnect(contact.getContactEvents().stream()
                 .filter(e -> e.getType().equals(ContactEventType.firstConnect)).collect(Collectors.toList()).isEmpty());
         return contactFirstLoginDto;
@@ -212,8 +210,7 @@ public class ContactController {
 
     private Contact convertToEntity(ContactDto contactDto) throws ParseException, NoSuchElementException {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(contactDto.getCivility().equals("Mr") ? Gender.Male : Gender.Female);
-
+        contact.setGender(contactDto.getCivility());
         Optional<Contact> oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
         if (!oldContact.isPresent()) {
             throw new NoSuchElementException();
@@ -227,8 +224,8 @@ public class ContactController {
 
     private Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(contactDto.getCivility().equals("Mr") ? Gender.Male : Gender.Female);
-        return contact;
+        contact.setGender(contactDto.getCivility());
+       return contact;
     }
 
     class ContactPage extends PageImpl<ContactDto> {

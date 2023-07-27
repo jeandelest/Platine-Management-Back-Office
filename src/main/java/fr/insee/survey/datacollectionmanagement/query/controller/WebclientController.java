@@ -111,7 +111,7 @@ public class WebclientController {
             throws JsonProcessingException {
 
         log.info("Put questioning for webclients {}", questioningWebclientDto.toString());
-        String modelName = StringUtils.lowerCase(questioningWebclientDto.getModelName());
+        String modelName = questioningWebclientDto.getModelName();
         String idSu = StringUtils.upperCase(questioningWebclientDto.getSurveyUnit().getIdSu());
         String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
 
@@ -567,7 +567,7 @@ public class WebclientController {
 
     private Contact convertToEntity(ContactAccreditationDto contactAccreditationDto) throws NoSuchElementException {
         Contact contact = modelMapper.map(contactAccreditationDto, Contact.class);
-        contact.setGender(contactAccreditationDto.getCivility().equals("Mr") ? Gender.Male : Gender.Female);
+        contact.setGender(contactAccreditationDto.getCivility());
 
         Optional<Contact> oldContact = contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
         if (!oldContact.isPresent())
@@ -581,14 +581,13 @@ public class WebclientController {
 
     private Contact convertToEntityNewContact(ContactAccreditationDto contactAccreditationDto) {
         Contact contact = modelMapper.map(contactAccreditationDto, Contact.class);
-        contact.setGender(contactAccreditationDto.getCivility().equals("Mr") ? Gender.Male : Gender.Female);
+        contact.setGender(contactAccreditationDto.getCivility());
         return contact;
     }
 
     private ContactAccreditationDto convertToDto(Contact contact, boolean isMain) {
         ContactAccreditationDto contactAccreditationDto = modelMapper.map(contact, ContactAccreditationDto.class);
-        String civility = contact.getGender().equals(Gender.Male) ? "Mr" : "Mme";
-        contactAccreditationDto.setCivility(civility);
+        contactAccreditationDto.setCivility(contact.getGender());
         contactAccreditationDto.setMain(isMain);
         return contactAccreditationDto;
     }
