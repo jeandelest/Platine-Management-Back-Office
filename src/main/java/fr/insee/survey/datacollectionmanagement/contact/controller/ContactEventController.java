@@ -60,10 +60,6 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ContactEventDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -122,10 +118,6 @@ public class ContactEventController {
 
     @Operation(summary = "Delete a contact event")
     @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),
