@@ -71,6 +71,7 @@ public class MoogServiceImpl implements MoogService {
             moogSearchDto.setCampaign(moogCampaign);
             moogSearchDto.setFirstName(c.get().getFirstName());
             moogSearchDto.setLastname(c.get().getLastName());
+            moogSearchDto.setSource(camp.get().getSurvey().getSource().getId());
             listResult.add(moogSearchDto);
         }
         return listResult;
