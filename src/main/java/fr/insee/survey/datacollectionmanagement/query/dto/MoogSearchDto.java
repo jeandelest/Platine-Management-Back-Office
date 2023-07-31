@@ -18,5 +18,6 @@ public class MoogSearchDto implements Serializable {
     private String firstName;
     private String lastname;
     private int batchNumber;
+    private String source;
 
 }
