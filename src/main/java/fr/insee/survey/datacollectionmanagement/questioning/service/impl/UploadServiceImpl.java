@@ -47,9 +47,6 @@ public class UploadServiceImpl implements UploadService {
         ResultUpload result = new ResultUpload();
         Date today = new Date();
 
-        log.info("date "+today);
-        log.info("date uplo"+uploadDto.getData().get(0).getDate());
-
         // Check campaign exists and date in intervals
         if (!checkUploadDate(idCampaign, today))
             throw new RessourceNotValidatedException("Campaign", idCampaign);
