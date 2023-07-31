@@ -19,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 
 @Repository
-@Slf4j
 public class MoogRepository {
 
     @Autowired
