@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class MoogProgressDto implements Serializable {
         private int nbSu;
-        private int batchNumber;
+        private String batchNumber;
         private int nbIntReceived;
         private int nbPapReceived;
         private int nbPND;
@@ -13,7 +13,7 @@ public class MoogProgressDto implements Serializable {
         private int nbOtherWastes;
         private int nbIntPart;
 
-        public MoogProgressDto(int batchNumber) {
+        public MoogProgressDto(String batchNumber) {
             this.batchNumber = batchNumber;
             this.nbIntReceived = 0;
             this.nbPapReceived = 0;
@@ -60,15 +60,15 @@ public class MoogProgressDto implements Serializable {
             this.nbSu = nbSu;
         }
 
-        public int getBatchNumber() {
-            return batchNumber;
-        }
+    public String getBatchNumber() {
+        return batchNumber;
+    }
 
-        public void setBatchNumber(int batchNumber) {
-            this.batchNumber = batchNumber;
-        }
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
+    }
 
-        public int getNbIntReceived() {
+    public int getNbIntReceived() {
             return nbIntReceived;
         }
 

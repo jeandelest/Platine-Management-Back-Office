@@ -39,7 +39,7 @@ public class MonitoringRepository {
         List<MoogRowProgressDto> progress = jdbcTemplate.query(progressQuery, new RowMapper<MoogRowProgressDto>() {
             public MoogRowProgressDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MoogRowProgressDto av = new MoogRowProgressDto();
-                av.setBatchNum(Integer.parseInt(rs.getString("batch_num").substring(rs.getString("batch_num").length() - 1)));
+                av.setBatchNum(rs.getString("batch_num"));
                 av.setStatus(rs.getString("status"));
                 av.setTotal(Integer.parseInt(rs.getString("total")));
 
@@ -55,7 +55,7 @@ public class MonitoringRepository {
             public MoogFollowUpDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MoogFollowUpDto rel = new MoogFollowUpDto();
                 rel.setFreq(rs.getString("freq") != null ? Integer.parseInt(rs.getString("freq")) : 0);
-                rel.setBatchNum(Integer.parseInt(rs.getString("batch_num").substring(rs.getString("batch_num").length() - 1)));
+                rel.setBatchNum(rs.getString("batch_num"));
                 rel.setNb(Integer.parseInt(rs.getString("nb")));
 
                 return rel;

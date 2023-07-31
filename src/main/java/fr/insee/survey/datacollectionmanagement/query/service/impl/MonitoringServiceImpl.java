@@ -23,18 +23,18 @@ public class MonitoringServiceImpl implements MonitoringService {
     public JSONCollectionWrapper<MoogProgressDto> getProgress(String idCampaign) {
         List<MoogRowProgressDto> rows = monitoringRepository.getProgress(idCampaign);
 
-        HashMap<Integer, MoogProgressDto> lots = new HashMap<Integer, MoogProgressDto>();
+        HashMap<String, MoogProgressDto> lots = new HashMap<String, MoogProgressDto>();
 
         if (!rows.isEmpty()) {
             for (MoogRowProgressDto row : rows) {
 
-                int batchNumber = row.getBatchNum();
+                String batchNumber = row.getBatchNum();
 
-                if (!lots.containsKey(Integer.valueOf(batchNumber))) {
-                    lots.put(Integer.valueOf(batchNumber), new MoogProgressDto(batchNumber));
+                if (!lots.containsKey(String.valueOf(batchNumber))) {
+                    lots.put(String.valueOf(batchNumber), new MoogProgressDto(batchNumber));
                 }
 
-                MoogProgressDto lot = lots.get(Integer.valueOf(batchNumber));
+                MoogProgressDto lot = lots.get(String.valueOf(batchNumber));
 
                 lot.setNbSu(lot.getNbSu() + row.getTotal());
 

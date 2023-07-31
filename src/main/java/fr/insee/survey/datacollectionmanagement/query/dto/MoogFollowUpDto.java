@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class MoogFollowUpDto implements Serializable {
     private int nb;
     private int freq;
-    private int batchNum;
+    private String batchNum;
 
     public int getNb() {
         return nb;
@@ -23,13 +23,12 @@ public class MoogFollowUpDto implements Serializable {
         this.freq = freq;
     }
 
-    public int getBatchNum() {
+
+    public String getBatchNum() {
         return batchNum;
     }
 
-    public void setBatchNum(int batchNum) {
+    public void setBatchNum(String batchNum) {
         this.batchNum = batchNum;
     }
-
-
 }

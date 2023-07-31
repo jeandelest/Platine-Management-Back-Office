@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.impl.AddressServiceImpl;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -26,7 +27,7 @@ public class MoogRepository {
     @Autowired
     AddressService addressService;
 
-    final String getEventsQuery = "SELECT qe.id, extract(EPOCH from date)*1000 as date_timestamp, type, survey_unit_id_su, campaign_id "
+    final String getEventsQuery = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
     + " FROM questioning_event qe join questioning q on qe.questioning_id=q.id join partitioning p on q.id_partitioning=p.id "
     + " WHERE survey_unit_id_su=? AND campaign_id=? ";
 
@@ -37,7 +38,7 @@ public class MoogRepository {
                 MoogQuestioningEventDto moogEvent = new MoogQuestioningEventDto();
                 moogEvent.setIdManagementMonitoringInfo(rs.getString("id"));
                 moogEvent.setStatus(rs.getString("type"));
-                moogEvent.setDateInfo(rs.getLong("date_timestamp"));
+                moogEvent.setDateInfo(rs.getTimestamp("date").getTime());
                 return moogEvent;
             }
         }, new Object[]{idSu,idCampaign});
