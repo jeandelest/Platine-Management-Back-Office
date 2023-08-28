@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import org.webjars.NotFoundException;
 
 @Service
 public interface CampaignService {
@@ -33,4 +34,11 @@ public interface CampaignService {
 
     Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning);
 
+    /**
+     * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are ongoing
+     * @param idCampaign id of the campaign
+     * @return true
+     * @throws NotFoundException if the campaign does not exist
+     */
+    boolean isCampaignOngoing(String idCampaign) throws NotFoundException;
 }

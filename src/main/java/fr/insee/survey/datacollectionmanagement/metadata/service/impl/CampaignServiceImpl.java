@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import lombok.extern.slf4j.Slf4j;
+import org.webjars.NotFoundException;
 
 @Service
 @Slf4j
@@ -32,6 +34,9 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Autowired
     CampaignRepository campaignRepository;
+
+    @Autowired
+    PartitioningService partitioningService;
 
     public Collection<CampaignMoogDto> getCampaigns() {
 
@@ -121,6 +126,27 @@ public class CampaignServiceImpl implements CampaignService {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isCampaignOngoing(String idCampaign) throws NotFoundException {
+        Optional<Campaign> camp = findById(idCampaign);
+
+        if (camp.isEmpty()) {
+            throw new NotFoundException("Campaign does not exist");
+        }
+        Date now = new Date();
+        int nbOnGoingParts = 0;
+
+        for (Partitioning part : camp.get().getPartitionings()) {
+            if (partitioningService.isOnGoing(part, now)) {
+                nbOnGoingParts++;
+                LOGGER.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
+            } else {
+                LOGGER.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
+            }
+        }
+        return camp.get().getPartitionings().size() != 0 && nbOnGoingParts == camp.get().getPartitionings().size();
     }
 
 }
