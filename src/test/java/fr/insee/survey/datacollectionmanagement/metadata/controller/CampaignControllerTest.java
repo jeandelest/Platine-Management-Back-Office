@@ -86,7 +86,7 @@ class CampaignControllerTest {
         Campaign campaign = initOpenedCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("{\n" +
                         "  \"ongoing\": true\n" +
                         "}", false));
@@ -100,7 +100,7 @@ class CampaignControllerTest {
         Campaign campaign = initClosedCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("{\n" +
                         "  \"ongoing\": false\n" +
                         "}", false));
@@ -115,7 +115,7 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
 
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("{\n" +
                         "  \"ongoing\": false\n" +
                         "}", false));
@@ -136,7 +136,7 @@ class CampaignControllerTest {
                 .andExpect(content().json(jsonCampaign.toString(), false));
 
 
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("{\n" +
                         "  \"ongoing\": false\n" +
                         "}", false));
