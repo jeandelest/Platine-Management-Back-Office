@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.webjars.NotFoundException;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -175,6 +177,9 @@ public class CampaignController {
     })
     @Transactional
     public ResponseEntity<?> deleteCampaign(@PathVariable("id") String id) {
+        if(campaignService.isCampaignOngoing(id)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
+        }
         try {
             Optional<Campaign> campaign = campaignService.findById(id);
             if (!campaign.isPresent()) {
@@ -202,6 +207,21 @@ public class CampaignController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
+        }
+    }
+
+    @Operation(summary = "campaign is ongoing")
+    @GetMapping(value = Constants.API_CAMPAIGNS_ID_ONGOING, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ResponseEntity<?> isOnGoingCampaign(@PathVariable("id") String id) {
+        try {
+            boolean isOnGoing = campaignService.isCampaignOngoing(id);
+            return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Campaign does not exist");
         }
     }
 

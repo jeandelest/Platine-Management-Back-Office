@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,4 +42,8 @@ public class PartioningServiceImpl implements PartitioningService {
         partitioningRepository.deleteById(id);
     }
 
+    @Override
+    public boolean isOnGoing(Partitioning part, Date date) {
+        return part.getClosingDate().compareTo(date)>0 && part.getOpeningDate().compareTo(date)<0;
+    }
 }
