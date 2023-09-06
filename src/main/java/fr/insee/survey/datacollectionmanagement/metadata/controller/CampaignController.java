@@ -211,7 +211,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "campaign is ongoing")
-    @GetMapping(value = Constants.API_CAMPAIGNS_ID_ONGOING, produces = "application/json")
+    @GetMapping(value = Constants.CAMPAIGNS_ID_ONGOING, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")

@@ -49,8 +49,7 @@ public class Constants {
     public static final String API_SURVEYS_ID_CAMPAIGNS = "/api/surveys/{id}/campaigns";
     public static final String API_CAMPAIGNS = "/api/campaigns";
     public static final String API_CAMPAIGNS_ID = "/api/campaigns/{id}";
-
-    public static final String API_CAMPAIGNS_ID_ONGOING = "/api/campaigns/{id}/ongoing";
+    public static final String CAMPAIGNS_ID_ONGOING = "/campaigns/{id}/ongoing";
     public static final String API_CAMPAIGNS_ID_PARTITIONINGS = "/api/campaigns/{id}/partitionings";
     public static final String API_PARTITIONINGS = "/api/partitionings";
     public static final String API_PARTITIONINGS_ID = "/api/partitionings/{id}";
