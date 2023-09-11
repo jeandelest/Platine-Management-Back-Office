@@ -4,6 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.List;
 
+import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +40,7 @@ public class OpenIDConnectSecurityContext  {
                 .authorizeRequests()
                 .antMatchers("/csrf", "/", "/webjars/**", "/swagger-resources/**").permitAll()
                 .antMatchers("/environnement").permitAll()//PublicResources
-                .antMatchers("/healthcheck").permitAll()
+                .antMatchers(Constants.API_HEALTHCHECK).permitAll()
                 .antMatchers("/actuator/**").permitAll()
                 .antMatchers("/swagger-ui/*").permitAll()
                 .antMatchers("/v3/api-docs/swagger-config", "/v3/api-docs").permitAll()
