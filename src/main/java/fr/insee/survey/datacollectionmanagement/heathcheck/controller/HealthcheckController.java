@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "8 - Heathckeck", description = "healthckeck")
+@Tag(name = "8 - Healthcheck", description = "healthcheck")
 public class HealthcheckController {
 
     @GetMapping(path = Constants.API_HEALTHCHECK, produces = "application/json")
-    public ResponseEntity<HealthcheckDto> healtcheck() {
+    public ResponseEntity<HealthcheckDto> healthcheck() {
         HealthcheckDto dto = new HealthcheckDto();
         dto.setStatus("OK");
         return ResponseEntity.ok().body(dto);
