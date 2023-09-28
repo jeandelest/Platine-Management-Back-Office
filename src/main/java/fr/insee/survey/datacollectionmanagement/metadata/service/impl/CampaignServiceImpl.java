@@ -48,9 +48,9 @@ public class CampaignServiceImpl implements CampaignService {
             campaignMoogDto.setId(campaign.getId());
             campaignMoogDto.setLabel(campaign.getCampaignWording());
 
-            Optional<Date> dateMin = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate).toList().stream()
+            Optional<Date> dateMin = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
                     .min(Comparator.comparing(Date::getTime));
-            Optional<Date> dateMax = campaign.getPartitionings().stream().map(Partitioning::getClosingDate).toList().stream()
+            Optional<Date> dateMax = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
                     .max(Comparator.comparing(Date::getTime));
 
             if (dateMin.isPresent() && dateMax.isPresent()) {
