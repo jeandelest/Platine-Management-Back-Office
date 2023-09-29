@@ -41,7 +41,7 @@ public class CampaignServiceImpl implements CampaignService {
     public Collection<CampaignMoogDto> getCampaigns() {
 
         List<CampaignMoogDto> moogCampaigns = new ArrayList<>();
-        List<Campaign> campaigns = campaignRepository.findAll();
+        List<Campaign> campaigns = campaignRepository.findAll().stream().filter(c -> !c.getPartitionings().isEmpty()).toList();
 
         for (Campaign campaign : campaigns) {
             CampaignMoogDto campaignMoogDto = new CampaignMoogDto();
@@ -49,16 +49,17 @@ public class CampaignServiceImpl implements CampaignService {
             campaignMoogDto.setLabel(campaign.getCampaignWording());
 
             Optional<Date> dateMin = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
-                    .collect(Collectors.toList()).stream()
                     .min(Comparator.comparing(Date::getTime));
             Optional<Date> dateMax = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
-                    .collect(Collectors.toList()).stream()
                     .max(Comparator.comparing(Date::getTime));
 
-            campaignMoogDto.setCollectionStartDate(dateMin.get().getTime());
-            campaignMoogDto.setCollectionEndDate(dateMax.get().getTime());
-
-            moogCampaigns.add(campaignMoogDto);
+            if (dateMin.isPresent() && dateMax.isPresent()) {
+                campaignMoogDto.setCollectionStartDate(dateMin.get().getTime());
+                campaignMoogDto.setCollectionEndDate(dateMax.get().getTime());
+                moogCampaigns.add(campaignMoogDto);
+            } else {
+                log.warn("No start date or end date found for campaign {}", campaign.getId());
+            }
         }
         return moogCampaigns;
     }
@@ -146,7 +147,7 @@ public class CampaignServiceImpl implements CampaignService {
                 LOGGER.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
             }
         }
-        return camp.get().getPartitionings().size() != 0 && nbOnGoingParts == camp.get().getPartitionings().size();
+        return !camp.get().getPartitionings().isEmpty() && nbOnGoingParts == camp.get().getPartitionings().size();
     }
 
 }
