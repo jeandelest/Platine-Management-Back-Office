@@ -122,7 +122,7 @@ public class MoogRepository {
 
                 return ev;
             }
-        }, new Object[]{idCampaign});
+        }, new Object[]{idCampaign, idCampaign});
 
         return extraction;
     }
@@ -216,7 +216,7 @@ public class MoogRepository {
 
                         return er;
                     }
-                }, new Object[]{idCampaign, idCampaign});
+                }, new Object[]{idCampaign, idCampaign, idCampaign, idCampaign});
 
         return followUp;
 
