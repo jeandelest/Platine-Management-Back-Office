@@ -6,16 +6,16 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -61,8 +61,22 @@ public class UploadServiceImpl implements UploadService {
             String identifier = (mmDto.getIdSu() != null) ? mmDto.getIdSu() : mmDto.getIdContact();
             try {
                 QuestioningEvent qe = new QuestioningEvent();
+
+                Optional<Campaign> campaign = campaignService.findById(idCampaign);
+                if (!campaign.isPresent()) {
+                    throw new RessourceNotValidatedException("Campaign", idCampaign);
+                }
+                Set<Partitioning> setParts = campaign.get().getPartitionings();
+                if (setParts.isEmpty()) {
+                    throw new RessourceNotValidatedException("No partitionings found for campaign ", idCampaign);
+                }
+  
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
-                Optional<Questioning> quest = questionings.stream().filter(q -> q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).collect(Collectors.toList()).contains(mmDto.getIdContact())).findFirst();
+
+                List<String> listIdParts = campaignService.findById(idCampaign).get().getPartitionings().stream().map(Partitioning::getId).toList();
+                Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning()) && q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact)
+                        .collect(Collectors.toList()).contains(mmDto.getIdContact())).findFirst();
+
                 qe.setUpload(up);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
                 qe.setQuestioning(quest.get());
@@ -76,7 +90,6 @@ public class UploadServiceImpl implements UploadService {
                     quest.get().getQuestioningEvents().add(qe);
                     questioningService.saveQuestioning(quest.get());
                 }
-
                 result.addIdOk(identifier);
             } catch (Exception e) {
                 log.error("Error in request");
@@ -84,7 +97,7 @@ public class UploadServiceImpl implements UploadService {
                 result.addIdKo(identifier, "RessourceNotFound or unprocessable request");
             }
         }
-        if(result.getListIdOK().size()==0){
+        if (result.getListIdOK().size() == 0) {
             delete(up);
             return result;
         }
@@ -127,7 +140,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public boolean checkUploadDate(String idCampaign, Date date) {
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        Long timestamp=date.getTime();
+        Long timestamp = date.getTime();
         Long start = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
                 .collect(Collectors.toList()).stream()
                 .min(Comparator.comparing(Date::getTime)).get().getTime();
