@@ -33,9 +33,13 @@ public class Survey {
     @NonNull
     private Integer year;
     private Integer sampleSize;
+    @Column(length = 2000)
     private String longWording;
+    @Column(length = 2000)
     private String shortWording;
+    @Column(length = 2000)
     private String shortObjectives;
+    @Column(length = 2000)
     private String longObjectives;
     private String visaNumber;
     private String cnisUrl;
