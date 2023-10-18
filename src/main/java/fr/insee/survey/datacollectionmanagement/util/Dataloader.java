@@ -236,22 +236,20 @@ public class Dataloader {
         Long nbExistingOrders = orderRepository.count();
         LOGGER.info("{} orders in database", nbExistingOrders);
 
-        if (nbExistingOrders !=9 ) {
+        if (nbExistingOrders !=8 ) {
             // Creating table order
             LOGGER.info("loading eventorder data");
             orderRepository.deleteAll();
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("9"), TypeQuestioningEvent.REFUSAL.toString(), 9));
+                    .saveAndFlush(new EventOrder(Long.parseLong("8"), TypeQuestioningEvent.REFUSAL.toString(), 8));
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("8"), TypeQuestioningEvent.VALINT.toString(), 8));
+                    .saveAndFlush(new EventOrder(Long.parseLong("7"), TypeQuestioningEvent.VALINT.toString(), 7));
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("7"), TypeQuestioningEvent.VALPAP.toString(), 7));
-            orderRepository.saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.HC.toString(), 6));
+                    .saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.VALPAP.toString(), 6));
+            orderRepository.saveAndFlush(new EventOrder(Long.parseLong("5"), TypeQuestioningEvent.HC.toString(), 5));
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("5"), TypeQuestioningEvent.PARTIELINT.toString(), 5));
-            orderRepository.saveAndFlush(new EventOrder(Long.parseLong("4"), TypeQuestioningEvent.WASTE.toString(), 4));
-            orderRepository.saveAndFlush(new EventOrder(Long.parseLong("3"), TypeQuestioningEvent.FOLLOWUP.toString(), 3));
-
+                    .saveAndFlush(new EventOrder(Long.parseLong("4"), TypeQuestioningEvent.PARTIELINT.toString(), 4));
+            orderRepository.saveAndFlush(new EventOrder(Long.parseLong("3"), TypeQuestioningEvent.WASTE.toString(), 3));
             orderRepository.saveAndFlush(new EventOrder(Long.parseLong("2"), TypeQuestioningEvent.PND.toString(), 2));
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA.toString(), 1));
