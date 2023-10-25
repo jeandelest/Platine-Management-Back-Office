@@ -33,6 +33,8 @@ import org.webjars.NotFoundException;
 @Slf4j
 public class MoogServiceImpl implements MoogService {
 
+    public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
+    public static final String UNITE_ENQUETEE = "/unite-enquetee/";
     @Autowired
     private ViewService viewService;
 
@@ -140,8 +142,8 @@ public class MoogServiceImpl implements MoogService {
             }
         }
         if(questioning!=null) {
-            return applicationConfig.getQuestioningUrl() + "/readonly/questionnaire/" + questioning.getModelName()
-                    + "/unite-enquetee/" + surveyUnitId;
+            return applicationConfig.getQuestioningUrl() + READONLY_QUESTIONNAIRE + questioning.getModelName()
+                    + UNITE_ENQUETEE + surveyUnitId;
         }
         String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
         log.error(msg);
