@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +26,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 
 @Service
+@Slf4j
 public class MySurveysServiceImpl implements MySurveysService {
-
-    private static final Logger LOGGER = LogManager.getLogger(MySurveysServiceImpl.class);
 
     @Autowired
     private QuestioningAccreditationService questioningAccreditationService;
@@ -38,7 +39,7 @@ public class MySurveysServiceImpl implements MySurveysService {
     private QuestioningEventService questioningEventService;
 
     @Autowired
-    ApplicationConfig applicationConfig;
+    QuestioningService questioningService;
 
 
     @Override
@@ -56,8 +57,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                 surveyDto.setSurveyWording(survey.getLongWording());
                 surveyDto.setSurveyObjectives(survey.getLongObjectives());
                 surveyDto.setAccessUrl(
-                        applicationConfig.getQuestioningUrl() + "/questionnaire/" + questioning.getModelName()
-                                + "/unite-enquetee/" + surveyUnitId);
+                        questioningService.getAccessUrl(questioning, surveyUnitId));
                 surveyDto.setIdentificationCode(surveyUnitId);
                 surveyDto.setOpeningDate(new Timestamp(part.get().getOpeningDate().getTime()));
                 surveyDto.setClosingDate(new Timestamp(part.get().getClosingDate().getTime()));
@@ -70,7 +70,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     surveyDto.setQuestioningStatus(questioningEvent.get().getType().name());
                     surveyDto.setQuestioningDate(new Timestamp(questioningEvent.get().getDate().getTime()));
                 } else {
-                    LOGGER.debug("No questioningEvents found for questioning {} for identifier {}",
+                    log.debug("No questioningEvents found for questioning {} for identifier {}",
                             questioning.getId(), id);
                 }
 
@@ -78,8 +78,10 @@ public class MySurveysServiceImpl implements MySurveysService {
             listSurveys.add(surveyDto);
 
         }
-        LOGGER.info("Get my questionings for id {} - nb results: {}", id, listSurveys.size());
+        log.info("Get my questionings for id {} - nb results: {}", id, listSurveys.size());
         return listSurveys;
     }
+
+
 
 }

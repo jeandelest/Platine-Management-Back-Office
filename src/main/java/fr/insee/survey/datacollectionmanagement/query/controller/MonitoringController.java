@@ -34,11 +34,6 @@ public class MonitoringController {
     @Autowired
     MonitoringService monitoringService;
 
-    /*
-     * @Autowired
-     * QuestioningEventService questioningEventService;
-     */
-
     @Autowired
     QuestioningService questioningService;
 

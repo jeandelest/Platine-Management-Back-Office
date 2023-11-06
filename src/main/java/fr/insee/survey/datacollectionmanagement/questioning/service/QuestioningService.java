@@ -32,4 +32,9 @@ public interface QuestioningService {
     public int deleteQuestioningsOfOnePartitioning(Partitioning partitioning);
 
     public Set<Questioning> findBySurveyUnitIdSu(String idSu);
+
+    public String getAccessUrl(Questioning questioning, String surveyUnitId);
+
+
+
 }
