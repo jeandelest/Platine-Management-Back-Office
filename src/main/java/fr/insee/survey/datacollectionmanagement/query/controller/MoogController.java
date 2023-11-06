@@ -36,6 +36,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.webjars.NotFoundException;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -44,9 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
 public class MoogController {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(MoogController.class);
-
+    
     @Autowired
     private MoogService moogService;
 
@@ -112,15 +111,30 @@ public class MoogController {
 
     @GetMapping(value = Constants.MOOG_API_CAMPAIGN_EXTRACTION, produces = "application/json")
     public JSONCollectionWrapper<MoogExtractionRowDto> provideDataForExtraction(@PathVariable String idCampaign) {
-        LOGGER.info("Request GET for extraction of campaign : {}", idCampaign);
+        log.info("Request GET for extraction of campaign : {}", idCampaign);
         return moogService.getExtraction(idCampaign);
     }
 
     @GetMapping(value = Constants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = "application/json")
     public JSONCollectionWrapper<MoogExtractionRowDto> displaySurveyUnitsToFollowUp(@PathVariable String idCampaign) {
-        LOGGER.info("Request GET for su to follow up - campaign {}", idCampaign);
+        log.info("Request GET for su to follow up - campaign {}", idCampaign);
         return new JSONCollectionWrapper<MoogExtractionRowDto>(moogService.getSurveyUnitsToFollowUp(idCampaign));
     }
 
+    @GetMapping(value = Constants.MOOG_API_READONLY_URL, produces = "application/json")
+    public ResponseEntity<String> getReadOnlyUrl(@PathVariable String idCampaign, @PathVariable String surveyUnitId){
+        log.info("Request READONLY url for su {} and campaign {}",surveyUnitId, idCampaign);
+        String url;
+        try {
+            url = moogService.getReadOnlyUrl(idCampaign, surveyUnitId);
+            return ResponseEntity.ok().body(url);
+        }
+       catch (NotFoundException e){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+       }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
 }

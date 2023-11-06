@@ -4,8 +4,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -21,10 +27,14 @@ import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import org.webjars.NotFoundException;
 
 @Service
+@Slf4j
 public class MoogServiceImpl implements MoogService {
 
+    public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
+    public static final String UNITE_ENQUETEE = "/unite-enquetee/";
     @Autowired
     private ViewService viewService;
 
@@ -36,6 +46,15 @@ public class MoogServiceImpl implements MoogService {
 
     @Autowired
     private MoogRepository moogRepository;
+
+    @Autowired
+    QuestioningService questioningService;
+
+    @Autowired
+    PartitioningService partitioningService;
+
+    @Autowired
+    ApplicationConfig applicationConfig;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -106,5 +125,30 @@ public class MoogServiceImpl implements MoogService {
     public Collection<MoogExtractionRowDto> getSurveyUnitsToFollowUp(String idCampaign) {
         return moogRepository.getSurveyUnitToFollowUp(idCampaign);
     }
+
+    @Override
+    public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException {
+        Optional<Campaign> campaign = campaignService.findById(idCampaign);
+        if (!campaign.isPresent()) {
+            throw new NotFoundException("Campaign not found");
+        }
+        Set<Partitioning> setParts = campaign.get().getPartitionings();
+        Questioning questioning = null;
+        for (Partitioning part : setParts){
+            Questioning qTemp = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+            if(qTemp!=null){
+                questioning =qTemp;
+                break;
+            }
+        }
+        if(questioning!=null) {
+            return applicationConfig.getQuestioningUrl() + READONLY_QUESTIONNAIRE + questioning.getModelName()
+                    + UNITE_ENQUETEE + surveyUnitId;
+        }
+        String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
+        log.error(msg);
+        throw new  NotFoundException(msg);
+    }
+
 
 }

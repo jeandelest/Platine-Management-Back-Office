@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,9 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Autowired
     private QuestioningAccreditationService questioningAccreditationService;
+
+    @Autowired
+    ApplicationConfig applicationConfig;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -78,6 +82,13 @@ public class QuestioningServiceImpl implements QuestioningService {
     public Set<Questioning> findBySurveyUnitIdSu(String idSu) {
         return questioningRepository.findBySurveyUnitIdSu(idSu);
     }
+
+    @Override
+    public String getAccessUrl(Questioning questioning, String surveyUnitId) {
+            return applicationConfig.getQuestioningUrl() + "/questionnaire/" + questioning.getModelName()
+                    + "/unite-enquetee/" + surveyUnitId;
+        }
+
 
     @Override
     public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,

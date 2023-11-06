@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import org.webjars.NotFoundException;
 
 @Service
 public interface MoogService {
@@ -23,4 +24,6 @@ public interface MoogService {
     JSONCollectionWrapper<MoogExtractionRowDto> getExtraction(String idCampaign);
 
     Collection<MoogExtractionRowDto> getSurveyUnitsToFollowUp(String idCampaign);
+
+    public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException;
 }
