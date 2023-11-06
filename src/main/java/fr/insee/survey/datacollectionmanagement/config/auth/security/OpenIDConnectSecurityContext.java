@@ -23,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled = true)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = "OIDC")
 @Slf4j
-public class OpenIDConnectSecurityContext  {
+public class OpenIDConnectSecurityContext {
 
     @Autowired
     ApplicationConfig config;
@@ -34,10 +34,13 @@ public class OpenIDConnectSecurityContext  {
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.sessionManagement().disable();
-
         http.cors(withDefaults())
                 .csrf().disable()
-                .authorizeRequests()
+                .headers()
+                .xssProtection().disable()
+                .frameOptions().sameOrigin().httpStrictTransportSecurity().disable()
+                .contentSecurityPolicy("default-src 'none'");
+        http.authorizeRequests()
                 .antMatchers("/csrf", "/", "/webjars/**", "/swagger-resources/**").permitAll()
                 .antMatchers("/environnement").permitAll()//PublicResources
                 .antMatchers(Constants.API_HEALTHCHECK).permitAll()
@@ -57,10 +60,11 @@ public class OpenIDConnectSecurityContext  {
     @Bean
     public UserProvider getUserProvider() {
         return auth -> {
-            if ("anonymousUser".equals(auth.getPrincipal())) return null; //init request, or request without authentication
+            if ("anonymousUser".equals(auth.getPrincipal()))
+                return null; //init request, or request without authentication
             final Jwt jwt = (Jwt) auth.getPrincipal();
             List<String> tryRoles = jwt.getClaimAsStringList(config.getRoleClaim());
-            String tryId=jwt.getClaimAsString(config.getIdClaim());
+            String tryId = jwt.getClaimAsString(config.getIdClaim());
             return new User(tryId, tryRoles);
         };
     }

@@ -31,7 +31,11 @@ public class DefaultSecurityContext {
         http.sessionManagement().disable();
         http.cors(withDefaults())
                 .csrf().disable()
-                .authorizeRequests()
+                .headers()
+                .xssProtection().disable()
+                .frameOptions().sameOrigin().httpStrictTransportSecurity().disable()
+                .contentSecurityPolicy("default-src 'none'");
+        http.authorizeRequests()
                 .antMatchers("/csrf", "/", "/webjars/**", "/swagger-resources/**").permitAll()
                 .antMatchers("/environnement").permitAll()// PublicResources
                 .antMatchers(Constants.API_HEALTHCHECK).permitAll()
