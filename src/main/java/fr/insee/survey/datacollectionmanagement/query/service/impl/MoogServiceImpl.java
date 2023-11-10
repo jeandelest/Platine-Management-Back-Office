@@ -1,33 +1,29 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import org.webjars.NotFoundException;
+import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 @Slf4j
@@ -147,7 +143,7 @@ public class MoogServiceImpl implements MoogService {
         }
         String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
         log.error(msg);
-        throw new  NotFoundException(msg);
+        throw new NotFoundException(msg);
     }
 
 

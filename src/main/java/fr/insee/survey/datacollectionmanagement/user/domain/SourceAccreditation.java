@@ -2,15 +2,16 @@ package fr.insee.survey.datacollectionmanagement.user.domain;
 
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+
 import java.util.Date;
 
 @Entity

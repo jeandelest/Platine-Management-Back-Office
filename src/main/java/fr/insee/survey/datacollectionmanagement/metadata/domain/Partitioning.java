@@ -2,12 +2,8 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity

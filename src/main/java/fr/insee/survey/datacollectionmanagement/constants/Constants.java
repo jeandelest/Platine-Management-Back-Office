@@ -99,5 +99,6 @@ public class Constants {
     public static final String REVIEWER = "reviewer";
 
     public static final String API_HEALTHCHECK = "/api/healthcheck";
+    public static final String ACTUATOR = "/actuator/**";
 
 }

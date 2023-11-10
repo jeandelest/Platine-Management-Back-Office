@@ -1,22 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
-import java.util.Date;
-
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.Date;
 
 @Entity
 @Data
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class QuestioningEvent {
 
     @Id
@@ -35,7 +30,7 @@ public class QuestioningEvent {
     @JsonManagedReference
     private Upload upload;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private JsonNode payload;
 

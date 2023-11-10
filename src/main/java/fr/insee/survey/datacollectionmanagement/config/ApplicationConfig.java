@@ -1,13 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-import java.util.List;
-import java.util.Optional;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @Getter
@@ -17,9 +16,9 @@ public class ApplicationConfig {
     //AUTHENTICATION
     @Value("${jwt.role-claim}")
     private String roleClaim;
+
     @Value("${jwt.id-claim}")
     private String idClaim;
-
 
     @Value("#{'${fr.insee.datacollectionmanagement.roles.admin.role}'.split(',')}")
     private List<String> roleAdmin;
@@ -41,9 +40,13 @@ public class ApplicationConfig {
 
     @Value("${fr.insee.datacollectionmanagement.auth.realm}")
     private String keycloakRealm;
+
     @Value("${fr.insee.datacollectionmanagement.auth.server-url}")
     private String keyCloakUrl;
     
     @Value("${fr.insee.datacollectionmanagement.api.questioning.url}")
     private String questioningUrl;
+
+    @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'.split(',')}")
+    List<String> publicUrls;
 }

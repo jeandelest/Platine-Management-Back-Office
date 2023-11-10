@@ -1,57 +1,74 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.User;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.User;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = false, prePostEnabled = true)
+@EnableMethodSecurity
 @ConditionalOnMissingBean(OpenIDConnectSecurityContext.class)
+@AllArgsConstructor
 public class DefaultSecurityContext {
+
+    private final PublicSecurityFilterChain publicSecurityFilterChainConfiguration;
 
     @Autowired
     ApplicationConfig config;
-
+    /**
+     * Configure spring security filter chain when no authentication
+     * @param http Http Security Object
+     * @return the spring security filter
+     * @throws Exception
+     */
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.sessionManagement().disable();
-        http.cors(withDefaults())
-                .csrf().disable()
-                .headers()
-                .xssProtection().disable()
-                .frameOptions().sameOrigin().httpStrictTransportSecurity().disable()
-                .contentSecurityPolicy("default-src 'none'");
-        http.authorizeRequests()
-                .antMatchers("/csrf", "/", "/webjars/**", "/swagger-resources/**").permitAll()
-                .antMatchers("/environnement").permitAll()// PublicResources
-                .antMatchers(Constants.API_HEALTHCHECK).permitAll()
-                .antMatchers("/actuator/**").permitAll()
-                .antMatchers("/swagger-ui/*").permitAll()
-                .antMatchers("/v3/api-docs/swagger-config", "/v3/api-docs").permitAll()
-                .antMatchers("/openapi.json").permitAll()
-                .antMatchers(HttpMethod.OPTIONS).permitAll()
-                .anyRequest().permitAll();
-
-        return http.build();
+    @Order(2)
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/**")
+                .csrf(csrfConfig -> csrfConfig.disable())
+                .cors(Customizer.withDefaults())
+                .headers(headers -> headers
+                        .xssProtection(xssConfig -> xssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED))
+                        .contentSecurityPolicy(cspConfig -> cspConfig
+                                .policyDirectives("default-src 'none'")
+                        )
+                        .referrerPolicy(referrerPolicy ->
+                                referrerPolicy
+                                        .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
+                        ))
+                .anonymous(anonymousConfig -> anonymousConfig
+                        .authorities("ROLE_ADMIN"))
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .build();
     }
-
+    @Bean
+    @Order(1)
+    SecurityFilterChain filterPublicUrlsChain(HttpSecurity http) throws Exception {
+        System.out.println(publicUrls());
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, publicUrls());
+    }
     @Bean
     public UserProvider getUserProvider() {
         return auth -> new User();
+    }
+
+    private String[] publicUrls(){
+        return (String[]) config.getPublicUrls().toArray();
+
     }
 
 }

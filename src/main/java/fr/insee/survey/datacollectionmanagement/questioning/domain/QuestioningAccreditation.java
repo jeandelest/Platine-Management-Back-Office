@@ -1,18 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
-import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import java.util.Date;
 
 @Entity
 @Data

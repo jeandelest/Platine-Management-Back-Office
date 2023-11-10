@@ -2,9 +2,9 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.Set;
 
 @Entity
