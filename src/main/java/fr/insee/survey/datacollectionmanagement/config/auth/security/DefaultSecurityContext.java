@@ -67,8 +67,14 @@ public class DefaultSecurityContext {
     }
 
     private String[] publicUrls(){
-        return (String[]) config.getPublicUrls().toArray();
+        String[] str = new String[config.getPublicUrls().size()];
+        for (int i = 0; i < config.getPublicUrls().size(); i++) {
+            str[i] = config.getPublicUrls().get(i);
+        }
+        return str;
 
     }
+
+
 
 }
