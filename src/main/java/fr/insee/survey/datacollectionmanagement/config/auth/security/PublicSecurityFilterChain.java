@@ -17,13 +17,13 @@ public class PublicSecurityFilterChain {
 
     @Autowired
     ApplicationConfig config;
-    SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http, String[] publicUrls) throws Exception {
-        return buildSecurityPublicFilterChain(http, publicUrls, "");
+    SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http) throws Exception {
+        return buildSecurityPublicFilterChain(http, "");
     }
 
-    SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http, String[] publicUrls, String authorizedConnectionHost) throws Exception {
+    SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http, String authorizedConnectionHost) throws Exception {
         return http
-                .securityMatcher(publicUrls)
+                .securityMatcher(publicUrls())
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .headers(headers -> headers
@@ -41,11 +41,20 @@ public class PublicSecurityFilterChain {
                         ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(publicUrls).permitAll()
+                        .requestMatchers(publicUrls()).permitAll()
                         .anyRequest()
                         .authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
+    }
+
+    private String[] publicUrls(){
+        String[] str = new String[config.getPublicUrls().size()];
+        for (int i = 0; i < config.getPublicUrls().size(); i++) {
+            str[i] = config.getPublicUrls().get(i);
+        }
+        return str;
+
     }
 }
