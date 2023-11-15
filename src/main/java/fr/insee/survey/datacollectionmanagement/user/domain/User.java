@@ -20,6 +20,7 @@ public class User {
     @Id
     private String identifier;
 
+    @Enumerated(EnumType.STRING)
     private UserRoleType role;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

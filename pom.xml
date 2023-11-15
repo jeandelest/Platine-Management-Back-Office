@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.insee.survey</groupId>
 	<artifactId>platine-management</artifactId>
-	<version>1.0.29-rc</version>
+	<version>1.1.0-rc</version>
 	<name>platine-management</name>
 	<description>REST API for communication between DB and Platine-Management UI and Platine-My-Surveys UI</description>
 	<properties>
@@ -17,7 +17,6 @@
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<jeasy-version>5.0.0</jeasy-version>
 		<javafaker-version>1.0.2</javafaker-version>
-		<testcontainers-version>1.15.3</testcontainers-version>
 		<orgjson-version>20231013</orgjson-version>
 	</properties>
 	<dependencies>
@@ -105,12 +104,6 @@
 
 		<!--Tests-->
 		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>${testcontainers-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
@@ -119,6 +112,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+			<exclusion>
+				<groupId>com.vaadin.external.google</groupId>
+				<artifactId>android-json</artifactId>
+			</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>

@@ -27,7 +27,7 @@ public class QuestioningAccreditation {
     @NonNull
     private String idContact;
 
-    @OneToOne
+    @ManyToOne
     @EqualsAndHashCode.Exclude
     private Questioning questioning;
 

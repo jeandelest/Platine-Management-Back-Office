@@ -17,15 +17,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,15 +50,7 @@ class CampaignControllerTest {
     @Autowired
     private CampaignRepository campaignRepository;
 
-    @Test
-    void getCampaignOk() throws Exception {
-        String identifier = "SOURCE12023T01";
-        Optional<Campaign> campaign = campaignService.findById(identifier);
-        assertTrue(campaign.isPresent());
-        String json = createJson(campaign.get(), "SOURCE12023");
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
-    }
+
 
     @Test
     void getCampaignNotFound() throws Exception {
@@ -80,7 +74,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoing() throws Exception {
         String identifier = "OPENED";
         Campaign campaign = initOpenedCampaign(identifier);
@@ -94,7 +87,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingClose() throws Exception {
         String identifier = "CLOSED";
         Campaign campaign = initClosedCampaign(identifier);
@@ -108,7 +100,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingFutureCampaignFalse() throws Exception {
         String identifier = "FUTURE";
         Campaign campaign = initFutureCampaign(identifier);
@@ -123,7 +114,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingEmptyCampaignFalse() throws Exception {
         String identifier = "EMPTY";
         Campaign campaign = initEmptyCampaign(identifier);
@@ -231,6 +221,18 @@ class CampaignControllerTest {
         jo.put("campaignWording", campaign.getCampaignWording());
         jo.put("period", campaign.getPeriod().toString());
         return jo.toString();
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getCampaignOk() throws Exception {
+        String identifier = "SOURCE12023T01";
+        Optional<Campaign> campaign = campaignService.findById(identifier);
+        assertTrue(campaign.isPresent());
+        String json = createJson(campaign.get(), "SOURCE12023");
+        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(json, false));
     }
 
 }

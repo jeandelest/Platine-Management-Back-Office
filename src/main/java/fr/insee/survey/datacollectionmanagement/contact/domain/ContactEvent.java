@@ -22,6 +22,7 @@ public class ContactEvent {
     private Long id;
     private Date eventDate;
     @NonNull
+    @Enumerated(EnumType.STRING)
     private ContactEventType type;
 
     @ManyToOne

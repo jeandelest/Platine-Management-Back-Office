@@ -1,15 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,19 +13,22 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class QuestionningAccreditationControllerTest {
 
     @Autowired
@@ -42,7 +39,8 @@ public class QuestionningAccreditationControllerTest {
 
     @Test
     public void getQuestioningAccreditationOk() throws Exception {
-        String identifier = "83";
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
+        Long identifier = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJsonQuestioningAcreditation(identifier);
         this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
@@ -58,7 +56,7 @@ public class QuestionningAccreditationControllerTest {
 
     @Test
     public void postAccreditationQuestioningNotFound() throws Exception {
-        int idQuestioning = 1000;
+        int idQuestioning = 10000;
         String idContact = "CONT1";
 
         // create contact - status created
@@ -72,7 +70,8 @@ public class QuestionningAccreditationControllerTest {
 
     @Test
     public void postAccreditationContactNotFound() throws Exception {
-        int idQuestioning = 12;
+        Questioning q = questioningService.findByIdPartitioning("SOURCE12023T1000").stream().findFirst().get();
+        Long idQuestioning = q.getId();
         String idContact = "CONT7500";
 
         // create contact - status created
@@ -86,7 +85,8 @@ public class QuestionningAccreditationControllerTest {
 
     @Test
     public void postAccreditationCreateUpdate() throws Exception {
-        int idQuestioning = 11;
+        Questioning q = questioningService.findByIdPartitioning("SOURCE12023T1000").stream().findFirst().get();
+        Long idQuestioning = q.getId();
         String idContact = "CONT5";
 
         // create accreditation - status created
@@ -137,7 +137,7 @@ public class QuestionningAccreditationControllerTest {
         return jo.toString();
     }
 
-    private String createJsonQuestioningAcreditation(String identifier) throws JSONException {
+    private String createJsonQuestioningAcreditation(Long identifier) throws JSONException {
         JSONObject jo1 = new JSONObject();
         jo1.put("idContact", "CONT1");
 

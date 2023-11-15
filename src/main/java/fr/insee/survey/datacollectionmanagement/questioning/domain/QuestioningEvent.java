@@ -22,7 +22,7 @@ public class QuestioningEvent {
     @Enumerated(EnumType.STRING)
     private TypeQuestioningEvent type;
 
-    @OneToOne
+    @ManyToOne
     private Questioning questioning;
 
     @ManyToOne(fetch = FetchType.EAGER)

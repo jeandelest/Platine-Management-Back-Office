@@ -32,7 +32,7 @@ public class Questioning {
     @ToString.Exclude
     private Set<QuestioningEvent> questioningEvents;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @NonNull

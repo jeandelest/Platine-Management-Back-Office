@@ -1,35 +1,27 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Optional;
-
+import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.MethodMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -45,16 +37,7 @@ public class SurveyControllerTest {
     @Autowired
     private SurveyRepository surveyRepository;
 
-    @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
-    @Test
-    public void getSurveyOk() throws Exception {
-        String identifier = "SOURCE12022";
-        Optional<Survey> survey = surveyService.findById(identifier);
-        assertTrue(survey.isPresent());
-        String json = createJson(survey.get(), "SOURCE1");
-        this.mockMvc.perform(get(Constants.API_SURVEYS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
-    }
+
 
     @Test
     public void getSurveyNotFound() throws Exception {
@@ -65,7 +48,6 @@ public class SurveyControllerTest {
     }
 
 
-    @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
     @Test
     public void putSurveyCreateUpdateDelete() throws Exception {
         String identifier = "SURVEYPUT";
@@ -139,4 +121,13 @@ public class SurveyControllerTest {
         return jo.toString();
     }
 
+    @Test
+    public void getSurveyOk() throws Exception {
+        String identifier = "SOURCE12022";
+        Optional<Survey> survey = surveyService.findById(identifier);
+        assertTrue(survey.isPresent());
+        String json = createJson(survey.get(), "SOURCE1");
+        this.mockMvc.perform(get(Constants.API_SURVEYS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(json, false));
+    }
 }

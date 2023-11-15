@@ -1,10 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import java.util.Date;
-
-
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.Date;
 
 @Entity
 @Data
@@ -20,7 +19,7 @@ public class Partitioning {
     private Date closingDate;
     private Date returnDate;
 
-    @OneToOne
+    @ManyToOne
     private Campaign campaign;
 
 }

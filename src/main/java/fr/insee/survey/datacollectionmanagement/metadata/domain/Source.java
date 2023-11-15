@@ -32,11 +32,11 @@ public class Source {
     @ToString.Exclude
     private Set<SourceAccreditation> sourceAccreditations;
 
-    @OneToOne
+    @ManyToOne
     @NonNull
     private Owner owner;
 
-    @OneToOne
+    @ManyToOne
     @NonNull
     private Support support;
 

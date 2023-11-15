@@ -1,14 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import java.util.Set;
-
-
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Data
@@ -45,7 +40,7 @@ public class Survey {
     @ToString.Exclude
     private Set<Campaign> campaigns;
 
-    @OneToOne
+    @ManyToOne
     private Source source;
 
 }

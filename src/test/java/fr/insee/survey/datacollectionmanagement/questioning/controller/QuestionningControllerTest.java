@@ -1,10 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,24 +11,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class QuestionningControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    QuestioningService questioningService;
+
     @Test
     public void getQuestioningOk() throws Exception {
-        int id = 11;
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
+        Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJson(id).toString();
         this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID, id)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
@@ -54,7 +57,7 @@ public class QuestionningControllerTest {
 
     }
 
-    private JSONObject createJson(int id) throws JSONException {
+    private JSONObject createJson(Long id) throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("id", id);
         return jo;

@@ -1,16 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import java.util.Set;
-
-
-
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.Set;
 
 @Entity
 @Data
@@ -40,7 +34,7 @@ public class Campaign {
     @ToString.Exclude
     private Set<Partitioning> partitionings;
 
-    @OneToOne
+    @ManyToOne
     private Survey survey;
 
 }
