@@ -58,22 +58,13 @@ public class DefaultSecurityContext {
     @Bean
     @Order(1)
     SecurityFilterChain filterPublicUrlsChain(HttpSecurity http) throws Exception {
-        System.out.println(publicUrls());
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, publicUrls());
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http);
     }
     @Bean
     public UserProvider getUserProvider() {
         return auth -> new User();
     }
 
-    private String[] publicUrls(){
-        String[] str = new String[config.getPublicUrls().size()];
-        for (int i = 0; i < config.getPublicUrls().size(); i++) {
-            str[i] = config.getPublicUrls().get(i);
-        }
-        return str;
-
-    }
 
 
 
