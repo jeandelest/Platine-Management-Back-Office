@@ -80,8 +80,7 @@ public class OpenIDConnectSecurityContext {
         String tokenUrl = config.getKeyCloakUrl() + "/realms/" + config.getKeycloakRealm() + "/protocol/openid-connect/token";
         String authorizedConnectionHost = config.getAuthType().equals("OIDC") ?
                 " " + tokenUrl : "";
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, authorizedConnectionHost);
-    }
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, publicUrls(), authorizedConnectionHost);    }
 
     @Bean
     public UserProvider getUserProvider() {
@@ -106,5 +105,11 @@ public class OpenIDConnectSecurityContext {
     Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
         return new GrantedAuthorityConverter(applicationConfig);
     }
+
+    private String[] publicUrls() {
+        return new String[]{"/csrf", "/", "/webjars/**", "/swagger-resources/**", "/environnement", Constants.API_HEALTHCHECK, "/actuator/**",
+                "/swagger-ui/*", "/swagger-ui/html", "/v3/api-docs/swagger-config", "/v3/api-docs", "/openapi.json"};
+    }
+
 
 }
