@@ -25,7 +25,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -54,7 +53,7 @@ public class SurveyUnitController {
             @RequestParam(defaultValue = "idSu") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<SurveyUnit> pageC = surveyUnitService.findAll(pageable);
-        List<SurveyUnitDto> listSuDto = pageC.stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+        List<SurveyUnitDto> listSuDto = pageC.stream().map(this::convertToDto).toList();
         return new SurveyUnitPage(listSuDto, pageable, pageC.getTotalElements());
     }
 

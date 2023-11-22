@@ -68,7 +68,7 @@ public class UserController {
             @RequestParam(defaultValue = "identifier") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<User> pageC = userService.findAll(pageable);
-        List<UserDto> listC = pageC.stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+        List<UserDto> listC = pageC.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new UserController.UserPage(listC, pageable, pageC.getTotalElements()));
     }
 

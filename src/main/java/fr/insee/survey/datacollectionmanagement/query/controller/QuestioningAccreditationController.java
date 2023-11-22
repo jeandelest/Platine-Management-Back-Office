@@ -31,7 +31,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -72,8 +71,8 @@ public class QuestioningAccreditationController {
             Optional<Questioning> optQuestioning = questioningService.findbyId(id);
             if (optQuestioning.isPresent())
                 return new ResponseEntity<>(
-                        optQuestioning.get().getQuestioningAccreditations().stream().map(c -> convertToDto(c))
-                                .collect(Collectors.toList()),
+                        optQuestioning.get().getQuestioningAccreditations().stream().map(this::convertToDto)
+                                .toList(),
                         HttpStatus.OK);
             else
                 return new ResponseEntity<>("Questioning does not exist", HttpStatus.NOT_FOUND);
@@ -101,7 +100,7 @@ public class QuestioningAccreditationController {
         // Check if questioning exists
         try {
             optQuestioning = questioningService.findbyId(id);
-            if (!optQuestioning.isPresent())
+            if (optQuestioning.isEmpty())
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
@@ -109,7 +108,7 @@ public class QuestioningAccreditationController {
         Questioning questioning = optQuestioning.get();
 
         // Check if contact exists
-        if (!contactService.findByIdentifier(idContact).isPresent())
+        if (contactService.findByIdentifier(idContact).isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
 
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -123,7 +122,7 @@ public class QuestioningAccreditationController {
                 .filter(acc -> acc.getIdContact().equals(idContact)
                         && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
                         && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
-                .collect(Collectors.toList());
+                .toList();
 
         if (listContactAccreditations.isEmpty()) {
             // Create new accreditation

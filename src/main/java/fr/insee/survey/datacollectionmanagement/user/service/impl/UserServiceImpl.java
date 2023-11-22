@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -82,8 +81,8 @@ public class UserServiceImpl implements UserService {
 
         List<String> accreditedSources = new ArrayList<>();
         List<SourceAccreditation> accreditations = sourceAccreditationService.findByUserIdentifier(identifier);
-        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).collect(Collectors.toList());
-        accSource.stream().forEach(acc -> accreditedSources.add(acc.getId()));
+        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).toList();
+        accSource.forEach(acc -> accreditedSources.add(acc.getId()));
 
         return accreditedSources;
     }

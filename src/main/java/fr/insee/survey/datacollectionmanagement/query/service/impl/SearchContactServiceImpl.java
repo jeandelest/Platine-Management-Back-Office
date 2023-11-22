@@ -1,14 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -20,6 +11,13 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @EqualsAndHashCode
@@ -68,7 +66,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                 alwaysEmpty = false;
             } else if (!alwaysEmpty) {
                 listView = listView.stream().filter(v -> viewService.findViewByIdSu(idSu).contains(v))
-                        .collect(Collectors.toList());
+                        .toList();
             }
         }
 
@@ -89,7 +87,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                     listViewC
                             .addAll(listView.stream()
                                     .filter(v -> viewService.findViewByCampaignId(c.getId()).contains(v))
-                                    .collect(Collectors.toList()));
+                                    .toList());
                 }
                 listView = listViewC;
             }
@@ -109,7 +107,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                     listViewC
                             .addAll(listView.stream()
                                     .filter(v -> viewService.findViewByCampaignId(c.getId()).contains(v))
-                                    .collect(Collectors.toList()));
+                                    .toList());
                 }
                 listView = listViewC;
             }
@@ -127,7 +125,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                 listView = listView.stream()
                         .filter(v -> lastName
                                 .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getLastName()))
-                        .collect(Collectors.toList());
+                        .toList();
         }
 
         if (!StringUtils.isEmpty(firstName)) {
@@ -142,7 +140,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                 listView = listView.stream()
                         .filter(v -> firstName
                                 .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getFirstName()))
-                        .collect(Collectors.toList());
+                        .toList();
         }
 
         if (!StringUtils.isEmpty(email)) {
@@ -156,7 +154,7 @@ public class SearchContactServiceImpl implements SearchContactService {
 
                 listView = listView.stream().filter(
                         v -> email.equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getEmail()))
-                        .collect(Collectors.toList());
+                        .toList();
         }
 
         if (!StringUtils.isEmpty(identificationCode)) {
@@ -171,7 +169,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                 for (SurveyUnit s : listSurveyUnits) {
                     listView = listView.stream()
                             .filter(v -> identificationCode.equalsIgnoreCase(s.getIdentificationCode()))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
 
             }
@@ -189,7 +187,7 @@ public class SearchContactServiceImpl implements SearchContactService {
                 for (SurveyUnit s : listSurveyUnits) {
                     listView = listView.stream()
                             .filter(v -> identificationName.equalsIgnoreCase(s.getIdentificationName()))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
 
             }

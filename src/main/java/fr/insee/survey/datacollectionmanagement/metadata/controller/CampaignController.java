@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
@@ -20,7 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -66,7 +66,7 @@ public class CampaignController {
 
     @Autowired
     UploadService uploadService;
-    
+
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = Constants.API_CAMPAIGNS, produces = "application/json")
     @ApiResponses(value = {
@@ -168,10 +168,16 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Transactional
-    public ResponseEntity<?> deleteCampaign(@PathVariable("id") String id) {
-        if(campaignService.isCampaignOngoing(id)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
+    public ResponseEntity<?> deleteCampaign(@PathVariable("id") String id) throws fr.insee.survey.datacollectionmanagement.exception.NotFoundException {
+
+        try {
+            if (campaignService.isCampaignOngoing(id)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
+            }
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Campaign does not exist");
         }
+
         try {
             Optional<Campaign> campaign = campaignService.findById(id);
             if (!campaign.isPresent()) {
@@ -191,7 +197,7 @@ public class CampaignController {
             for (Partitioning partitioning : listPartitionings) {
                 nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
             }
-            uploadsCamp.forEach(up->uploadService.delete(up));
+            uploadsCamp.forEach(up -> uploadService.delete(up));
             log.info("Campaign {} deleted with all its metadata children - {} questioning deleted - {} view deleted - {} uploads deleted",
                     id,
                     nbQuestioningDeleted, nbViewDeleted, uploadsCamp.size());

@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,7 +62,7 @@ public class UploadServiceImpl implements UploadService {
                 QuestioningEvent qe = new QuestioningEvent();
 
                 Optional<Campaign> campaign = campaignService.findById(idCampaign);
-                if (!campaign.isPresent()) {
+                if (campaign.isEmpty()) {
                     throw new RessourceNotValidatedException("Campaign", idCampaign);
                 }
                 Set<Partitioning> setParts = campaign.get().getPartitionings();
@@ -75,7 +74,7 @@ public class UploadServiceImpl implements UploadService {
 
                 List<String> listIdParts = campaignService.findById(idCampaign).get().getPartitionings().stream().map(Partitioning::getId).toList();
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning()) && q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact)
-                        .collect(Collectors.toList()).contains(mmDto.getIdContact())).findFirst();
+                        .toList().contains(mmDto.getIdContact())).findFirst();
 
                 qe.setUpload(up);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
@@ -97,7 +96,7 @@ public class UploadServiceImpl implements UploadService {
                 result.addIdKo(identifier, "RessourceNotFound or unprocessable request");
             }
         }
-        if (result.getListIdOK().size() == 0) {
+        if (result.getListIdOK().isEmpty()) {
             delete(up);
             return result;
         }
@@ -117,13 +116,13 @@ public class UploadServiceImpl implements UploadService {
 
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
 
-        List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).collect(Collectors.toList());
+        List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).toList();
 
         // Keeps the uploads which first managementMonitoringInfo belongs to the survey
         return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
                 .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -142,10 +141,10 @@ public class UploadServiceImpl implements UploadService {
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
         Long timestamp = date.getTime();
         Long start = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
-                .collect(Collectors.toList()).stream()
+                .toList().stream()
                 .min(Comparator.comparing(Date::getTime)).get().getTime();
         Long end = campaign.get().getPartitionings().stream().map(Partitioning::getClosingDate)
-                .collect(Collectors.toList()).stream()
+                .toList().stream()
                 .max(Comparator.comparing(Date::getTime)).get().getTime();
         return (start < timestamp && timestamp < end);
     }

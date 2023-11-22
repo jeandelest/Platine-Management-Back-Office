@@ -1,22 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
@@ -24,6 +8,13 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 public class ContactServiceImpl implements ContactService {
@@ -90,7 +81,7 @@ public class ContactServiceImpl implements ContactService {
                 alwaysEmpty = false;
             } else
                 listContactContact = listContactContact.stream().filter(c -> c.getLastName().equalsIgnoreCase(lastName))
-                        .collect(Collectors.toList());
+                        .toList();
 
         }
 
@@ -100,7 +91,7 @@ public class ContactServiceImpl implements ContactService {
                 alwaysEmpty = false;
             } else
                 listContactContact = listContactContact.stream()
-                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)).collect(Collectors.toList());
+                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)) .toList();
         }
 
         if (!StringUtils.isEmpty(email)) {
@@ -109,7 +100,7 @@ public class ContactServiceImpl implements ContactService {
                 alwaysEmpty = false;
             } else
                 listContactContact = listContactContact.stream().filter(c -> c.getEmail().equalsIgnoreCase(email))
-                        .collect(Collectors.toList());
+                        .toList();
         }
 
         return listContactContact;

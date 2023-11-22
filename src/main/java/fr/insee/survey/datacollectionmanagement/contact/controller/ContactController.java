@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -75,7 +74,7 @@ public class ContactController {
             @RequestParam(defaultValue = "identifier") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Contact> pageC = contactService.findAll(pageable);
-        List<ContactDto> listC = pageC.stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+        List<ContactDto> listC = pageC.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new ContactPage(listC, pageable, pageC.getTotalElements()));
     }
 
@@ -187,7 +186,7 @@ public class ContactController {
         ContactFirstLoginDto contactFirstLoginDto = modelMapper.map(contact, ContactFirstLoginDto.class);
         contactFirstLoginDto.setCivility(contact.getGender());
         contactFirstLoginDto.setFirstConnect(contact.getContactEvents().stream()
-                .filter(e -> e.getType().equals(ContactEventType.firstConnect)).collect(Collectors.toList()).isEmpty());
+                .filter(e -> e.getType().equals(ContactEventType.firstConnect)).count() == 0);
         return contactFirstLoginDto;
     }
 
@@ -195,7 +194,7 @@ public class ContactController {
         Contact contact = modelMapper.map(contactDto, Contact.class);
         contact.setGender(contactDto.getCivility());
         Optional<Contact> oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
-        if (!oldContact.isPresent()) {
+        if (oldContact.isEmpty()) {
             throw new NoSuchElementException();
         }
         contact.setComment(oldContact.get().getComment());

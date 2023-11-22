@@ -60,8 +60,8 @@ public class UserEventController {
             Optional<User> optUser = userService.findByIdentifier(identifier);
             if (optUser.isPresent()) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(optUser.get().getUserEvents().stream().map(ce -> convertToDto(ce))
-                                .collect(Collectors.toList()));
+                        .body(optUser.get().getUserEvents().stream().map(this::convertToDto)
+                                .toList());
 
             } else
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -57,11 +56,11 @@ public class MonitoringController {
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgressTemp(@PathVariable String idCampaign) {
         log.info("Request GET for monitoring moog progress table for campaign : {}", idCampaign);
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        if (!campaign.isPresent()) {
+        if (campaign.isEmpty()) {
             throw new NoSuchElementException("campaign does not exist");
         }
         log.info("{} partitionings found", campaign.get().getPartitionings().stream().map(Partitioning::getId)
-                .collect(Collectors.toList()).size());
+                .toList().size());
         campaign.get().getPartitionings().forEach(part -> log.info("{} partitionig found", part.getId()));
 
         return null;

@@ -68,7 +68,7 @@ public class QuestioningEventController {
                 Set<QuestioningEvent> setQe = questioning.get().getQuestioningEvents();
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(setQe.stream()
-                                .map(q -> convertToDto(q)).collect(Collectors.toList()));
+                                .map(this::convertToDto).toList());
             } else
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("questioning not found");
         } catch (Exception e) {

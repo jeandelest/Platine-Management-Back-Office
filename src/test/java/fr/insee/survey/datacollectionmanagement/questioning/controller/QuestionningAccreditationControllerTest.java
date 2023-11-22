@@ -116,7 +116,7 @@ public class QuestionningAccreditationControllerTest {
 
         QuestioningAccreditation accreditationFoundAfterUpdate = questioningService.findbyId((long) idQuestioning).get()
                 .getQuestioningAccreditations().stream().filter(acc -> acc.getIdContact().equals(idContact))
-                .collect(Collectors.toList()).get(0);
+                .toList().get(0);
         assertEquals(true, accreditationFoundAfterUpdate.isMain());
 
     }

@@ -61,8 +61,8 @@ public class ContactEventController {
             Optional<Contact> optContact = contactService.findByIdentifier(identifier);
             if (optContact.isPresent()) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(optContact.get().getContactEvents().stream().map(ce -> convertToDto(ce))
-                                .collect(Collectors.toList()));
+                        .body(optContact.get().getContactEvents().stream().map(this::convertToDto)
+                                .toList());
 
             } else
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
