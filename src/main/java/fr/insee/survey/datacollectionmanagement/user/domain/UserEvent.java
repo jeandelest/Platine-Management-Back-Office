@@ -23,7 +23,7 @@ public class UserEvent {
 
     private Date eventDate;
     @NonNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private UserEventType type;
 
     @ManyToOne

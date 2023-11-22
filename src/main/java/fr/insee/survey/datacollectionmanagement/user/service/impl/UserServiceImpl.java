@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByIdentifier(String identifier) {
-        return userRepository.findById(identifier);
+        return userRepository.findByIdentifierIgnoreCase(identifier);
     }
 
     @Override

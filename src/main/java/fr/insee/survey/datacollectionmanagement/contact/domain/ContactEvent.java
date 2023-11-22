@@ -22,7 +22,7 @@ public class ContactEvent {
     private Long id;
     private Date eventDate;
     @NonNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private ContactEventType type;
 
     @ManyToOne

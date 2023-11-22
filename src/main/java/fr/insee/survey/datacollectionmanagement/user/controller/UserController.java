@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
 import fr.insee.survey.datacollectionmanagement.user.exception.RoleException;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
@@ -15,24 +16,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,20 +42,17 @@ import java.util.stream.Stream;
         " || @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
+@Validated
+@RequiredArgsConstructor
 public class UserController {
     
+    private final UserService userService;
 
-    @Autowired
-    UserService userService;
+    private final SourceService sourceService;
 
-    @Autowired
-    SourceService sourceService;
+    private final SourceAccreditationService sourceAccreditationService;
 
-    @Autowired
-    SourceAccreditationService sourceAccreditationService;
-
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for users, paginated")
     @GetMapping(value = Constants.API_USERS_ALL, produces = "application/json")
@@ -80,7 +77,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> getUser(@PathVariable("id") String id) {
-        Optional<User> user = userService.findByIdentifier(StringUtils.upperCase(id));
+        Optional<User> user = userService.findByIdentifier(id);
         try {
             if (user.isPresent())
                 return ResponseEntity.ok().body(convertToDto(user.get()));
@@ -99,7 +96,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putUser(@PathVariable("id") String id, @RequestBody UserDto userDto) {
+    public ResponseEntity<?> putUser(@PathVariable("id") String id, @Valid @RequestBody UserDto userDto) {
         if (StringUtils.isBlank(userDto.getIdentifier()) || !userDto.getIdentifier().equalsIgnoreCase(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and user identifier don't match");
         }
@@ -113,14 +110,12 @@ public class UserController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse user");
 
-        }
-        catch (RoleException e){
+        } catch (RoleException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Role not recognized: only [" + Stream.of(User.UserRoleType.values())
                             .map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
 
-        }
-        catch (NoSuchElementException e) {
+        } catch (NoSuchElementException e) {
             log.info("Creating user with the identifier {}", userDto.getIdentifier());
             user = convertToEntityNewContact(userDto);
 
@@ -174,17 +169,15 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getUserSources(@PathVariable("id") String id){
+    public ResponseEntity<?> getUserSources(@PathVariable("id") String id) {
         Optional<User> user = userService.findByIdentifier(id);
         if (user.isPresent()) {
-           List<String> accreditedSources= userService.findAccreditedSources(id);
-           return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
-        }
-        else {
+            List<String> accreditedSources = userService.findAccreditedSources(id);
+            return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
         }
     }
-
 
 
     private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException, RoleException {
@@ -194,7 +187,7 @@ public class UserController {
         if (!oldUser.isPresent()) {
             throw new NoSuchElementException();
         }
-        if(user.getRole()==null){
+        if (user.getRole() == null || Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> userDto.getRole().equals(v))) {
             throw new RoleException("Role missing or not recognized. Only  [" + Stream.of(User.UserRoleType.values()).map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
         }
         user.setUserEvents(oldUser.get().getUserEvents());
@@ -211,6 +204,7 @@ public class UserController {
         UserDto userDto = modelMapper.map(user, UserDto.class);
         return userDto;
     }
+
     class UserPage extends PageImpl<UserDto> {
 
         private static final long serialVersionUID = 656181199902518234L;
