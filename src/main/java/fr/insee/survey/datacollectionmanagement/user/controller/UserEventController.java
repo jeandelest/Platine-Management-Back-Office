@@ -15,9 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,16 +36,14 @@ import java.util.stream.Stream;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Slf4j
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
+@RequiredArgsConstructor
 public class UserEventController {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    UserEventService userEventService;
+    private final UserEventService userEventService;
 
     @Operation(summary = "Search for userEvents by user's id")
     @GetMapping(value = Constants.API_USERS_ID_USEREVENTS, produces = "application/json")

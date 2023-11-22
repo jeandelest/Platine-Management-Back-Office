@@ -22,6 +22,7 @@ public class ContactEvent {
     private Long id;
     private Date eventDate;
     @NonNull
+    @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
     private ContactEventType type;
 

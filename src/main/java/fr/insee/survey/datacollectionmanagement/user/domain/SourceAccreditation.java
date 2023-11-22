@@ -6,16 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@Data
+@Getter@Setter
 @NoArgsConstructor
 public class SourceAccreditation {
 
@@ -29,7 +25,6 @@ public class SourceAccreditation {
     private String idUser;
 
     @OneToOne
-    @EqualsAndHashCode.Exclude
     private Source source;
 
     @Override

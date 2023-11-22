@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 @Validated
 @RequiredArgsConstructor
 public class UserController {
-    
+
     private final UserService userService;
 
     private final SourceService sourceService;

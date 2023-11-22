@@ -9,7 +9,7 @@ import org.hibernate.type.SqlTypes;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter@Setter
 @NoArgsConstructor
 public class UserEvent {
 
@@ -24,6 +24,7 @@ public class UserEvent {
     private Date eventDate;
     @NonNull
     @Enumerated(EnumType.ORDINAL)
+    @JdbcTypeCode(SqlTypes.INTEGER)
     private UserEventType type;
 
     @ManyToOne

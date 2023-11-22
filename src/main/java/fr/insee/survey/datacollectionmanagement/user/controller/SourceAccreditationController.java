@@ -16,9 +16,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,21 +38,17 @@ import java.util.stream.Collectors;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
+@RequiredArgsConstructor
 public class SourceAccreditationController {
 
-    @Autowired
-    private SourceAccreditationService sourceAccreditationService;
+  private final SourceAccreditationService sourceAccreditationService;
 
-    @Autowired
-    private SourceService sourceService;
+  private final SourceService sourceService;
 
-    @Autowired
-    private UserService userService;
+  private final UserService userService;
 
-    @Autowired
-    private ViewService viewService;
+  private final ViewService viewService;
 
-    @Autowired
     private ModelMapper modelMapper;
 
     @Operation(summary = "Search for source accreditations by source id")
