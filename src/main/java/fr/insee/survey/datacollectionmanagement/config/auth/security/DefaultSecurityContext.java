@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.User;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class DefaultSecurityContext {
         return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls());    }
     @Bean
     public UserProvider getUserProvider() {
-        return auth -> new User("anonymous", Collections.emptyList());
+        return auth -> new AuthUser("anonymous", Collections.emptyList());
     }
 
 

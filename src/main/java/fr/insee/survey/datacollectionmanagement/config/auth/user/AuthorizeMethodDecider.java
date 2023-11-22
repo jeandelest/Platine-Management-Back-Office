@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.config.auth.user;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,27 +13,29 @@ import java.util.List;
 
 @Component("AuthorizeMethodDecider")
 @Slf4j
-@RequiredArgsConstructor
 public class AuthorizeMethodDecider {
 
     public static final String ROLE_OFFLINE_ACCESS = "ROLE_offline_access";
     public static final String ROLE_UMA_AUTHORIZATION = "ROLE_uma_authorization";
-    private User noAuthUser;
-    private final UserProvider userProvider;
+    private AuthUser noAuthUser;
+
+    @Autowired
+    private UserProvider userProvider;
 
     @Autowired
     ApplicationConfig config;
 
-    public User getUser() {
+
+    public AuthUser getUser() {
         if (config.getAuthType().equals(AuthConstants.OIDC)) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User currentUser = userProvider.getUser(authentication);
-            return currentUser;
+            AuthUser currentAuthUser = userProvider.getUser(authentication);
+            return currentAuthUser;
         }
         return noAuthUser();
     }
 
-    private User noAuthUser() {
+    private AuthUser noAuthUser() {
         if (this.noAuthUser != null) {
             return this.noAuthUser;
         }
@@ -43,54 +44,55 @@ public class AuthorizeMethodDecider {
         roles.add(ROLE_OFFLINE_ACCESS);
         roles.add(config.getRoleAdmin().get(0));
         roles.add(ROLE_UMA_AUTHORIZATION);
-        return new User("GUEST", roles);
+        return new AuthUser("GUEST", roles);
     }
 
     public boolean isInternalUser() {
-        User user = getUser();
-        return isInternalUser(user);
+        AuthUser authUser = getUser();
+        return isInternalUser(authUser);
     }
 
-    public boolean isInternalUser(User user) {
-        return (hasRole(user, config.getRoleInternalUser()));
+    public boolean isInternalUser(AuthUser authUser) {
+        return (hasRole(authUser, config.getRoleInternalUser()));
     }
 
     public boolean isAdmin()  {
-        User user = getUser();
-        return isAdmin(user);
+        AuthUser authUser = getUser();
+        return isAdmin(authUser);
     }
 
-    public boolean isAdmin(User user) {
-        return (hasRole(user, config.getRoleAdmin()));
+    public boolean isAdmin(AuthUser authUser) {
+        return (hasRole(authUser, config.getRoleAdmin()));
     }
 
     public boolean isWebClient() {
-        User user = getUser();
-        return isWebClient(user);
+        AuthUser authUser = getUser();
+        return isWebClient(authUser);
     }
 
-    public boolean isWebClient(User user) {
-        return hasRole(user, config.getRoleWebClient());
+    public boolean isWebClient(AuthUser authUser) {
+        return hasRole(authUser, config.getRoleWebClient());
     }
 
     public boolean isRespondent() {
-        User user = getUser();
-        return isRespondent(user);
+        AuthUser authUser = getUser();
+        return isRespondent(authUser);
     }
 
-    public boolean isRespondent(User user) {
-        return hasRole(user, config.getRoleRespondent());
+    public boolean isRespondent(AuthUser authUser) {
+
+        return hasRole(authUser, config.getRoleRespondent());
     }
 
-    private boolean hasRole(User user, List<String> authorizedRoles) {
+    private boolean hasRole(AuthUser authUser, List<String> authorizedRoles) {
         Boolean hasRole = false;
-        List<String> userRoles = user.getRoles();
-        return userRoles.stream().filter(r -> authorizedRoles.contains(r)).count() > 0;
+        List<String> userRoles = authUser.getRoles();
+        return userRoles.stream().anyMatch(authorizedRoles::contains);
     }
 
     public String getUsername() {
-        User user = getUser();
-        return user.getId().toUpperCase();
+        AuthUser authUser = getUser();
+        return authUser.getId().toUpperCase();
     }
 
 }

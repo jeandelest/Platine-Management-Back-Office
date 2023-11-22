@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class User {
+public class AuthUser {
 
     private final String id;
 

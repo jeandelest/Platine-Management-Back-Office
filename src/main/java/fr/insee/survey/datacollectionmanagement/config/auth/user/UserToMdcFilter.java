@@ -24,8 +24,8 @@ public class UserToMdcFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
     ) throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userProvider.getUser(authentication);
-        String userId = (currentUser != null && currentUser.getId() != null ? currentUser.getId() : "anonymous");
+        AuthUser currentAuthUser = userProvider.getUser(authentication);
+        String userId = (currentAuthUser != null && currentAuthUser.getId() != null ? currentAuthUser.getId() : "anonymous");
         MDC.put(USER, userId);
         try {
             filterChain.doFilter(request, response);
