@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.config.auth.security;
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.User;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = "OIDC")
+@ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = AuthConstants.OIDC)
 @Slf4j
 @AllArgsConstructor
 public class OpenIDConnectSecurityContext {
@@ -46,6 +47,7 @@ public class OpenIDConnectSecurityContext {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/**")
+                //.addFilterAfter(new UserToMdcFilter(getUserProvider(config)), AuthorizationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .headers(headers -> headers
@@ -78,9 +80,9 @@ public class OpenIDConnectSecurityContext {
     @Order(1)
     SecurityFilterChain filterPublicUrlsChain(HttpSecurity http) throws Exception {
         String tokenUrl = config.getKeyCloakUrl() + "/realms/" + config.getKeycloakRealm() + "/protocol/openid-connect/token";
-        String authorizedConnectionHost = config.getAuthType().equals("OIDC") ?
+        String authorizedConnectionHost = config.getAuthType().equals(AuthConstants.OIDC) ?
                 " " + tokenUrl : "";
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, publicUrls(), authorizedConnectionHost);    }
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);    }
 
     @Bean
     public UserProvider getUserProvider() {
@@ -106,10 +108,6 @@ public class OpenIDConnectSecurityContext {
         return new GrantedAuthorityConverter(applicationConfig);
     }
 
-    private String[] publicUrls() {
-        return new String[]{"/csrf", "/", "/webjars/**", "/swagger-resources/**", "/environnement", Constants.API_HEALTHCHECK, "/actuator/**",
-                "/swagger-ui/*", "/swagger-ui/html", "/v3/api-docs/swagger-config", "/v3/api-docs", "/openapi.json"};
-    }
 
 
 }

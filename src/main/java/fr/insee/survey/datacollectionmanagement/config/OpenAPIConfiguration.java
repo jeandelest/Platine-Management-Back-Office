@@ -1,23 +1,18 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
 
-import java.util.Arrays;
-
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.Scopes;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
+import java.util.Arrays;
 
 
 @Configuration
@@ -36,7 +31,7 @@ public class OpenAPIConfiguration {
 
         switch(applicationConfig.getAuthType()) {
 
-            case "OIDC":
+            case AuthConstants.OIDC:
 
                 OAuthFlows flows = new OAuthFlows();
                 OAuthFlow flow = new OAuthFlow();

@@ -19,7 +19,6 @@
 		<jakarta-version>3.1.0</jakarta-version>
 		<jeasy-version>5.0.0</jeasy-version>
 		<javafaker-version>1.0.2</javafaker-version>
-		<orgjson-version>20231013</orgjson-version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -83,13 +82,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-client</artifactId>
 		</dependency>
-		<!-- Manage JSONObject and JSONArray -->
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>${orgjson-version}</version>
-		</dependency>
-
 
 
 		<!-- Fakers for poc data -->
@@ -114,12 +106,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-			<exclusion>
-				<groupId>com.vaadin.external.google</groupId>
-				<artifactId>android-json</artifactId>
-			</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -137,10 +123,6 @@
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-jose</artifactId>
 		</dependency>
 	</dependencies>
 

@@ -16,9 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,9 +37,8 @@ import java.util.stream.Collectors;
         + "|| @AuthorizeMethodDecider.isWebClient() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
+@Slf4j
 public class SourceAccreditationController {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(SourceAccreditationController.class);
 
     @Autowired
     private SourceAccreditationService sourceAccreditationService;

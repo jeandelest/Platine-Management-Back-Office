@@ -20,10 +20,9 @@ import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioning
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jeasy.random.EasyRandom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -34,9 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Profile("poc")
+@Slf4j
 public class DataloaderPoc {
-
-    private static final Logger LOGGER = LogManager.getLogger(DataloaderPoc.class);
 
     @Autowired
     private ContactRepository contactRepository;
@@ -199,11 +197,11 @@ public class DataloaderPoc {
     private void initOrder() {
 
         Long nbExistingOrders = orderRepository.count();
-        LOGGER.info("{} orders in database", nbExistingOrders);
+        log.info("{} orders in database", nbExistingOrders);
 
         if (nbExistingOrders == 0) {
             // Creating table order
-            LOGGER.info("loading eventorder data");
+            log.info("loading eventorder data");
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("8"), TypeQuestioningEvent.REFUSAL.toString(), 8));
             orderRepository
@@ -226,7 +224,7 @@ public class DataloaderPoc {
         List<Address> listAddresses = new ArrayList<>();
         Long nbExistingContacts = contactRepository.count();
 
-        LOGGER.info("{} contacts exist in database", nbExistingContacts);
+        log.info("{} contacts exist in database", nbExistingContacts);
 
         int nbContacts = 1000000;
 
@@ -268,10 +266,10 @@ public class DataloaderPoc {
                 listContact = new ArrayList<>();
                 long end = System.currentTimeMillis();
 
-                // LOGGER.info("It took {}ms to execute save() for 100 contacts.", (end -
+                // log.info("It took {}ms to execute save() for 100 contacts.", (end -
                 // start));
 
-                LOGGER.info("It took {}ms to execute saveAll() for 10000 contacts.", (end - start));
+                log.info("It took {}ms to execute saveAll() for 10000 contacts.", (end - start));
             }
 
         }
@@ -294,10 +292,10 @@ public class DataloaderPoc {
         // contactRepository.saveAll(listContact);
         // long end = System.currentTimeMillis();
         //
-        // LOGGER.info("It took {}ms to execute save() for {} contacts.", (end - start),
+        // log.info("It took {}ms to execute save() for {} contacts.", (end - start),
         // (nbContacts - nbExistingContacts));
 
-        // LOGGER.info("It took {}ms to execute saveAll() for {} contacts.", (end -
+        // log.info("It took {}ms to execute saveAll() for {} contacts.", (end -
         // start), (nbContacts - nbExistingContacts));
 
     }
@@ -332,7 +330,7 @@ public class DataloaderPoc {
         supportSsne.setLabel("Insee Normandie - SSNE");
         Set<Source> setSourcesSupportSsne = new HashSet<>();
 
-        LOGGER.info("{} campaigns exist in database", campaignRepository.count());
+        log.info("{} campaigns exist in database", campaignRepository.count());
 
         while (sourceRepository.count() < 10) {
 
@@ -439,7 +437,7 @@ public class DataloaderPoc {
 
         Long nbExistingQuestionings = questioningRepository.count();
 
-        LOGGER.info("{} questionings exist in database", nbExistingQuestionings);
+        log.info("{} questionings exist in database", nbExistingQuestionings);
 
         long start = System.currentTimeMillis();
         Questioning qu;
@@ -450,7 +448,7 @@ public class DataloaderPoc {
         String fakeSiren;
         Random qeRan = new Random();
 
-        LOGGER.info("{} survey units exist in database", surveyUnitRepository.count());
+        log.info("{} survey units exist in database", surveyUnitRepository.count());
 
         for (Long i = surveyUnitRepository.count(); i < 500000; i++) {
             SurveyUnit su = new SurveyUnit();
@@ -547,7 +545,7 @@ public class DataloaderPoc {
             questioningRepository.save(qu);
             if (i % 100 == 0) {
                 long end = System.currentTimeMillis();
-                LOGGER.info("It took {}ms to execute save() for 100 questionings.", (end - start));
+                log.info("It took {}ms to execute save() for 100 questionings.", (end - start));
                 start = System.currentTimeMillis();
             }
 

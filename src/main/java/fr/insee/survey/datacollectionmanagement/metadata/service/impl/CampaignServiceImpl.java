@@ -8,8 +8,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +18,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class CampaignServiceImpl implements CampaignService {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(CampaignServiceImpl.class);
 
     @Autowired
     CampaignRepository campaignRepository;
@@ -133,9 +129,9 @@ public class CampaignServiceImpl implements CampaignService {
         for (Partitioning part : camp.get().getPartitionings()) {
             if (partitioningService.isOnGoing(part, now)) {
                 nbOnGoingParts++;
-                LOGGER.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
+                log.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
             } else {
-                LOGGER.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
+                log.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
             }
         }
         return !camp.get().getPartitionings().isEmpty() && nbOnGoingParts == camp.get().getPartitionings().size();

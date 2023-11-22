@@ -1,24 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -35,15 +16,27 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
         + "|| @AuthorizeMethodDecider.isWebClient() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
+@Slf4j
 public class AddressController {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(AddressController.class);
 
     @Autowired
     private AddressService addressService;
@@ -106,12 +99,12 @@ public class AddressController {
             responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
 
             if (contact.getAddress() != null) {
-                LOGGER.info("Update address for the contact {} ", id);
+                log.info("Update address for the contact {} ", id);
                 address.setId(contact.getAddress().getId());
                 addressUpdate = addressService.saveAddress(address);
                 httpStatus = HttpStatus.OK;
             } else {
-                LOGGER.info("Create address for the contact {} ", id);
+                log.info("Create address for the contact {} ", id);
                 addressUpdate = addressService.saveAddress(address);
                 contact.setAddress(addressUpdate);
                 contactService.saveContact(contact);

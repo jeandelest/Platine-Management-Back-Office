@@ -18,8 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
@@ -45,9 +43,7 @@ import java.util.stream.Stream;
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
 public class UserController {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-
+    
 
     @Autowired
     UserService userService;
@@ -125,14 +121,14 @@ public class UserController {
 
         }
         catch (NoSuchElementException e) {
-            LOGGER.info("Creating user with the identifier {}", userDto.getIdentifier());
+            log.info("Creating user with the identifier {}", userDto.getIdentifier());
             user = convertToEntityNewContact(userDto);
 
             User userCreate = userService.createUserEvent(user, null);
             return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(userCreate));
         }
 
-        LOGGER.info("Updating user with the identifier {}", userDto.getIdentifier());
+        log.info("Updating user with the identifier {}", userDto.getIdentifier());
         User userUpdate = userService.updateUserEvent(user, null);
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(userUpdate));
     }

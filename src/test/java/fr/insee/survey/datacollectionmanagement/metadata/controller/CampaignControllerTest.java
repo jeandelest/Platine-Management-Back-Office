@@ -7,9 +7,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -213,7 +212,7 @@ class CampaignControllerTest {
         return jo.toString();
     }
 
-    private String createJson(Campaign campaign, String idSurvey) throws JSONException {
+    private String createJson(Campaign campaign, String idSurvey)  {
         JSONObject jo = new JSONObject();
         jo.put("id", campaign.getId());
         jo.put("year", campaign.getYear());

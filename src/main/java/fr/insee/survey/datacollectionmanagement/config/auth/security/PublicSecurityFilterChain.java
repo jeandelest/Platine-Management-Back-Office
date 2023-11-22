@@ -1,12 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
@@ -15,8 +12,7 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 @Configuration
 public class PublicSecurityFilterChain {
 
-    @Autowired
-    ApplicationConfig config;
+
     SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http, String[] publicUrls) throws Exception {
         return buildSecurityPublicFilterChain(http, publicUrls, "");
     }
@@ -24,7 +20,6 @@ public class PublicSecurityFilterChain {
     SecurityFilterChain buildSecurityPublicFilterChain(HttpSecurity http, String[] publicUrls, String authorizedConnectionHost) throws Exception {
         return http
                 .securityMatcher(publicUrls)
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .headers(headers -> headers
                         .xssProtection(xssConfig -> xssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED))

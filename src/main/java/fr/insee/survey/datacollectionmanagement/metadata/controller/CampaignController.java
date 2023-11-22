@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -44,6 +46,7 @@ import java.util.stream.Collectors;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
+@Validated
 public class CampaignController {
 
     @Autowired
@@ -94,7 +97,7 @@ public class CampaignController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("survey does not exist");
             }
             return ResponseEntity.ok()
-                    .body(survey.get().getCampaigns().stream().map(s -> convertToDto(s)).collect(Collectors.toList()));
+                    .body(survey.get().getCampaigns().stream().map(s -> convertToDto(s)).toList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -128,7 +131,7 @@ public class CampaignController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putCampaign(@PathVariable("id") String id, @RequestBody CampaignDto campaignDto) {
+    public ResponseEntity<?> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
         if (StringUtils.isBlank(campaignDto.getId()) || !campaignDto.getId().equalsIgnoreCase(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idCampaign don't match");
         }
@@ -188,7 +191,7 @@ public class CampaignController {
             for (Partitioning partitioning : listPartitionings) {
                 nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
             }
-            uploadsCamp.stream().forEach(up->uploadService.delete(up));
+            uploadsCamp.forEach(up->uploadService.delete(up));
             log.info("Campaign {} deleted with all its metadata children - {} questioning deleted - {} view deleted - {} uploads deleted",
                     id,
                     nbQuestioningDeleted, nbViewDeleted, uploadsCamp.size());

@@ -17,6 +17,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
+import java.util.Collections;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -50,28 +52,17 @@ public class DefaultSecurityContext {
                                 referrerPolicy
                                         .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
                         ))
-                .anonymous(anonymousConfig -> anonymousConfig
-                        .authorities("ROLE_ADMIN"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .build();
     }
     @Bean
     @Order(1)
     SecurityFilterChain filterPublicUrlsChain(HttpSecurity http) throws Exception {
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, publicUrls());    }
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls());    }
     @Bean
     public UserProvider getUserProvider() {
-        return auth -> new User();
+        return auth -> new User("anonymous", Collections.emptyList());
     }
-
-    private String[] publicUrls(){
-        String[] str = new String[config.getPublicUrls().size()];
-        for (int i = 0; i < config.getPublicUrls().size(); i++) {
-            str[i] = config.getPublicUrls().get(i);
-        }
-        return str;
-    }
-
 
 
 }

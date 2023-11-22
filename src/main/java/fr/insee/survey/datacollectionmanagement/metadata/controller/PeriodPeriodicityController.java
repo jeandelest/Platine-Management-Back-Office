@@ -1,16 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
@@ -18,6 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -31,13 +27,13 @@ public class PeriodPeriodicityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK")
     })
-    public ResponseEntity<?> getPeriodicities() throws JsonProcessingException, JSONException {
+    public ResponseEntity<?> getPeriodicities()  {
         JSONArray jsonArray = new JSONArray();
         for (PeriodicityEnum periodicity : PeriodicityEnum.values()) {
             JSONObject json = new JSONObject();
             json.put("key", periodicity.name());
             json.put("label", periodicity.getValue());
-            jsonArray.put(json);
+            jsonArray.add(json);
         }
         return ResponseEntity.ok().body(jsonArray.toString());
     }
@@ -47,7 +43,7 @@ public class PeriodPeriodicityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK")
     })
-    public ResponseEntity<?> getPeriods() throws JsonProcessingException, JSONException {
+    public ResponseEntity<?> getPeriods()  {
         JSONArray jsonArray = new JSONArray();
 
         for (PeriodEnum period : PeriodEnum.values()) {
@@ -55,7 +51,7 @@ public class PeriodPeriodicityController {
             json.put("key", period.name());
             json.put("label", period.getValue());
             json.put("period",period.getPeriod().name());
-            jsonArray.put(json);
+            jsonArray.add(json);
         }
         return ResponseEntity.ok().body(jsonArray.toString());
     }
@@ -65,7 +61,7 @@ public class PeriodPeriodicityController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK")
     })
-    public ResponseEntity<?> getPeriodsOdPeriodicity(String periodicity) throws JsonProcessingException, JSONException {
+    public ResponseEntity<?> getPeriodsOdPeriodicity(String periodicity) {
         try {
             PeriodicityEnum.valueOf(periodicity);
             JSONArray jsonArray = new JSONArray();
@@ -75,7 +71,7 @@ public class PeriodPeriodicityController {
                     json.put("key", period.name());
                     json.put("label", period.getValue());
                     json.put("period",period.getPeriod().name());
-                    jsonArray.put(json);
+                    jsonArray.add(json);
                 }          
             }
             return ResponseEntity.ok().body(jsonArray.toString());

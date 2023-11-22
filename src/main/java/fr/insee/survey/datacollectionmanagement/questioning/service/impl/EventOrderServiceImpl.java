@@ -1,18 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.EventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.EventOrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EventOrderServiceImpl implements EventOrderService {
-
-    static final Logger LOGGER = LoggerFactory.getLogger(EventOrderServiceImpl.class);
 
     @Autowired
     EventOrderRepository eventOrderRepository;
