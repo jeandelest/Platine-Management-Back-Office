@@ -93,11 +93,6 @@ public class Constants {
     public static final String API_WEBCLIENT_METADATA_ID = "/api/metadata/{id}";
     public static final String API_WEBCLIENT_QUESTIONINGS = "/api/questionings";
 
-    // CHECK HABILITATION ROLES
-
-    public static final String INTERVIEWER = "interviewer";
-    public static final String REVIEWER = "reviewer";
-
     public static final String API_HEALTHCHECK = "/api/healthcheck";
     public static final String ACTUATOR = "/actuator/**";
 
