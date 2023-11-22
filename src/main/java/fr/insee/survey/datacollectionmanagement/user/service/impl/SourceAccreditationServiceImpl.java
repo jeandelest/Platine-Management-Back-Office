@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.user.service.impl;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.repository.SourceAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class SourceAccreditationServiceImpl implements SourceAccreditationService {
 
-    @Autowired
-    private SourceAccreditationRepository sourceAccreditationRepository;
+    private final SourceAccreditationRepository sourceAccreditationRepository;
 
     public List<SourceAccreditation> findByUserIdentifier(String id) {
         return sourceAccreditationRepository.findByIdUser(id);

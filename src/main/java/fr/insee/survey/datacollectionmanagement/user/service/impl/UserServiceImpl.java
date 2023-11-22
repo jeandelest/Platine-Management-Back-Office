@@ -9,7 +9,7 @@ import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,16 +17,14 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserEventService userEventService;
+    private final UserEventService userEventService;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    SourceAccreditationService sourceAccreditationService;
+    private final SourceAccreditationService sourceAccreditationService;
 
     @Override
     public Page<User> findAll(Pageable pageable) {
@@ -52,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUserEvent(User user, JsonNode payload) {
 
-        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.create,
+        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.CREATE,
                 payload);
         user.setUserEvents(new HashSet<>(Arrays.asList(newUserEvent)));
         return saveUser(user);
@@ -64,7 +62,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = findByIdentifier(user.getIdentifier()).get();
 
         Set<UserEvent> setUserEventsUser = existingUser.getUserEvents();
-        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.update,
+        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.UPDATE,
                 payload);
         setUserEventsUser.add(userEventUpdate);
         user.setUserEvents(setUserEventsUser);

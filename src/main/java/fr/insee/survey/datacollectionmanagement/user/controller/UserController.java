@@ -183,12 +183,13 @@ public class UserController {
     private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException, RoleException {
         User user = modelMapper.map(userDto, User.class);
 
+        if (user.getRole() == null || Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> userDto.getRole().equals(v))) {
+            throw new RoleException("Role missing or not recognized. Only  [" + Stream.of(User.UserRoleType.values()).map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
+        }
+
         Optional<User> oldUser = userService.findByIdentifier(userDto.getIdentifier());
         if (!oldUser.isPresent()) {
             throw new NoSuchElementException();
-        }
-        if (user.getRole() == null || Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> userDto.getRole().equals(v))) {
-            throw new RoleException("Role missing or not recognized. Only  [" + Stream.of(User.UserRoleType.values()).map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
         }
         user.setUserEvents(oldUser.get().getUserEvents());
 

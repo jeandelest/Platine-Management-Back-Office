@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -39,17 +41,18 @@ import java.util.stream.Collectors;
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class SourceAccreditationController {
 
-  private final SourceAccreditationService sourceAccreditationService;
+    private final SourceAccreditationService sourceAccreditationService;
 
-  private final SourceService sourceService;
+    private final SourceService sourceService;
 
-  private final UserService userService;
+    private final UserService userService;
 
-  private final ViewService viewService;
+    private final ViewService viewService;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for source accreditations by source id")
     @GetMapping(value = Constants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json")
@@ -84,7 +87,7 @@ public class SourceAccreditationController {
     })
     @Transactional
     public ResponseEntity<?> postSourceAccreditation(@PathVariable("id") String id,
-                                                          @RequestBody SourceAccreditationDto sourceAccreditationDto) {
+                                                     @RequestBody @Valid SourceAccreditationDto sourceAccreditationDto) {
 
         Optional<Source> optSource = null;
 

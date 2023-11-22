@@ -14,7 +14,7 @@ import java.util.Date;
 public class UserEvent {
 
     public enum UserEventType {
-        create, update, delete
+        CREATE, UPDATE, DELETE
     }
 
     @Id
@@ -22,14 +22,13 @@ public class UserEvent {
     private Long id;
 
     private Date eventDate;
+
     @NonNull
     @Enumerated(EnumType.ORDINAL)
     @JdbcTypeCode(SqlTypes.INTEGER)
     private UserEventType type;
 
     @ManyToOne
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private User user;
 
     @JdbcTypeCode(SqlTypes.JSON)

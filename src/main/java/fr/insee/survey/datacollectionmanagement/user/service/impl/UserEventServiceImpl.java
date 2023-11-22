@@ -6,7 +6,7 @@ import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserEventRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,10 +16,10 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class UserEventServiceImpl implements UserEventService {
 
-    @Autowired
-    private UserEventRepository userEventRepository;
+    private final UserEventRepository userEventRepository;
 
     @Override
     public Page<UserEvent> findAll(Pageable pageable) {
