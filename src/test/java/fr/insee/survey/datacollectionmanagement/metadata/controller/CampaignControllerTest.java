@@ -205,9 +205,9 @@ class CampaignControllerTest {
         JSONObject jo = new JSONObject();
         jo.put("id", part.getId());
         jo.put("campaignId", part.getCampaign().getId());
-        jo.put("openingDate", part.getOpeningDate().toInstant());
-        jo.put("closingDate", part.getClosingDate().toInstant());
-        jo.put("returnDate", part.getClosingDate().toInstant());
+        jo.put("openingDate", part.getOpeningDate().toInstant().toString());
+        jo.put("closingDate", part.getClosingDate().toInstant().toString());
+        jo.put("returnDate", part.getClosingDate().toInstant().toString());
         jo.put("label", "label");
         return jo.toString();
     }
