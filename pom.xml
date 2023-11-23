@@ -19,6 +19,8 @@
 		<jakarta-version>3.1.0</jakarta-version>
 		<jeasy-version>5.0.0</jeasy-version>
 		<javafaker-version>1.0.2</javafaker-version>
+		<sonar.organization>inseefr</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
 		<dependency>
