@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -37,19 +37,16 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
+@RequiredArgsConstructor
 public class PartitioningController {
 
-    @Autowired
-    private PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    private ModelMapper modelmapper;
+    private final ModelMapper modelmapper;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = Constants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = "application/json")

@@ -6,9 +6,9 @@ import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -19,14 +19,12 @@ import java.util.UUID;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
-   @Autowired
-   ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
-   @Autowired
-    UserProvider userProvider;
-
+    private final UserProvider userProvider;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
@@ -41,7 +39,7 @@ public class LogInterceptor implements HandlerInterceptor {
             case AuthConstants.OIDC:
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
                 AuthUser currentAuthUser = userProvider.getUser(authentication);
-                userId=(currentAuthUser !=null && currentAuthUser.getId()!=null ? currentAuthUser.getId() : "anonymous");
+                userId = (currentAuthUser != null && currentAuthUser.getId() != null ? currentAuthUser.getId() : "anonymous");
                 ThreadContext.put("user", userId.toUpperCase());
                 break;
             default:
@@ -54,7 +52,7 @@ public class LogInterceptor implements HandlerInterceptor {
         ThreadContext.put("method", method);
 
 
-        log.info("["+userId.toUpperCase()+"] - ["+method+"] - ["+operationPath+"]");
+        log.info("[" + userId.toUpperCase() + "] - [" + method + "] - [" + operationPath + "]");
         return true;
     }
 

@@ -13,10 +13,10 @@ import static java.lang.annotation.ElementType.*;
 @Target({FIELD, PARAMETER, METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = UserRoleValidator.class)
-public @interface UserRoleValid {
+@Constraint(validatedBy = UserEventTypeValidator.class)
+public @interface UserEventTypeValid {
     //error message
-    String message() default "Role missing or not recognized. Only CREATE, UPDATE, DELETE";
+    String message() default "Type missing or not recognized. Only CREATE, UPDATE, DELETE are valid";
 
     //represents group of constraints
     Class<?>[] groups() default {};

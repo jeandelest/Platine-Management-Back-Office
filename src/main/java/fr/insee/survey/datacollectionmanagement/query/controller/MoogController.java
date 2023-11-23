@@ -9,9 +9,6 @@ import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -20,8 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -44,22 +41,13 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
+@RequiredArgsConstructor
 public class MoogController {
-    
-    @Autowired
-    private MoogService moogService;
 
-    @Autowired
-    private ContactService contactService;
+    private final MoogService moogService;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final ContactService contactService;
 
-    @Autowired
-    QuestioningService questioningService;
-
-    @Autowired
-    UploadService uploadService;
 
     @GetMapping(path = Constants.API_MOOG_SEARCH)
     public ResponseEntity<?> moogSearch(@RequestParam(required = false) String filter1,

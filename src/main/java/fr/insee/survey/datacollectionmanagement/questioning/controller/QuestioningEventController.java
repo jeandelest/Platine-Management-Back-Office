@@ -16,9 +16,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -40,19 +40,16 @@ import java.util.stream.Collectors;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
+@RequiredArgsConstructor
 public class QuestioningEventController {
 
-    @Autowired
-    private QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    UploadService uploadService;
+    private final UploadService uploadService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for a questioning event by questioning id")
     @GetMapping(value = Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")

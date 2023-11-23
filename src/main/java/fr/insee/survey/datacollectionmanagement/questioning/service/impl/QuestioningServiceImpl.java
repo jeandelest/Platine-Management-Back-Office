@@ -1,14 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import java.util.Optional;
-import java.util.Set;
-
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -17,24 +9,27 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class QuestioningServiceImpl implements QuestioningService {
 
-    @Autowired
-    private QuestioningRepository questioningRepository;
+    private final QuestioningRepository questioningRepository;
 
-    @Autowired
-    private SurveyUnitService surveyUnitService;
+    private final SurveyUnitService surveyUnitService;
 
-    @Autowired
-    private QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    private QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {

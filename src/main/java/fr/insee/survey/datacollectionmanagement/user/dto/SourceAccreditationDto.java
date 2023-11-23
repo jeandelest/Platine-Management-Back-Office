@@ -15,8 +15,9 @@ public class SourceAccreditationDto {
     @JsonIgnore
     private Long id;
     private Date creationDate;
+    @NotBlank(message = "creationAuthor can't be empty")
     private String creationAuthor;
-    @NotBlank
+    @NotBlank(message = "idUser can't be empty")
     private String idUser;
 
 }

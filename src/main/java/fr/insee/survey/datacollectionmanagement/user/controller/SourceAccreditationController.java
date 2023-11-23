@@ -87,7 +87,7 @@ public class SourceAccreditationController {
     })
     @Transactional
     public ResponseEntity<?> postSourceAccreditation(@PathVariable("id") String id,
-                                                     @RequestBody @Valid SourceAccreditationDto sourceAccreditationDto) {
+                                                     @Valid @RequestBody  SourceAccreditationDto sourceAccreditationDto) {
 
         Optional<Source> optSource = null;
 

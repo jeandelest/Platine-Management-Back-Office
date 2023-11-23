@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +32,12 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isWebClient() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@RequiredArgsConstructor
 public class SupportController {
 
-    @Autowired
-    private ModelMapper modelmapper;
+    private final ModelMapper modelmapper;
 
-    @Autowired
-    private SupportService supportService;
+    private final SupportService supportService;
 
     @Operation(summary = "Search for supports, paginated")
     @GetMapping(value = Constants.API_SUPPORTS, produces = "application/json")

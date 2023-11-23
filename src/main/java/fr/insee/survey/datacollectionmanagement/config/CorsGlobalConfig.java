@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
+@RequiredArgsConstructor
 public class CorsGlobalConfig {
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {

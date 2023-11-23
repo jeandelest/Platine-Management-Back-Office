@@ -8,7 +8,6 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
@@ -19,38 +18,30 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MoogServiceImpl implements MoogService {
 
     public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
     public static final String UNITE_ENQUETEE = "/unite-enquetee/";
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    private MoogRepository moogRepository;
+    private final MoogRepository moogRepository;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    PartitioningService partitioningService;
-
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
     @Override
     public List<View> moogSearch(String field) {

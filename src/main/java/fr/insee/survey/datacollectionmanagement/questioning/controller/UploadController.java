@@ -11,8 +11,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,16 +27,14 @@ import java.util.stream.Collectors;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
+@RequiredArgsConstructor
 public class UploadController {
 
-    @Autowired
-    UploadService moogUploadService;
+    private final UploadService moogUploadService;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
     @DeleteMapping(value = Constants.MOOG_API_UPLOADS_ID)
     public ResponseEntity<?> deleteOneUpload(@PathVariable Long id) {

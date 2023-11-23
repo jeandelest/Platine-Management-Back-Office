@@ -1,28 +1,26 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SurveyUnitServiceImpl implements SurveyUnitService {
 
-    @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    private final SurveyUnitRepository surveyUnitRepository;
 
-    @Autowired
-    private SurveyUnitAddressRepository surveyUnitAddressRepository;
+    private final SurveyUnitAddressRepository surveyUnitAddressRepository;
 
     @Override
     public Optional<SurveyUnit> findbyId(String idSu) {

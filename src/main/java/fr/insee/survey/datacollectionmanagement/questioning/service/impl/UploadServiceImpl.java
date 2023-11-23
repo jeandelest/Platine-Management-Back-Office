@@ -17,28 +17,26 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UploadServiceImpl implements UploadService {
 
-    @Autowired
-    UploadRepository uploadRepository;
+    private final UploadRepository uploadRepository;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
+
 
     @Override
     public ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException {

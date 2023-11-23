@@ -1,27 +1,26 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SurveyServiceImpl implements SurveyService {
 
-    @Autowired
-    private SurveyRepository surveyRepository;
+    private final SurveyRepository surveyRepository;
 
     @Override
     public List<Survey> findByYear(int year) {

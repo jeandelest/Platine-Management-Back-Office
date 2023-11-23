@@ -17,9 +17,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,25 +38,20 @@ import java.util.Set;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
+@RequiredArgsConstructor
 public class QuestioningAccreditationController {
 
-    @Autowired
-    private QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for questioning accreditations by questioning id")
     @GetMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")

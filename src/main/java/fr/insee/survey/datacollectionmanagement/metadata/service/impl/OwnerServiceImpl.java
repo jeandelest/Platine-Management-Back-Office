@@ -1,24 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.OwnerRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OwnerServiceImpl implements OwnerService {
 
-    @Autowired
-    private OwnerRepository ownerRepository;
+    private final OwnerRepository ownerRepository;
 
     public Optional<Owner> findById(String owner) {
         return ownerRepository.findById(owner);

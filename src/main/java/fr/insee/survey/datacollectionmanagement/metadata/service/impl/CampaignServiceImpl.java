@@ -7,8 +7,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,13 +17,12 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CampaignServiceImpl implements CampaignService {
 
-    @Autowired
-    CampaignRepository campaignRepository;
+    private final CampaignRepository campaignRepository;
 
-    @Autowired
-    PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
     public Collection<CampaignMoogDto> getCampaigns() {
 

@@ -5,9 +5,8 @@ import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,21 +34,18 @@ import java.util.List;
 @EnableMethodSecurity
 @ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = AuthConstants.OIDC)
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OpenIDConnectSecurityContext {
-
 
     private final PublicSecurityFilterChain publicSecurityFilterChainConfiguration;
 
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
 
     @Bean
     @Order(2)
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/**")
-                //.addFilterAfter(new UserToMdcFilter(getUserProvider(config)), AuthorizationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .headers(headers -> headers

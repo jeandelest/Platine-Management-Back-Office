@@ -17,10 +17,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -41,22 +41,18 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
+@RequiredArgsConstructor
 public class SurveyController {
 
-    @Autowired
-    private SurveyService surveyService;
+    private final SurveyService surveyService;
 
-    @Autowired
-    private SourceService sourceService;
+    private final SourceService sourceService;
 
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ModelMapper modelmapper;
-    
-    @Autowired
-    private QuestioningService questioningService;
+    private final ModelMapper modelmapper;
+
+    private final QuestioningService questioningService;
 
     @Operation(summary = "Search for surveys by the source id")
     @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")

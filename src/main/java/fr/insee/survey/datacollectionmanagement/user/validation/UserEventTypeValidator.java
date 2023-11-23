@@ -1,23 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.user.validation;
 
-import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Arrays;
 
-public class UserRoleValidator implements ConstraintValidator <UserRoleValid, String>{
+public class UserEventTypeValidator implements ConstraintValidator<UserEventTypeValid, String> {
 
 
     @Override
-    public void initialize(UserRoleValid constraintAnnotation) {
+    public void initialize(UserEventTypeValid constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null)
+        if (value == null)
             return false;
-        return Arrays.stream(User.UserRoleType.values()).anyMatch(v -> value.equals(v));
+        return Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> value.equals(v));
     }
 }

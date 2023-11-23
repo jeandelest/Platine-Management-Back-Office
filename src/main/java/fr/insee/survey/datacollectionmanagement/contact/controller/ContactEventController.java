@@ -15,8 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -37,16 +37,14 @@ import java.util.stream.Stream;
         + "|| @AuthorizeMethodDecider.isWebClient() "+ "|| @AuthorizeMethodDecider.isRespondent() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
+@RequiredArgsConstructor
 public class ContactEventController {
 
-    @Autowired
-    private ContactEventService contactEventService;
+    private final ContactEventService contactEventService;
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")

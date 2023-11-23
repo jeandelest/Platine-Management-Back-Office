@@ -4,7 +4,6 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import net.minidev.json.JSONObject;
@@ -41,14 +40,10 @@ class CampaignControllerTest {
 
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private CampaignService campaignService;
-
-    @Autowired
-    private CampaignRepository campaignRepository;
-
+    CampaignService campaignService;
 
 
     @Test

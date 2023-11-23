@@ -2,8 +2,8 @@ package fr.insee.survey.datacollectionmanagement.config.auth.user;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -13,17 +13,16 @@ import java.util.List;
 
 @Component("AuthorizeMethodDecider")
 @Slf4j
+@RequiredArgsConstructor
 public class AuthorizeMethodDecider {
 
     public static final String ROLE_OFFLINE_ACCESS = "ROLE_offline_access";
     public static final String ROLE_UMA_AUTHORIZATION = "ROLE_uma_authorization";
     private AuthUser noAuthUser;
 
-    @Autowired
-    private UserProvider userProvider;
+    private final  UserProvider userProvider;
 
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
 
 
     public AuthUser getUser() {

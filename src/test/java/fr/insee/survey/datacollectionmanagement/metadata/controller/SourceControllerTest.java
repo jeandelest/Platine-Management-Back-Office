@@ -30,13 +30,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SourceControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private SourceService sourceService;
+    SourceService sourceService;
 
     @Autowired
-    private SourceRepository sourceRepository;
+    SourceRepository sourceRepository;
 
     @Test
     public void getSourceOk() throws Exception {

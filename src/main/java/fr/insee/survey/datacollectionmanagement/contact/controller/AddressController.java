@@ -16,8 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -36,16 +36,14 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
+@RequiredArgsConstructor
 public class AddressController {
 
-    @Autowired
-    private AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private ContactEventService contactEventService;
+    private final ContactEventService contactEventService;
 
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")

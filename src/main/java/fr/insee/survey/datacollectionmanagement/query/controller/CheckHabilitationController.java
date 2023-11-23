@@ -6,7 +6,7 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,14 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "4 - Cross domain")
+@RequiredArgsConstructor
 public class CheckHabilitationController {
 
+    private final CheckHabilitationService checkHabilitationService;
 
-    @Autowired
-    private CheckHabilitationService checkHabilitationService;
-
-    @Autowired
-    UserProvider userProvider;
+    private final UserProvider userProvider;
 
     @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
             + "|| @AuthorizeMethodDecider.isWebClient() "

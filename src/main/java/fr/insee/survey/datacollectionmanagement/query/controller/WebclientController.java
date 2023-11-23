@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact.Gender;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -33,10 +32,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,49 +52,36 @@ import java.util.*;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
+@RequiredArgsConstructor
 public class WebclientController {
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    SurveyUnitService surveyUnitService;
+    private final SurveyUnitService surveyUnitService;
 
-    @Autowired
-    PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    SourceService sourceService;
+    private final SourceService sourceService;
 
-    @Autowired
-    SurveyService surveyService;
+    private final SurveyService surveyService;
 
-    @Autowired
-    CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    OwnerService ownerService;
+    private final OwnerService ownerService;
 
-    @Autowired
-    SupportService supportService;
+    private final SupportService supportService;
 
-    @Autowired
-    ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Create or update questioning for webclients - Returns the questioning and all its accreditations")
     @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = "application/json", consumes = "application/json")

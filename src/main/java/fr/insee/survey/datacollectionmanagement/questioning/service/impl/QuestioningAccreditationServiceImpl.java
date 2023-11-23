@@ -1,26 +1,25 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class QuestioningAccreditationServiceImpl implements QuestioningAccreditationService {
 
-    @Autowired
-    private QuestioningAccreditationRepository questioningAccreditationRepository;
+    private final QuestioningAccreditationRepository questioningAccreditationRepository;
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);

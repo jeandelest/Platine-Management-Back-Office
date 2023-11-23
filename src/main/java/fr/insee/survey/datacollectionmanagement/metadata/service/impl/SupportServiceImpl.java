@@ -1,24 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SupportRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SupportServiceImpl implements SupportService {
 
-    @Autowired
-    private SupportRepository supportRepository;
+    private final  SupportRepository supportRepository;
 
     public Optional<Support> findById(String support) {
         return supportRepository.findById(support);

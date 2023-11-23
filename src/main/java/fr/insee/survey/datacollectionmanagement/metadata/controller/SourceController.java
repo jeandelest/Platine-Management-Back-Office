@@ -19,10 +19,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,25 +42,20 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
+@RequiredArgsConstructor
 public class SourceController {
 
-    @Autowired
-    private SourceService sourceService;
+    private final SourceService sourceService;
 
-    @Autowired
-    private OwnerService ownerService;
+    private final OwnerService ownerService;
 
-    @Autowired
-    private SupportService supportService;
+    private final SupportService supportService;
 
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ModelMapper modelmapper;
+    private final ModelMapper modelmapper;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = Constants.API_SOURCES, produces = "application/json")

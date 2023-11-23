@@ -1,31 +1,26 @@
 package fr.insee.survey.datacollectionmanagement.query.repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
-import fr.insee.survey.datacollectionmanagement.contact.service.impl.AddressServiceImpl;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class MoogRepository {
 
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    AddressService addressService;
+    private final AddressService addressService;
 
     final String getEventsQuery = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
             + " FROM questioning_event qe join questioning q on qe.questioning_id=q.id join partitioning p on q.id_partitioning=p.id "

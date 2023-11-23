@@ -4,7 +4,6 @@ import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +27,7 @@ public class DefaultSecurityContext {
 
     private final PublicSecurityFilterChain publicSecurityFilterChainConfiguration;
 
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
     /**
      * Configure spring security filter chain when no authentication
      * @param http Http Security Object

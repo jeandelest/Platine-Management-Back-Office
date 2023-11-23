@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,19 +33,16 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
+@RequiredArgsConstructor
 public class QuestioningController {
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    private SurveyUnitService surveyUnitService;
+    private final SurveyUnitService surveyUnitService;
 
-    @Autowired
-    private PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for a questioning by id")
     @GetMapping(value = Constants.API_QUESTIONINGS_ID, produces = "application/json")

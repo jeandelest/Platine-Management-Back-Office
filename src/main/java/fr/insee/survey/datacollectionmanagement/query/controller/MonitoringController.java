@@ -4,14 +4,12 @@ import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogFollowUpDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogProgressDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MonitoringService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,19 +24,12 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
+@RequiredArgsConstructor
 public class MonitoringController {
 
-    @Autowired
-    MonitoringService monitoringService;
+    private final MonitoringService monitoringService;
 
-    @Autowired
-    QuestioningService questioningService;
-
-    @Autowired
-    PartitioningService partitioningService;
-
-    @Autowired
-    CampaignService campaignService;
+    private final CampaignService campaignService;
 
     @GetMapping(value = "/api/moog/campaigns/{idCampaign}/monitoring/progress", produces = "application/json")
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgress(@PathVariable String idCampaign) {

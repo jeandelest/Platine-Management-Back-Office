@@ -6,20 +6,19 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
-    @Autowired
-    LastQuestioningEventComparator lastQuestioningEventComparator;
+    private final LastQuestioningEventComparator lastQuestioningEventComparator;
 
-    @Autowired
-    QuestioningEventRepository questioningEventRepository;
+    private final QuestioningEventRepository questioningEventRepository;
 
     @Override
     public Optional<QuestioningEvent> findbyId(Long id) {

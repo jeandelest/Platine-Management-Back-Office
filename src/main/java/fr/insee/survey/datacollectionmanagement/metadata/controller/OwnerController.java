@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,13 +31,12 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isWebClient() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@RequiredArgsConstructor
 public class OwnerController {
 
-    @Autowired
-    private ModelMapper modelmapper;
+    private final ModelMapper modelmapper;
 
-    @Autowired
-    private OwnerService ownerService;
+    private final OwnerService ownerService;
 
     @Operation(summary = "Search for owners, paginated")
     @GetMapping(value = Constants.API_OWNERS, produces = "application/json")

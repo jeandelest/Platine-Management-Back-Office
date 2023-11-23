@@ -6,7 +6,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +17,12 @@ import java.util.Arrays;
 
 @Configuration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true", matchIfMissing = true)
-
+@RequiredArgsConstructor
 public class OpenAPIConfiguration {
 
-    @Autowired
-    BuildProperties buildProperties;
+    private final BuildProperties buildProperties;
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
 
     @Bean public OpenAPI customOpenAPI() {

@@ -11,8 +11,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -21,20 +21,17 @@ import java.util.List;
 
 @Service
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class SearchContactServiceImpl implements SearchContactService {
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private SurveyUnitService surveyUnitService;
+    private final SurveyUnitService surveyUnitService;
 
-    @Autowired
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
     @EqualsAndHashCode.Exclude
-    private ViewService viewService;;
+    private final ViewService viewService;;
 
     @Override
     public List<View> searchContactCrossDomain(

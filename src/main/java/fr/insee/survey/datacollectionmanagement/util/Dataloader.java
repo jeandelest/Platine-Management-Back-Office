@@ -20,11 +20,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioning
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jeasy.random.EasyRandom;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -32,62 +32,44 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class Dataloader {
 
+    private final ContactRepository contactRepository;
 
-    @Autowired
-    private ContactRepository contactRepository;
+    private final AddressRepository addressRepository;
 
-    @Autowired
-    private AddressRepository addressRepository;
+    private final ContactEventRepository contactEventRepository;
 
-    @Autowired
-    private ContactEventRepository contactEventRepository;
+    private final OwnerRepository ownerRepository;
 
-    @Autowired
-    private OwnerRepository ownerRepository;
+    private final SupportRepository supportRepository;
 
-    @Autowired
-    private SupportRepository supportRepository;
+    private final SourceRepository sourceRepository;
 
-    @Autowired
-    private SourceRepository sourceRepository;
+    private final SurveyRepository surveyRepository;
 
-    @Autowired
-    private SurveyRepository surveyRepository;
+    private final SurveyUnitRepository surveyUnitRepository;
 
-    @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    private final SurveyUnitAddressRepository surveyUnitAddressRepository;
 
-    @Autowired
-    private SurveyUnitAddressRepository surveyUnitAddressRepository;
+    private final OperatorServiceRepository operatorServiceRepository;
 
-    @Autowired
-    private OperatorServiceRepository operatorServiceRepository;
+    private final OperatorRepository operatorRepository;
 
-    @Autowired
-    private OperatorRepository operatorRepository;
+    private final QuestioningRepository questioningRepository;
 
-    @Autowired
-    private QuestioningRepository questioningRepository;
+    private final QuestioningAccreditationRepository questioningAccreditationRepository;
 
-    @Autowired
-    private QuestioningAccreditationRepository questioningAccreditationRepository;
+    private final CampaignRepository campaignRepository;
 
-    @Autowired
-    private CampaignRepository campaignRepository;
+    private final PartitioningRepository partitioningRepository;
 
-    @Autowired
-    private PartitioningRepository partitioningRepository;
+    private final EventOrderRepository orderRepository;
 
-    @Autowired
-    private EventOrderRepository orderRepository;
+    private final QuestioningEventRepository questioningEventRepository;
 
-    @Autowired
-    private QuestioningEventRepository questioningEventRepository;
-
-    @Autowired
-    private ViewRepository viewRepository;
+    private final ViewRepository viewRepository;
 
     @PostConstruct
     public void init() {

@@ -21,10 +21,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,25 +47,21 @@ import java.util.stream.Collectors;
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @Validated
+@RequiredArgsConstructor
 public class CampaignController {
 
-    @Autowired
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    private SurveyService surveyService;
+    private final SurveyService surveyService;
 
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ModelMapper modelmapper;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final UploadService uploadService;
 
-    @Autowired
-    UploadService uploadService;
+    private final ModelMapper modelmapper;
+
 
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = Constants.API_CAMPAIGNS, produces = "application/json")

@@ -8,8 +8,8 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,16 +17,14 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    @Autowired
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
-    @Autowired
-    private AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    private ContactEventService contactEventService;
+    private final ContactEventService contactEventService;
 
     @Override
     public Page<Contact> findAll(Pageable pageable) {

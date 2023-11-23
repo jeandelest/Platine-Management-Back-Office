@@ -18,10 +18,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,25 +43,20 @@ import java.util.Set;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
+@RequiredArgsConstructor
 public class ContactController {
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    private QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
@@ -124,7 +119,7 @@ public class ContactController {
 
         try {
             contact = convertToEntity(contactDto);
-        } catch (ParseException  e) {
+        } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse contact");
         } catch (NoSuchElementException e) {
             log.info("Creating contact with the identifier {}", contactDto.getIdentifier());
@@ -207,7 +202,7 @@ public class ContactController {
     private Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
         contact.setGender(contactDto.getCivility());
-       return contact;
+        return contact;
     }
 
     class ContactPage extends PageImpl<ContactDto> {

@@ -1,28 +1,25 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.OwnerRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SupportRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
-    @Autowired
-    private SourceRepository sourceRepository;
+    private final SourceRepository sourceRepository;
 
     public Optional<Source> findById(String source) {
         return sourceRepository.findById(source);

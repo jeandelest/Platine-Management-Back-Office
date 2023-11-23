@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,13 +32,11 @@ import java.util.Optional;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
+@RequiredArgsConstructor
 public class SurveyUnitController {
 
-    @Autowired
-    private SurveyUnitService surveyUnitService;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final SurveyUnitService surveyUnitService;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for a survey units, paginated")
     @GetMapping(value = Constants.API_SURVEY_UNITS, produces = "application/json")

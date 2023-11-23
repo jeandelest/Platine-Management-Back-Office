@@ -6,7 +6,7 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,13 +18,12 @@ import java.util.List;
 
 @RestController
 @Tag(name = "4 - Cross domain")
+@RequiredArgsConstructor
 public class MyQuestioningsController {
 
-    @Autowired
-    private MySurveysService mySurveysService;
+    private final MySurveysService mySurveysService;
 
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
 
     @GetMapping(value = Constants.API_MY_QUESTIONINGS_ID)
     @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -33,7 +32,7 @@ public class MyQuestioningsController {
             + "|| @AuthorizeMethodDecider.isAdmin() ")
     public List<MyQuestioningDto> findById() {
 
-        String idec=null;
+        String idec;
 
         if (config.getAuthType().equals(AuthConstants.OIDC)) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

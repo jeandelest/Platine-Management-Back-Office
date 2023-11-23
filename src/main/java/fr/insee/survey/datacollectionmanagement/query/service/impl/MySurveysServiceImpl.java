@@ -12,8 +12,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -23,19 +23,16 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MySurveysServiceImpl implements MySurveysService {
 
-    @Autowired
-    private QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    private PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    private QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
 
     @Override
