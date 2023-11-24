@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public interface ContactService {
 
     public Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
-    public Contact updateContactAddressEvent(Contact contact, JsonNode payload);
+    public Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 
     public void deleteContactAddressEvent(Contact contact);
 

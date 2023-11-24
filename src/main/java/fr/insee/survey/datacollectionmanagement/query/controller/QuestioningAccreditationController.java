@@ -86,7 +86,7 @@ public class QuestioningAccreditationController {
     })
     @Transactional
     public ResponseEntity<?> postQuestioningAccreditation(@PathVariable("id") Long id,
-            @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
+                                                          @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
         Optional<Questioning> optQuestioning = null;
 
@@ -111,51 +111,55 @@ public class QuestioningAccreditationController {
         // save new accreditation or update existing one
         Set<QuestioningAccreditation> setExistingAccreditations = questioning.getQuestioningAccreditations();
         Optional<Partitioning> part = partitioningService.findById(questioning.getIdPartitioning());
-        String idSu = questioning.getSurveyUnit().getIdSu();
+        if (part.isPresent()) {
 
-        List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
-                .filter(acc -> acc.getIdContact().equals(idContact)
-                        && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
-                        && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
-                .toList();
+            String idSu = questioning.getSurveyUnit().getIdSu();
 
-        if (listContactAccreditations.isEmpty()) {
-            // Create new accreditation
-            QuestioningAccreditation questioningAccreditation = convertToEntity(questioningAccreditationDto);
-            questioningAccreditation.setQuestioning(questioning);
-            setExistingAccreditations.add(questioningAccreditation);
-            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
-            questioningService.saveQuestioning(questioning);
+            List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
+                    .filter(acc -> acc.getIdContact().equals(idContact)
+                            && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
+                            && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
+                    .toList();
 
-            // create view
-            viewService.createView(idContact, questioning.getSurveyUnit().getIdSu(),
-                    part.get().getCampaign().getId());
+            if (listContactAccreditations.isEmpty()) {
+                // Create new accreditation
+                QuestioningAccreditation questioningAccreditation = convertToEntity(questioningAccreditationDto);
+                questioningAccreditation.setQuestioning(questioning);
+                setExistingAccreditations.add(questioningAccreditation);
+                questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
+                questioningService.saveQuestioning(questioning);
 
-            // location header
-            responseHeaders.set(HttpHeaders.LOCATION,
-                    ServletUriComponentsBuilder.fromCurrentRequest().path(questioningAccreditation.getId().toString())
-                            .toUriString());
+                // create view
+                viewService.createView(idContact, questioning.getSurveyUnit().getIdSu(),
+                        part.get().getCampaign().getId());
 
-            return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                    .body(convertToDto(questioningAccreditation));
+                // location header
+                responseHeaders.set(HttpHeaders.LOCATION,
+                        ServletUriComponentsBuilder.fromCurrentRequest().path(questioningAccreditation.getId().toString())
+                                .toUriString());
 
-        } else {
-            // update accreditation
-            QuestioningAccreditation questioningAccreditation = listContactAccreditations.get(0);
-            questioningAccreditationDto.setId(questioningAccreditation.getId());
-            questioningAccreditation = convertToEntity(questioningAccreditationDto);
-            questioningAccreditation.setQuestioning(questioning);
-            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
+                return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
+                        .body(convertToDto(questioningAccreditation));
 
-            // view already exists
 
-            // location header
-            responseHeaders.set(HttpHeaders.LOCATION,
-                    ServletUriComponentsBuilder.fromCurrentRequest().path(questioningAccreditation.getId().toString())
-                            .toUriString());
-            return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders)
-                    .body(convertToDto(questioningAccreditation));
-        }
+            } else {
+                // update accreditation
+                QuestioningAccreditation questioningAccreditation = listContactAccreditations.get(0);
+                questioningAccreditationDto.setId(questioningAccreditation.getId());
+                questioningAccreditation = convertToEntity(questioningAccreditationDto);
+                questioningAccreditation.setQuestioning(questioning);
+                questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
+
+                // view already exists
+
+                // location header
+                responseHeaders.set(HttpHeaders.LOCATION,
+                        ServletUriComponentsBuilder.fromCurrentRequest().path(questioningAccreditation.getId().toString())
+                                .toUriString());
+                return ResponseEntity.status(HttpStatus.OK).headers(responseHeaders)
+                        .body(convertToDto(questioningAccreditation));
+            }
+        } else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partitioning not found");
 
     }
 

@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public List<Contact> searchListContactParameters(String identifier, String lastName, String firstName,
-            String email) {
+                                                     String email) {
 
         List<Contact> listContactContact = new ArrayList<>();
         boolean alwaysEmpty = true;
@@ -89,7 +90,7 @@ public class ContactServiceImpl implements ContactService {
                 alwaysEmpty = false;
             } else
                 listContactContact = listContactContact.stream()
-                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)) .toList();
+                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)).toList();
         }
 
         if (!StringUtils.isEmpty(email)) {
@@ -116,22 +117,24 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Contact updateContactAddressEvent(Contact contact, JsonNode payload) {
+    public Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException {
 
-        Contact existingContact = findByIdentifier(contact.getIdentifier()).get();
-        if (contact.getAddress() != null) {
-            if (existingContact.getAddress() != null) {
-                contact.getAddress().setId(existingContact.getAddress().getId());
+        Optional<Contact> existingContact = findByIdentifier(contact.getIdentifier());
+        if (existingContact.isPresent()) {
+            if (contact.getAddress() != null) {
+                if (existingContact.get().getAddress() != null) {
+                    contact.getAddress().setId(existingContact.get().getAddress().getId());
+                }
+                addressService.saveAddress(contact.getAddress());
             }
-            addressService.saveAddress(contact.getAddress());
-        }
 
-        Set<ContactEvent> setContactEventsContact = existingContact.getContactEvents();
-        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
-                payload);
-        setContactEventsContact.add(contactEventUpdate);
-        contact.setContactEvents(setContactEventsContact);
-        return saveContact(contact);
+            Set<ContactEvent> setContactEventsContact = existingContact.get().getContactEvents();
+            ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
+                    payload);
+            setContactEventsContact.add(contactEventUpdate);
+            contact.setContactEvents(setContactEventsContact);
+            return saveContact(contact);
+        } else throw new NotFoundException("Contact not found");
     }
 
     @Override

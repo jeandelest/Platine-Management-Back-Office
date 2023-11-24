@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeasy.random.EasyRandom;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -285,6 +286,8 @@ public class Dataloader {
     private void initMetadata(Faker faker, EasyRandom generator2) {
 
         int year = 2023;
+        Random qeRan = new SecureRandom();
+
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
@@ -328,7 +331,7 @@ public class Dataloader {
                 source.setPeriodicity(PeriodicityEnum.M);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
-                Integer i = new Random().nextInt();
+                Integer i = qeRan.nextInt();
                 if (i % 2 == 0)
                     setSourcesInsee.add(source);
                 else {
@@ -428,7 +431,7 @@ public class Dataloader {
         QuestioningAccreditation accreditation;
         Set<QuestioningAccreditation> questioningAccreditations;
         String fakeSiren;
-        Random qeRan = new Random();
+        Random qeRan = new SecureRandom();
 
         log.info("{} survey units exist in database", surveyUnitRepository.count());
 
@@ -537,10 +540,11 @@ public class Dataloader {
     private void initQuestioningEvents(Faker faker, EasyRandom generator) {
 
         Long nbExistingQuestioningEvents = questioningEventRepository.count();
+        Random qeRan = new SecureRandom();
+
 
         if (nbExistingQuestioningEvents == 0) {
             List<Questioning> listQu = questioningRepository.findAll();
-            Random qeRan = new Random();
 
             for (Questioning qu : listQu) {
 

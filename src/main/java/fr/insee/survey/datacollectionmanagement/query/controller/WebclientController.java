@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
@@ -188,7 +189,7 @@ public class WebclientController {
             if (contactAccreditationDto.getAddress() != null)
                 contact.setAddress(addressService.convertToEntity(contactAccreditationDto.getAddress()));
             contactService.updateContactAddressEvent(contact, node);
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | NotFoundException e) {
             log.info("Creating contact with the identifier {}", contactAccreditationDto.getIdentifier());
             contact = convertToEntityNewContact(contactAccreditationDto);
             if (contactAccreditationDto.getAddress() != null)
