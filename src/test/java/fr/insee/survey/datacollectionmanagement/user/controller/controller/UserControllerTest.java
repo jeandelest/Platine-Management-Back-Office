@@ -54,7 +54,7 @@ public class UserControllerTest {
 
     @Test
     public void getUserOk() throws Exception {
-        String identifier = "CONT1";
+        String identifier = "USER1";
         this.mockMvc.perform(get(Constants.API_USERS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()));
 
