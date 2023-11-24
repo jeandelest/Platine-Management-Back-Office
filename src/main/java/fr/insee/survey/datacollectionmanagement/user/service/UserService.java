@@ -43,11 +43,11 @@ public interface UserService {
      */
     public void deleteUser(String identifier);
 
-    public User createUserEvent(User user, JsonNode payload);
+    public User createUser(User user, JsonNode payload);
 
-    public User updateUserEvent(User user, JsonNode payload);
+    public User updateUser(User user, JsonNode payload);
 
-    public void deleteContactAddressEvent(User user);
+    public void deleteUserAndEvents(User user);
 
     List<String> findAccreditedSources(String identifier);
 }

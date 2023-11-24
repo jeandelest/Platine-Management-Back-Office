@@ -18,6 +18,6 @@ public class UserRoleValidator implements ConstraintValidator <UserRoleValid, St
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if(value == null)
             return false;
-        return Arrays.stream(User.UserRoleType.values()).anyMatch(v -> value.equals(v));
+        return Arrays.stream(User.UserRoleType.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

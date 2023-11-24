@@ -19,7 +19,7 @@ public class CorsGlobalConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                String ao = applicationConfig.getAllowedOrigin().isPresent() ? applicationConfig.getAllowedOrigin().get() : applicationConfig.getAllowedOrigin().orElse("*");
+                String ao =  applicationConfig.getAllowedOrigin().orElse("*");
                 registry.addMapping("/**")
                         .allowedOrigins(ao)
                         .allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE")

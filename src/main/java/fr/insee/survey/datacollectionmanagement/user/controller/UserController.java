@@ -5,9 +5,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
-import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
-import fr.insee.survey.datacollectionmanagement.user.exception.RoleException;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,9 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -59,7 +58,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserController.UserPage.class)))
     })
-    public ResponseEntity<?> getUsers(
+    public ResponseEntity getUsers(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
@@ -76,7 +75,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getUser(@PathVariable("id") String id) {
+    public ResponseEntity getUser(@PathVariable("id") String id) {
         Optional<User> user = userService.findByIdentifier(id);
         try {
             if (user.isPresent())
@@ -96,7 +95,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putUser(@PathVariable("id") String id, @Valid @RequestBody UserDto userDto) {
+    public ResponseEntity putUser(@PathVariable("id") String id, @Valid @RequestBody UserDto userDto) {
         if (StringUtils.isBlank(userDto.getIdentifier()) || !userDto.getIdentifier().equalsIgnoreCase(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and user identifier don't match");
         }
@@ -110,21 +109,16 @@ public class UserController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse user");
 
-        } catch (RoleException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Role not recognized: only [" + Stream.of(User.UserRoleType.values())
-                            .map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
-
         } catch (NoSuchElementException e) {
             log.info("Creating user with the identifier {}", userDto.getIdentifier());
-            user = convertToEntityNewContact(userDto);
+            user = convertToEntityNewUser(userDto);
 
-            User userCreate = userService.createUserEvent(user, null);
+            User userCreate = userService.createUser(user, null);
             return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(userCreate));
         }
 
         log.info("Updating user with the identifier {}", userDto.getIdentifier());
-        User userUpdate = userService.updateUserEvent(user, null);
+        User userUpdate = userService.updateUser(user, null);
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(userUpdate));
     }
 
@@ -137,11 +131,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Transactional
-    public ResponseEntity<?> deleteUser(@PathVariable("id") String id) {
+    public ResponseEntity deleteUser(@PathVariable("id") String id) {
         try {
             Optional<User> user = userService.findByIdentifier(id);
             if (user.isPresent()) {
-                userService.deleteContactAddressEvent(user.get());
+                userService.deleteUserAndEvents(user.get());
 
                 sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
                     Source source = sourceService.findById(acc.getSource().getId()).get();
@@ -169,7 +163,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getUserSources(@PathVariable("id") String id) {
+    public ResponseEntity getUserSources(@PathVariable("id") String id) {
         Optional<User> user = userService.findByIdentifier(id);
         if (user.isPresent()) {
             List<String> accreditedSources = userService.findAccreditedSources(id);
@@ -180,30 +174,27 @@ public class UserController {
     }
 
 
-    private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException, RoleException {
-        User user = modelMapper.map(userDto, User.class);
-
-        if (user.getRole() == null || Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> userDto.getRole().equals(v))) {
-            throw new RoleException("Role missing or not recognized. Only  [" + Stream.of(User.UserRoleType.values()).map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
-        }
+    private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException {
 
         Optional<User> oldUser = userService.findByIdentifier(userDto.getIdentifier());
         if (!oldUser.isPresent()) {
             throw new NoSuchElementException();
         }
+        User user = modelMapper.map(userDto, User.class);
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
         user.setUserEvents(oldUser.get().getUserEvents());
 
         return user;
     }
 
-    private User convertToEntityNewContact(UserDto userDto) {
+    private User convertToEntityNewUser(UserDto userDto) {
         User user = modelMapper.map(userDto, User.class);
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
         return user;
     }
 
     private UserDto convertToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
-        return userDto;
+        return modelMapper.map(user, UserDto.class);
     }
 
     class UserPage extends PageImpl<UserDto> {

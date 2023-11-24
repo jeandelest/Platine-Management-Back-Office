@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.config;
+package fr.insee.survey.datacollectionmanagement.dataloader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +18,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
@@ -84,6 +86,9 @@ public class DataloaderTest {
     @Autowired
     private ViewRepository viewRepository;
 
+    @Autowired
+    private UserService userService;
+
     @PostConstruct
     public void init() throws ParseException {
 
@@ -94,7 +99,15 @@ public class DataloaderTest {
         initMetadata();
         initQuestionning(faker);
         initView();
+        initUser();
 
+    }
+
+    private void initUser() {
+        User user = new User();
+        user.setIdentifier("USER1");
+        user.setRole(User.UserRoleType.ASSISTANCE);
+        userService.createUser(user,null);
     }
 
     private void initOrder() {

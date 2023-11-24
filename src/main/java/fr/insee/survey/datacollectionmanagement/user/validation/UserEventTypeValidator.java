@@ -18,6 +18,6 @@ public class UserEventTypeValidator implements ConstraintValidator<UserEventType
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> value.equals(v));
+        return Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

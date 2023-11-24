@@ -158,7 +158,7 @@ public class WebclientController {
         // save questioning and su
         questioningService.saveQuestioning(questioning);
         su.getQuestionings().add(questioning);
-        su = surveyUnitService.saveSurveyUnitAndAddress(su);
+        surveyUnitService.saveSurveyUnitAndAddress(su);
 
 
         questioningReturn.setIdPartitioning(idPartitioning);
@@ -400,8 +400,12 @@ public class WebclientController {
                 List<QuestioningAccreditation> listQa = questioning.getQuestioningAccreditations().stream()
                         .filter(qa -> qa.isMain()).toList();
                 if (listQa != null && !listQa.isEmpty()) {
-                    Contact c = contactService.findByIdentifier(listQa.get(0).getIdContact()).get();
-                    return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c)));
+                    Optional<Contact> c = contactService.findByIdentifier(listQa.get(0).getIdContact());
+                    if(c.isPresent())
+                        return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c.get())));
+                    else
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No contact found");
+
                 }
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No contact found");

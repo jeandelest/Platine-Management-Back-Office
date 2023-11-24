@@ -67,7 +67,7 @@ public class UploadServiceImpl implements UploadService {
                 if (setParts.isEmpty()) {
                     throw new RessourceNotValidatedException("No partitionings found for campaign ", idCampaign);
                 }
-  
+
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
 
                 List<String> listIdParts = campaignService.findById(idCampaign).get().getPartitionings().stream().map(Partitioning::getId).toList();
@@ -83,7 +83,7 @@ public class UploadServiceImpl implements UploadService {
                 qe.setPayload(objectMapper.readTree(jo.toString()));
                 qe.setDate(today);
                 liste.add(questioningEventService.saveQuestioningEvent(qe));
-                if(quest.isPresent()){
+                if (quest.isPresent()) {
                     quest.get().getQuestioningEvents().add(qe);
                     questioningService.saveQuestioning(quest.get());
                 }
@@ -99,7 +99,7 @@ public class UploadServiceImpl implements UploadService {
             return result;
         }
         up.setQuestioningEvents(liste);
-        up = saveAndFlush(up);
+        saveAndFlush(up);
 
         return result;
     }
@@ -113,14 +113,17 @@ public class UploadServiceImpl implements UploadService {
     public List<Upload> findAllByIdCampaign(String idCampaign) {
 
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
+        if (campaign.isPresent()) {
 
-        List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).toList();
+            List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).toList();
 
-        // Keeps the uploads which first managementMonitoringInfo belongs to the survey
-        return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
-                .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
-                ))
-                .toList();
+            // Keeps the uploads which first managementMonitoringInfo belongs to the survey
+            return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
+                    .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
+                    ))
+                    .toList();
+        }
+        return Collections.emptyList();
     }
 
 
@@ -137,18 +140,27 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public boolean checkUploadDate(String idCampaign, Date date) {
         Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        Long timestamp = date.getTime();
-        Long start = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
-                .toList().stream()
-                .min(Comparator.comparing(Date::getTime)).get().getTime();
-        Long end = campaign.get().getPartitionings().stream().map(Partitioning::getClosingDate)
-                .toList().stream()
-                .max(Comparator.comparing(Date::getTime)).get().getTime();
-        return (start < timestamp && timestamp < end);
+        long timestamp = date.getTime();
+        if (campaign.isPresent()) {
+            Optional<Date> openingDate = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
+                    .toList().stream()
+                    .min(Comparator.comparing(Date::getTime));
+            Optional<Date> closingDate = campaign.get().getPartitionings().stream().map(Partitioning::getClosingDate)
+                    .toList().stream()
+                    .max(Comparator.comparing(Date::getTime));
+            if(openingDate.isPresent() && closingDate.isPresent()){
+                long start = openingDate.get().getTime();
+                long end = closingDate.get().getTime();
+                return (start < timestamp && timestamp < end);
+
+            }
+
+        }
+        return false;
     }
 
     @Override
     public void removeEmptyUploads() {
-        uploadRepository.findByQuestioningEventsIsEmpty().forEach(u -> uploadRepository.delete(u));
+        uploadRepository.findByQuestioningEventsIsEmpty().forEach(uploadRepository::delete);
     }
 }

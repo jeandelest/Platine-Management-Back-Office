@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @RequiredArgsConstructor
+@Validated
 public class UserEventController {
 
     private final ModelMapper modelMapper;
@@ -76,7 +79,7 @@ public class UserEventController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<?> postUserEvent(@RequestBody UserEventDto userEventDto) {
+    public ResponseEntity<?> postUserEvent(@Valid @RequestBody UserEventDto userEventDto) {
         try {
 
             Optional<User> optUser = userService.findByIdentifier(userEventDto.getIdentifier());
@@ -137,8 +140,6 @@ public class UserEventController {
 
     private UserEvent convertToEntity(UserEventDto userEventDto) throws EventException {
         UserEvent userEvent = modelMapper.map(userEventDto, UserEvent.class);
-        if (userEvent.getType() == null)
-            throw new EventException("User event not recognized");
         return userEvent;
     }
 }

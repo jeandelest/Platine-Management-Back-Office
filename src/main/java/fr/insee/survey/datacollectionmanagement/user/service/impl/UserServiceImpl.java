@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User createUserEvent(User user, JsonNode payload) {
+    public User createUser(User user, JsonNode payload) {
 
         UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.CREATE,
                 payload);
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUserEvent(User user, JsonNode payload) {
+    public User updateUser(User user, JsonNode payload) {
 
         User existingUser = findByIdentifier(user.getIdentifier()).get();
 
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteContactAddressEvent(User user) {
+    public void deleteUserAndEvents(User user) {
         deleteUser(user.getIdentifier());
     }
 

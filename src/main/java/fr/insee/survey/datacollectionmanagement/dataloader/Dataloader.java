@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.util;
+package fr.insee.survey.datacollectionmanagement.dataloader;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
@@ -77,7 +77,7 @@ public class Dataloader {
         Faker faker = new Faker();
         EasyRandom generator = new EasyRandom();
 
-         initOrder();
+        initOrder();
 //         initContact(faker);
 //         initMetadata(faker, generator);
 //         initQuestionning(faker, generator);
@@ -180,7 +180,7 @@ public class Dataloader {
         Long nbExistingOrders = orderRepository.count();
         log.info("{} orders in database", nbExistingOrders);
 
-        if (nbExistingOrders !=8 ) {
+        if (nbExistingOrders != 8) {
             // Creating table order
             log.info("loading eventorder data");
             orderRepository.deleteAll();
@@ -317,8 +317,8 @@ public class Dataloader {
         while (sourceRepository.count() < 10) {
 
             Source source = new Source();
-            
-            String nameSource = "LOAD"+String.valueOf((char)(sourceRepository.count() + 'A'));
+
+            String nameSource = "LOAD" + String.valueOf((char) (sourceRepository.count() + 'A'));
 
             if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {
 
@@ -361,7 +361,7 @@ public class Dataloader {
                     for (int k = 0; k < 12; k++) {
                         Campaign campaign = new Campaign();
                         int month = k + 1;
-                        String period = month<10? "M0" + month:"M"+month;
+                        String period = month < 10 ? "M0" + month : "M" + month;
                         campaign.setYear(year - j);
                         campaign.setPeriod(PeriodEnum.valueOf(period));
                         campaign.setId(nameSource + (year - j) + period);
@@ -400,13 +400,13 @@ public class Dataloader {
                 sourceRepository.save(source);
                 ownerInsee.setSources(setSourcesInsee);
                 ownerAgri.setSources(setSourcesSsp);
-                ownerRepository.saveAll(Arrays.asList(new Owner[] {
+                ownerRepository.saveAll(Arrays.asList(new Owner[]{
                         ownerInsee, ownerAgri
                 }));
 
                 supportInseeHdf.setSources(setSourcesSupportInsee);
                 supportSsne.setSources(setSourcesSupportSsne);
-                supportRepository.saveAll(Arrays.asList(new Support[] {
+                supportRepository.saveAll(Arrays.asList(new Support[]{
                         supportInseeHdf, supportSsne
                 }));
             }
@@ -549,62 +549,63 @@ public class Dataloader {
                 // questioning events
                 // everybody in INITLA
                 Optional<Partitioning> part = partitioningRepository.findById(qu.getIdPartitioning());
-                Date eventDate = faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate());
-                qe.setType(TypeQuestioningEvent.INITLA);
-                qe.setDate(eventDate);
-                qe.setQuestioning(qu);
-                qeList.add(qe);
+                if (part.isPresent()) {
+                    Date eventDate = faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate());
+                    qe.setType(TypeQuestioningEvent.INITLA);
+                    qe.setDate(eventDate);
+                    qe.setQuestioning(qu);
+                    qeList.add(qe);
 
-                int qeProfile = qeRan.nextInt(10);
+                    int qeProfile = qeRan.nextInt(10);
 
-                switch (qeProfile) {
-                    case 0:
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.REFUSAL, qu));
-                        break;
-                    case 1:
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.PND, qu));
-                        break;
-                    case 2:
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.FOLLOWUP, qu));
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.FOLLOWUP, qu));
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.PARTIELINT, qu));
-                        break;
-                    case 3:
-                    case 4:
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.FOLLOWUP, qu));
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.FOLLOWUP, qu));
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.VALINT, qu));
-                        break;
-                    case 5:
-                    case 6:
-                    case 7:
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.PARTIELINT, qu));
-                        qeList.add(new QuestioningEvent(
-                                faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                                TypeQuestioningEvent.VALINT, qu));
-                        break;
+                    switch (qeProfile) {
+                        case 0:
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.REFUSAL, qu));
+                            break;
+                        case 1:
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.PND, qu));
+                            break;
+                        case 2:
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.FOLLOWUP, qu));
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.FOLLOWUP, qu));
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.PARTIELINT, qu));
+                            break;
+                        case 3:
+                        case 4:
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.FOLLOWUP, qu));
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.FOLLOWUP, qu));
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.VALINT, qu));
+                            break;
+                        case 5:
+                        case 6:
+                        case 7:
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.PARTIELINT, qu));
+                            qeList.add(new QuestioningEvent(
+                                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                                    TypeQuestioningEvent.VALINT, qu));
+                            break;
+                    }
+
+                    qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));
                 }
-
-                qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));
-
             }
         }
 

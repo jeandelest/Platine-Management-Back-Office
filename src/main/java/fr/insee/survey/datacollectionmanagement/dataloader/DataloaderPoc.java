@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.util;
+package fr.insee.survey.datacollectionmanagement.dataloader;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
