@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactFirstLoginDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
@@ -133,7 +134,12 @@ public class ContactController {
         }
         if (contactDto.getAddress() != null)
             contact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
-        Contact contactUpdate = contactService.updateContactAddressEvent(contact, null);
+        Contact contactUpdate = null;
+        try {
+            contactUpdate = contactService.updateContactAddressEvent(contact, null);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error when update contact");
+        }
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(contactUpdate));
     }
 
