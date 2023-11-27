@@ -589,7 +589,7 @@ public class WebclientController {
 
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
-        contactDto.setCivility(contact.getGender());
+        contactDto.setCivility(contact.getGender().name());
         return contactDto;
     }
 

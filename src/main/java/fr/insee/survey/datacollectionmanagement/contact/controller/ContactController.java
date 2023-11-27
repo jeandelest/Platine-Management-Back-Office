@@ -160,7 +160,7 @@ public class ContactController {
             if (contact.isPresent()) {
                 contactService.deleteContactAddressEvent(contact.get());
 
-                viewService.findViewByIdentifier(id).stream().forEach(c -> viewService.deleteView(c));
+                viewService.findViewByIdentifier(id).stream().forEach(viewService::deleteView);
                 questioningAccreditationService.findByContactIdentifier(id).stream().forEach(acc -> {
                     Questioning questioning = questioningService.findbyId(acc.getQuestioning().getId()).get();
                     Set<QuestioningAccreditation> newSet = questioning.getQuestioningAccreditations();
@@ -182,7 +182,7 @@ public class ContactController {
 
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
-        contactDto.setCivility(contact.getGender());
+        contactDto.setCivility(contact.getGender().name());
         return contactDto;
     }
 
@@ -196,7 +196,7 @@ public class ContactController {
 
     private Contact convertToEntity(ContactDto contactDto) throws ParseException, NoSuchElementException {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(contactDto.getCivility());
+        contact.setGender(Contact.Gender.valueOf(contactDto.getCivility()));
         Optional<Contact> oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
         if (oldContact.isEmpty()) {
             throw new NoSuchElementException();
@@ -210,7 +210,7 @@ public class ContactController {
 
     private Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(contactDto.getCivility());
+        contact.setGender(Contact.Gender.valueOf(contactDto.getCivility()));
         return contact;
     }
 
