@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.dto;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.validation.ContactGenderValid;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ public class ContactFirstLoginDto{
 
     private String identifier;
     private String externalId;
+    @ContactGenderValid
     private Contact.Gender civility;
     private String lastName;
     private String firstName;
