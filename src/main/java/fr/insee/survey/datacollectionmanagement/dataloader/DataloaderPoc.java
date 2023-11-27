@@ -22,7 +22,6 @@ import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -74,6 +73,9 @@ public class DataloaderPoc {
     private final ViewRepository viewRepository;
 
     static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    static final String NUMBERS = "0123456789";
+
     static SecureRandom rnd = new SecureRandom();
 
     @PostConstruct
@@ -344,7 +346,7 @@ public class DataloaderPoc {
                     survey.setVisaNumber(year + randomString(6).toUpperCase());
                     survey.setLongWording("Survey " + nameSource + " " + (year - j));
                     survey.setShortWording(id);
-                    survey.setSampleSize(Integer.parseInt(RandomStringUtils.randomNumeric(5)));
+                    survey.setSampleSize(Integer.parseInt(randomNumeric(5)));
                     setSurveys.add(survey);
                     surveyRepository.save(survey);
                     Set<Campaign> setCampaigns = new HashSet<>();
@@ -419,7 +421,7 @@ public class DataloaderPoc {
 
         for (Long i = surveyUnitRepository.count(); i < 500000; i++) {
             SurveyUnit su = new SurveyUnit();
-            fakeSiren = RandomStringUtils.randomNumeric(9);
+            fakeSiren = randomNumeric(9);
 
             su.setIdSu(fakeSiren);
             su.setIdentificationName(faker.company().name());
@@ -434,7 +436,7 @@ public class DataloaderPoc {
             questioningAccreditations = new HashSet<>();
 
             setQuestioning = new HashSet<>();
-            qu.setModelName("m" + RandomStringUtils.randomNumeric(2));
+            qu.setModelName("m" + randomNumeric(2));
             qu.setIdPartitioning(partitioningRepository.findRandomPartitioning().getId());
             SurveyUnit su = surveyUnitRepository.findRandomSurveyUnit();
             qu.setSurveyUnit(su);
@@ -553,6 +555,13 @@ public class DataloaderPoc {
         StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++)
             sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        return sb.toString();
+    }
+
+    String randomNumeric(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++)
+            sb.append(NUMBERS.charAt(rnd.nextInt(AB.length())));
         return sb.toString();
     }
 
