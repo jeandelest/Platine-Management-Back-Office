@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
@@ -57,9 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user, JsonNode payload) {
+    public User updateUser(User user, JsonNode payload) throws NotFoundException {
 
-        User existingUser = findByIdentifier(user.getIdentifier()).get();
+        User existingUser = findByIdentifier(user.getIdentifier()).orElseThrow(() -> new NotFoundException("user not found"));
 
         Set<UserEvent> setUserEventsUser = existingUser.getUserEvents();
         UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.UPDATE,

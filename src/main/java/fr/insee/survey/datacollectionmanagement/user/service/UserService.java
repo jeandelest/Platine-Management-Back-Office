@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.service;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +46,7 @@ public interface UserService {
 
     public User createUser(User user, JsonNode payload);
 
-    public User updateUser(User user, JsonNode payload);
+    public User updateUser(User user, JsonNode payload) throws NotFoundException;
 
     public void deleteUserAndEvents(User user);
 

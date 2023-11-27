@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
@@ -118,7 +119,12 @@ public class UserController {
         }
 
         log.info("Updating user with the identifier {}", userDto.getIdentifier());
-        User userUpdate = userService.updateUser(user, null);
+        User userUpdate = null;
+        try {
+            userUpdate = userService.updateUser(user, null);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Problem when saving user");
+        }
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(userUpdate));
     }
 
