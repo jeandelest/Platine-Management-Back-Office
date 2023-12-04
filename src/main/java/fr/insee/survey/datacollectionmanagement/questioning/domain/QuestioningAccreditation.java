@@ -1,15 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(indexes = {
         @Index(name = "idContact_index", columnList = "idContact"),
@@ -28,7 +26,6 @@ public class QuestioningAccreditation {
     private String idContact;
 
     @ManyToOne
-    @EqualsAndHashCode.Exclude
     private Questioning questioning;
 
     @Override

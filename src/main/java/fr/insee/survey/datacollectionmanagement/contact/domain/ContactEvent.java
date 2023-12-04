@@ -9,7 +9,8 @@ import org.hibernate.type.SqlTypes;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class ContactEvent {
 
@@ -21,14 +22,12 @@ public class ContactEvent {
     @GeneratedValue
     private Long id;
     private Date eventDate;
-    @NonNull
+
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
     private ContactEventType type;
 
     @ManyToOne
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Contact contact;
 
     @JdbcTypeCode(SqlTypes.JSON)

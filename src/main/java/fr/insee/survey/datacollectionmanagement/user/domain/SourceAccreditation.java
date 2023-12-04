@@ -11,7 +11,8 @@ import lombok.*;
 import java.util.Date;
 
 @Entity
-@Getter@Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class SourceAccreditation {
 

@@ -1,17 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import java.util.Set;
-
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Support {
 
     @Id
@@ -27,8 +26,6 @@ public class Support {
     private String zipCode;
 
     @OneToMany
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<Source> sources;
 
 }

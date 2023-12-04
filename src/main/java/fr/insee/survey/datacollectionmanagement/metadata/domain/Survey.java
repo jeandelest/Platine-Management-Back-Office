@@ -6,7 +6,8 @@ import lombok.*;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(indexes = {
         @Index(name = "surveyyear_index", columnList = "year_value"),
@@ -36,8 +37,6 @@ public class Survey {
     private String communication;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<Campaign> campaigns;
 
     @ManyToOne

@@ -1,12 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(indexes = {
         @Index(name = "campainId_index", columnList = "campaign_id")
 })

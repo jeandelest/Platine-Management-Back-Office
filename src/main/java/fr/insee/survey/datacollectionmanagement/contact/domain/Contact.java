@@ -1,12 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.contact.domain;
 
-import java.util.Set;
-
-
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Table(indexes = {
@@ -14,7 +12,8 @@ import lombok.ToString;
         @Index(name = "lnfn_index", columnList = "lastName, firstName"),
         @Index(name = "email_index", columnList = "email")
 })
-@Data
+@Getter
+@Setter
 public class Contact {
 
     public enum Gender {
@@ -35,13 +34,9 @@ public class Contact {
     private boolean emailVerify;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Address address;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<ContactEvent> contactEvents;
 
     @Enumerated(EnumType.STRING)

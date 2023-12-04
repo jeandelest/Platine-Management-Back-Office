@@ -1,20 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import java.util.Date;
-
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class CampaignEvent {
 
@@ -27,8 +23,6 @@ public class CampaignEvent {
     private Date date;
 
     @ManyToOne
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Campaign campaign;
 
 }

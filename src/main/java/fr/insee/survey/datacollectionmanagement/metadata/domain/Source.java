@@ -8,7 +8,8 @@ import lombok.*;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Source {
 
@@ -23,13 +24,9 @@ public class Source {
     private Boolean mandatoryMySurveys;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<Survey> surveys;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<SourceAccreditation> sourceAccreditations;
 
     @ManyToOne

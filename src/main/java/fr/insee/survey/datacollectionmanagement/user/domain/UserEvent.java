@@ -9,7 +9,8 @@ import org.hibernate.type.SqlTypes;
 import java.util.Date;
 
 @Entity
-@Getter@Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class UserEvent {
 
