@@ -11,7 +11,6 @@ import java.util.Date;
 @Setter
 public class ContactEventDto {
 
-    private Long id;
     private String identifier;
     private Date eventDate;
     @ContactEventTypeValid

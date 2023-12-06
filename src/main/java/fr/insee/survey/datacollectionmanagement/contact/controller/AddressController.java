@@ -6,15 +6,12 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -46,28 +44,17 @@ public class AddressController {
 
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = AddressDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "500", description = "Internal servor error")
-    })
     @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
             + "|| @AuthorizeMethodDecider.isWebClient() "
             + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
             + "|| @AuthorizeMethodDecider.isAdmin() ")
-    public ResponseEntity<?> getContactAddress(@PathVariable("id") String id) {
+    public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
-        try {
-            if (contact.getAddress() != null)
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(addressService.convertToDto(contact.getAddress()));
-            else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Address does not exist");
-            }
+        if (contact.getAddress() != null)
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(addressService.convertToDto(contact.getAddress()));
+        else throw new NotFoundException(String.format("No address found for contact %s", id));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
-        }
 
     }
 
@@ -77,12 +64,8 @@ public class AddressController {
             + "|| @AuthorizeMethodDecider.isWebClient() "
             + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
             + "|| @AuthorizeMethodDecider.isAdmin() ")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = AddressDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ContactDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
-    public ResponseEntity<?> putAddress(@PathVariable("id") String id, @RequestBody AddressDto addressDto) {
+
+    public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id, @RequestBody AddressDto addressDto, Authentication auth) {
         Contact contact = contactService.findByIdentifier(id);
         HttpStatus httpStatus;
         Address addressUpdate;
@@ -102,7 +85,7 @@ public class AddressController {
             contactService.saveContact(contact);
             httpStatus = HttpStatus.CREATED;
         }
-
+        PayloadUtil.getPayloadAuthor(auth);
         ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
                 null);
         contactEventService.saveContactEvent(contactEventUpdate);

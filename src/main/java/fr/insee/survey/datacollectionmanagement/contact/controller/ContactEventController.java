@@ -54,14 +54,10 @@ public class ContactEventController {
     })
     public ResponseEntity<?> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);
-        try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(contact.getContactEvents().stream().map(this::convertToDto)
-                            .toList());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(contact.getContactEvents().stream().map(this::convertToDto)
+                        .toList());
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -99,18 +95,13 @@ public class ContactEventController {
     })
     public ResponseEntity<?> deleteContactEvent(@PathVariable("id") Long id) {
         ContactEvent contactEvent = contactEventService.findById(id);
+        Contact contact = contactEvent.getContact();
+        contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
+                .collect(Collectors.toSet()));
+        contactService.saveContact(contact);
+        contactEventService.deleteContactEvent(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact event deleted");
 
-        try {
-            Contact contact = contactEvent.getContact();
-            contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
-                    .collect(Collectors.toSet()));
-            contactService.saveContact(contact);
-            contactEventService.deleteContactEvent(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact event deleted");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-
-        }
     }
 
     private ContactEventDto convertToDto(ContactEvent contactEvent) {
@@ -120,7 +111,7 @@ public class ContactEventController {
     }
 
     private ContactEvent convertToEntity(ContactEventDto contactEventDto) {
-        return modelMapper.map(contactEventDto, ContactEvent.class);
+         return modelMapper.map(contactEventDto, ContactEvent.class);
     }
 
     class ContactEventPage extends PageImpl<ContactEventDto> {
@@ -131,5 +122,6 @@ public class ContactEventController {
             super(content, pageable, total);
         }
     }
+
 
 }
