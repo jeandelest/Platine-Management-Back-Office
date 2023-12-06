@@ -22,16 +22,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class QuestionningControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class QuestionningControllerTest {
 
     @Autowired
     QuestioningService questioningService;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    public void getQuestioningOk() throws Exception {
+    void getQuestioningOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJson(id).toString();
@@ -40,7 +39,7 @@ public class QuestionningControllerTest {
     }
 
     @Test
-    public void getQuestioningNotFound() throws Exception {
+    void getQuestioningNotFound() throws Exception {
         String id = "300";
         this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID, id)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
@@ -48,7 +47,7 @@ public class QuestionningControllerTest {
     }
 
     @Test
-    public void getQuestioningsBySurveyUnit() throws Exception {
+    void getQuestioningsBySurveyUnit() throws Exception {
         String idSu = "100000000";
         String json = createJsonQuestionings(idSu);
         this.mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())

@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -79,14 +81,10 @@ public class SurveyController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> getSurvey(@PathVariable("id") String id) {
+    public ResponseEntity<SurveyDto> getSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(StringUtils.upperCase(id));
-        try {
-            return ResponseEntity.ok().body(convertToDto(survey));
+        return ResponseEntity.ok().body(convertToDto(survey));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -97,9 +95,11 @@ public class SurveyController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putSurvey(@PathVariable("id") String id, @RequestBody SurveyDto surveyDto) {
-        if (StringUtils.isBlank(surveyDto.getId()) || !surveyDto.getId().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idSurvey don't match");
+    public ResponseEntity<SurveyDto> putSurvey(@PathVariable("id") String id, @RequestBody @Valid SurveyDto surveyDto) {
+        if (!surveyDto.getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and idSurvey don't match");
+
+
         }
         Survey survey;
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -131,7 +131,7 @@ public class SurveyController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Transactional
-    public ResponseEntity<?> deleteSurvey(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(id);
 
         try {

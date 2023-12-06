@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
@@ -18,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
@@ -84,8 +84,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity putUser(@PathVariable("id") String id, @Valid @RequestBody UserDto userDto) {
-        if (StringUtils.isBlank(userDto.getIdentifier()) || !userDto.getIdentifier().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and user identifier don't match");
+        if (!userDto.getIdentifier().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and user identifier don't match");
         }
         User user;
         HttpHeaders responseHeaders = new HttpHeaders();

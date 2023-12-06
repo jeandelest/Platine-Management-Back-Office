@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.PartitioningDto;
@@ -94,8 +95,8 @@ public class PartitioningController {
     })
     public ResponseEntity<?> putPartitioning(@PathVariable("id") String id,
                                              @RequestBody PartitioningDto partitioningDto) {
-        if (StringUtils.isBlank(partitioningDto.getId()) || !partitioningDto.getId().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idPartitioning don't match");
+        if (!partitioningDto.getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and owner id don't match");
         }
         Partitioning partitioning;
 

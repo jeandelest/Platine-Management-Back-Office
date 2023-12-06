@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class SourceControllerTest {
+class SourceControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -38,7 +39,7 @@ public class SourceControllerTest {
     SourceRepository sourceRepository;
 
     @Test
-    public void getSourceOk() throws Exception {
+    void getSourceOk() throws Exception {
         String identifier = "SOURCE1";
         assertDoesNotThrow(() -> sourceService.findById(identifier));
         Source source = sourceService.findById(identifier);
@@ -48,7 +49,7 @@ public class SourceControllerTest {
     }
 
     @Test
-    public void getSourceNotFound() throws Exception {
+    void getSourceNotFound() throws Exception {
         String identifier = "SOURCENOTFOUND";
         this.mockMvc.perform(get(Constants.API_SOURCES_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
@@ -56,7 +57,7 @@ public class SourceControllerTest {
     }
 
     @Test
-    public void getSourcesOk() throws Exception {
+    void getSourcesOk() throws Exception {
         JSONObject jo = new JSONObject();
         jo.put("totalElements", sourceRepository.count());
         jo.put("numberOfElements", sourceRepository.count());
@@ -66,7 +67,7 @@ public class SourceControllerTest {
     }
 
     @Test
-    public void putSourceCreateUpdateDelete() throws Exception {
+    void putSourceCreateUpdateDelete() throws Exception {
         String identifier = "SOURCEPUT";
 
         // create source - status created
@@ -98,7 +99,7 @@ public class SourceControllerTest {
         // delete source
         mockMvc.perform(delete(Constants.API_SOURCES_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertThrows(NotFoundException.class, ()->sourceService.findById(identifier));
+        assertThrows(NotFoundException.class, () -> sourceService.findById(identifier));
 
         // delete source not found
         mockMvc.perform(delete(Constants.API_SOURCES + "/" + identifier).contentType(MediaType.APPLICATION_JSON))
@@ -107,14 +108,14 @@ public class SourceControllerTest {
     }
 
     @Test
-    public void putSourcesErrorId() throws Exception {
+    void putSourcesErrorId() throws Exception {
         String identifier = "NEWONE";
         String otherIdentifier = "WRONG";
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
         mockMvc.perform(put(Constants.API_SOURCES + "/" + otherIdentifier).content(jsonSource)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().string("id and source id don't match"));
+                .andExpect(status().isBadRequest()).andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and source id don't match")));
 
     }
 

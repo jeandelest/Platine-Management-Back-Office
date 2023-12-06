@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class SurveyControllerTest {
+class SurveyControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,9 +38,8 @@ public class SurveyControllerTest {
     private SurveyRepository surveyRepository;
 
 
-
     @Test
-    public void getSurveyNotFound() throws Exception {
+    void getSurveyNotFound() throws Exception {
         String identifier = "SURVEYNOTFOUND";
         this.mockMvc.perform(get(Constants.API_SURVEYS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
@@ -48,19 +48,19 @@ public class SurveyControllerTest {
 
 
     @Test
-    public void putSurveyCreateUpdateDelete() throws Exception {
+    void putSurveyCreateUpdateDelete() throws Exception {
         String identifier = "SURVEYPUT";
 
         // create survey - status created
         Survey survey = initSurvey(identifier);
         String jsonSurvey = createJson(survey, "SOURCE1");
         mockMvc.perform(
-                put(Constants.API_SURVEYS_ID, identifier).content(jsonSurvey)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        put(Constants.API_SURVEYS_ID, identifier).content(jsonSurvey)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurvey.toString(), false));
 
-        assertDoesNotThrow(()->surveyService.findById(identifier));
+        assertDoesNotThrow(() -> surveyService.findById(identifier));
         Survey surveyFound = surveyService.findById(identifier);
         assertEquals(survey.getLongWording(), surveyFound.getLongWording());
         assertEquals(survey.getShortWording(), surveyFound.getShortWording());
@@ -68,11 +68,11 @@ public class SurveyControllerTest {
 
         // update survey - status ok
         survey.setLongWording("Long wording update");
-        String jsonSurveyUpdate = createJson(survey,"SOURCE1");
+        String jsonSurveyUpdate = createJson(survey, "SOURCE1");
         mockMvc.perform(put(Constants.API_SURVEYS_ID, identifier).content(jsonSurveyUpdate)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUpdate.toString(), false));
-        assertDoesNotThrow(()->surveyService.findById(identifier));
+        assertDoesNotThrow(() -> surveyService.findById(identifier));
         Survey surveyFoundAfterUpdate = surveyService.findById(identifier);
 
         assertEquals("Long wording update", surveyFoundAfterUpdate.getLongWording());
@@ -82,7 +82,7 @@ public class SurveyControllerTest {
         mockMvc.perform(delete(Constants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        assertThrows(NotFoundException.class,()->surveyService.findById(identifier));
+        assertThrows(NotFoundException.class, () -> surveyService.findById(identifier));
 
         // delete survey not found
         mockMvc.perform(delete(Constants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
@@ -91,14 +91,15 @@ public class SurveyControllerTest {
     }
 
     @Test
-    public void putSurveysErrorId() throws Exception {
+    void putSurveysErrorId() throws Exception {
         String identifier = "NEWONE";
         String otherIdentifier = "WRONG";
         Survey survey = initSurvey(identifier);
         String jsonSurvey = createJson(survey, "SOURCE1");
         mockMvc.perform(put(Constants.API_SURVEYS_ID, otherIdentifier).content(jsonSurvey)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().string("id and idSurvey don't match"));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest()).andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and idSurvey don't match")));
+
 
     }
 
@@ -124,9 +125,9 @@ public class SurveyControllerTest {
     }
 
     @Test
-    public void getSurveyOk() throws Exception {
+    void getSurveyOk() throws Exception {
         String identifier = "SOURCE12022";
-        assertDoesNotThrow(()->surveyService.findById(identifier));
+        assertDoesNotThrow(() -> surveyService.findById(identifier));
         Survey survey = surveyService.findById(identifier);
 
         String json = createJson(survey, "SOURCE1");

@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent.UserEventT
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class UserControllerTest {
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,7 +47,7 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @Test
-    public void getUserNotFound() throws Exception {
+    void getUserNotFound() throws Exception {
         String identifier = "CONT500";
         this.mockMvc.perform(get(Constants.API_USERS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
@@ -54,7 +55,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserOk() throws Exception {
+    void getUserOk() throws Exception {
         String identifier = "USER1";
         this.mockMvc.perform(get(Constants.API_USERS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()));
@@ -62,7 +63,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUsersOk() throws Exception {
+    void getUsersOk() throws Exception {
         JSONObject jo = new JSONObject();
         jo.put("totalElements", userRepository.count());
         jo.put("numberOfElements", userRepository.count());
@@ -72,14 +73,14 @@ public class UserControllerTest {
     }
 
     @Test
-    public void putUserCreateUpdateDelete() throws Exception {
+    void putUserCreateUpdateDelete() throws Exception {
         String identifier = "TESTPUT";
 
         // create user - status created
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
         mockMvc.perform(
-                put(Constants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
+                        put(Constants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonUser.toString(), false));
         assertDoesNotThrow(() -> userService.findByIdentifier(identifier));
@@ -91,19 +92,19 @@ public class UserControllerTest {
         user.setRole(User.UserRoleType.ASSISTANCE);
         String jsonUserUpdate = createJson(user);
         mockMvc.perform(put(Constants.API_USERS_ID, identifier).content(jsonUserUpdate)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonUserUpdate.toString(), false));
         User userFoundAfterUpdate = userService.findByIdentifier(identifier);
         assertEquals(User.UserRoleType.ASSISTANCE, userFoundAfterUpdate.getRole());
         List<UserEvent> listUpdate = new ArrayList<>(
                 userEventService.findUserEventsByUser(userFoundAfterUpdate));
-        assertEquals(listUpdate.size(), 2);
-        assertEquals(listUpdate.get(1).getType(), UserEventType.UPDATE);
+        assertEquals(2, listUpdate.size());
+        assertEquals(UserEventType.UPDATE, listUpdate.get(1).getType());
 
         // delete user
         mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertThrows(NotFoundException.class,() -> userService.findByIdentifier(identifier));
+        assertThrows(NotFoundException.class, () -> userService.findByIdentifier(identifier));
 
         assertTrue(userEventService.findUserEventsByUser(userFoundAfterUpdate).isEmpty());
 
@@ -114,15 +115,15 @@ public class UserControllerTest {
     }
 
     @Test
-    public void putUsersErrorId() throws Exception {
+    void putUsersErrorId() throws Exception {
         String identifier = "NEWONE";
         String otherIdentifier = "WRONG";
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
         mockMvc.perform(put(Constants.API_USERS_ID, otherIdentifier).content(jsonUser)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("id and user identifier don't match"));
+                .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and user identifier don't match")));
 
     }
 

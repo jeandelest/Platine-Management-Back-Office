@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @ContextConfiguration
-public class MyQuestioningsControllerTest {
+class MyQuestioningsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -32,7 +32,7 @@ public class MyQuestioningsControllerTest {
     private CheckHabilitationService checkAccreditationService;
 
 //    @Test
-//    public void myQuestionings() throws Exception {
+//    void myQuestionings() throws Exception {
 //        String identifier = "CONT2";
 //
 //        MvcResult result = this.mockMvc.perform(get(Constants.API_MY_QUESTIONINGS_ID, identifier)).andDo(print())
@@ -52,7 +52,7 @@ public class MyQuestioningsControllerTest {
 //    }
 
     @Test
-    public void myQuestioningsContactNotExist() throws Exception {
+    void myQuestioningsContactNotExist() throws Exception {
         String identifier = "CONT500";
 
         MvcResult result = this.mockMvc.perform(get(Constants.API_MY_QUESTIONINGS_ID, identifier)).andDo(print())

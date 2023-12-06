@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
@@ -122,8 +123,8 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
-        if (StringUtils.isBlank(campaignDto.getId()) || !campaignDto.getId().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idCampaign don't match");
+        if ( !campaignDto.getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and idCampaign don't match");
         }
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,

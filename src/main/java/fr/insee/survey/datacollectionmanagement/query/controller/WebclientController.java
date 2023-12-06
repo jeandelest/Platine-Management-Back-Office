@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
@@ -33,6 +34,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -54,6 +57,7 @@ import java.util.*;
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor
+@Validated
 public class WebclientController {
 
     private final QuestioningService questioningService;
@@ -118,12 +122,11 @@ public class WebclientController {
         su = convertToEntity(questioningWebclientDto.getSurveyUnit());
 
         // Create su if not exists or update
-        try{
+        try {
             SurveyUnit optSuBase = surveyUnitService.findbyId(idSu);
             su.setQuestionings(optSuBase.getQuestionings());
 
-        }
-        catch (NotFoundException e){
+        } catch (NotFoundException e) {
             log.warn("survey unit {} does not exist - Creation of the survey unit",
                     idSu);
             su.setQuestionings(new HashSet<>());
@@ -299,12 +302,12 @@ public class WebclientController {
     })
     @Transactional
     public ResponseEntity<?> putMetadata(@PathVariable("id") String id,
-                                         @RequestBody MetadataDto metadataDto) {
+                                         @RequestBody @Valid MetadataDto metadataDto) {
+        if (!metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and idPartitioning don't match");
+        }
         try {
-            if (StringUtils.isBlank(metadataDto.getPartitioningDto().getId())
-                    || !metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idPartitioning don't match");
-            }
+
             MetadataDto metadataReturn = new MetadataDto();
 
             HttpHeaders responseHeaders = new HttpHeaders();

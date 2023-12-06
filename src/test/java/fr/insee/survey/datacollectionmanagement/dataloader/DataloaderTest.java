@@ -107,7 +107,7 @@ public class DataloaderTest {
         User user = new User();
         user.setIdentifier("USER1");
         user.setRole(User.UserRoleType.ASSISTANCE);
-        userService.createUser(user,null);
+        userService.createUser(user, null);
     }
 
     private void initOrder() {
@@ -292,8 +292,8 @@ public class DataloaderTest {
                 sourceRepository.save(source);
                 log.info("Source created : " + source.toString());
                 ownerInsee.setSources(setSourcesInsee);
-                ownerRepository.saveAll(Arrays.asList(new Owner[] {
-                        ownerInsee }));
+                ownerRepository.saveAll(Arrays.asList(new Owner[]{
+                        ownerInsee}));
             }
 
         }

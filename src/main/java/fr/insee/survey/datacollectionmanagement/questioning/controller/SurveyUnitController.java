@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -33,6 +36,7 @@ import java.util.List;
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class SurveyUnitController {
 
     private final SurveyUnitService surveyUnitService;
@@ -75,10 +79,9 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putSurveyUnit(@PathVariable("id") String id, @RequestBody SurveyUnitDto surveyUnitDto) {
-        if (StringUtils.isBlank(surveyUnitDto.getIdSu()) || !surveyUnitDto.getIdSu().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idSu don't match");
-
+    public ResponseEntity<?> putSurveyUnit(@PathVariable("id") String id, @RequestBody @Valid SurveyUnitDto surveyUnitDto) {
+        if (!surveyUnitDto.getIdSu().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and idSu don't match");
         }
 
         SurveyUnit surveyUnit;
@@ -92,12 +95,11 @@ public class SurveyUnitController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse survey unit");
         }
-        try{
+        try {
             surveyUnitService.findbyId(surveyUnitDto.getIdSu());
             responseStatus = HttpStatus.OK;
 
-        }
-        catch (NotFoundException e){
+        } catch (NotFoundException e) {
             log.info("Creating survey with the id {}", surveyUnitDto.getIdSu());
             responseStatus = HttpStatus.CREATED;
         }
@@ -118,13 +120,13 @@ public class SurveyUnitController {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
 
         try {
-                if (!surveyUnit.getQuestionings().isEmpty()) {
-                    log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Some questionings exist for this survey unit, the survey unit can't be deleted");
-                }
-                surveyUnitService.deleteSurveyUnit(id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Survey unit deleted");
+            if (!surveyUnit.getQuestionings().isEmpty()) {
+                log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Some questionings exist for this survey unit, the survey unit can't be deleted");
+            }
+            surveyUnitService.deleteSurveyUnit(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Survey unit deleted");
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");

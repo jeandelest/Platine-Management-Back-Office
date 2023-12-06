@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.Test;
@@ -60,9 +61,10 @@ class CampaignControllerTest {
         String otherIdentifier = "WRONG";
         Campaign campaign = initOpenedCampaign(identifier);
         String jsonCampaign = createJson(campaign, "SOURCE12023");
+        String jsonError = JsonUtil.createJsonErrorBadRequest("id and idCampaign don't match");
         mockMvc.perform(put(Constants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().string("id and idCampaign don't match"));
+                .andExpect(status().isBadRequest()).andExpect(content().json(jsonError, false));
 
     }
 
@@ -206,7 +208,7 @@ class CampaignControllerTest {
         return jo.toString();
     }
 
-    private String createJson(Campaign campaign, String idSurvey)  {
+    private String createJson(Campaign campaign, String idSurvey) {
         JSONObject jo = new JSONObject();
         jo.put("id", campaign.getId());
         jo.put("year", campaign.getYear());
@@ -222,11 +224,12 @@ class CampaignControllerTest {
     void getCampaignOk() throws Exception {
         String identifier = "SOURCE12023T01";
 
-        assertDoesNotThrow(()->campaignService.findById(identifier));
+        assertDoesNotThrow(() -> campaignService.findById(identifier));
         Campaign campaign = campaignService.findById(identifier);
         String json = createJson(campaign, "SOURCE12023");
         this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
+
 
 }

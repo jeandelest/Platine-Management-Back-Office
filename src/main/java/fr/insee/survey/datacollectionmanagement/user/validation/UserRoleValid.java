@@ -16,7 +16,7 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = UserRoleValidator.class)
 public @interface UserRoleValid {
     //error message
-    String message() default "Role missing or not recognized. Only CREATE, UPDATE, DELETE";
+    String message() default "Role missing or not recognized. Only RESPONSABLE, GESTIONNAIRE, ASSISTANCE are valid";
 
     //represents group of constraints
     Class<?>[] groups() default {};

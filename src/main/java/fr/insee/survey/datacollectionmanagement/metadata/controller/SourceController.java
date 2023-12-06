@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -43,6 +46,7 @@ import java.util.List;
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class SourceController {
 
     private final SourceService sourceService;
@@ -93,9 +97,10 @@ public class SourceController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SourceCompleteDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putSource(@PathVariable("id") String id, @RequestBody SourceCompleteDto SourceCompleteDto) {
-        if (StringUtils.isBlank(SourceCompleteDto.getId()) || !SourceCompleteDto.getId().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and source id don't match");
+    public ResponseEntity<?> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceCompleteDto SourceCompleteDto) {
+        if ( !SourceCompleteDto.getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and source id don't match");
+
         }
 
         Source source;

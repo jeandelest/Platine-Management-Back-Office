@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OwnerDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,6 +35,7 @@ import java.util.List;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @RequiredArgsConstructor
+@Validated
 public class OwnerController {
 
     private final ModelMapper modelmapper;
@@ -73,9 +77,9 @@ public class OwnerController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = OwnerDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putOwner(@PathVariable("id") String id, @RequestBody OwnerDto ownerDto) {
+    public ResponseEntity<?> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
         if (!ownerDto.getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and owner id don't match");
+            throw new NotMatchException("id and owner id don't match");
         }
 
         HttpHeaders responseHeaders = new HttpHeaders();

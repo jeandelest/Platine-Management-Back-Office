@@ -22,28 +22,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class QuestionningEventControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class QuestionningEventControllerTest {
 
     @Autowired
     QuestioningService questioningService;
-
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    public void getQuestioningEventOk() throws Exception {
+    void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJsonQuestioningEvent(id);
-        this.mockMvc.perform(get(Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS,id)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, id)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
-    public void getQuestioningEventNotFound() throws Exception {
+    void getQuestioningEventNotFound() throws Exception {
         String identifier = "300";
-        this.mockMvc.perform(get(Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS,identifier)).andDo(print())
+        this.mockMvc.perform(get(Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }

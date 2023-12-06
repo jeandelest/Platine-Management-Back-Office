@@ -21,29 +21,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class UserEventControllerTest {
+class UserEventControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void getUserEventOk() throws Exception {
+    void getUserEventOk() throws Exception {
         String identifier = "USER1";
 
         String json = createJsonUserEvent(identifier, null);
-        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS,identifier)).andDo(print()).andExpect(status().isOk())
-            .andExpect(content().json(json, false));
+        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS, identifier)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(json, false));
     }
 
     @Test
-    public void getUserEventNotFound() throws Exception {
+    void getUserEventNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS,identifier)).andDo(print())
-            .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS, identifier)).andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
 
-    private String createJsonUserEvent(String identifier, JSONObject payload ) throws JSONException {
+    private String createJsonUserEvent(String identifier, JSONObject payload) throws JSONException {
         JSONObject jo = new JSONObject();
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", identifier);
