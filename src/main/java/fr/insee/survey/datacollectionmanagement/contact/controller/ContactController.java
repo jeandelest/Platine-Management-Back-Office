@@ -2,6 +2,8 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
@@ -55,6 +57,9 @@ public class ContactController {
 
     private final ModelMapper modelMapper;
 
+    private final UserProvider userProvider;
+
+
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
     public ResponseEntity<ContactPage> getContacts(
@@ -95,7 +100,9 @@ public class ContactController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest()
                 .buildAndExpand(contactDto.getIdentifier()).toUriString());
-        JsonNode payload = PayloadUtil.getPayloadAuthor(auth);
+        AuthUser authUser = userProvider.getUser(auth);
+
+        JsonNode payload = PayloadUtil.getPayloadAuthor(authUser.getId());
 
         try {
             contact = convertToEntity(contactDto);

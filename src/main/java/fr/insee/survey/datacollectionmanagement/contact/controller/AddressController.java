@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -41,6 +43,9 @@ public class AddressController {
     private final ContactService contactService;
 
     private final ContactEventService contactEventService;
+
+    private final UserProvider userProvider;
+
 
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
@@ -85,7 +90,8 @@ public class AddressController {
             contactService.saveContact(contact);
             httpStatus = HttpStatus.CREATED;
         }
-        PayloadUtil.getPayloadAuthor(auth);
+        AuthUser authUser = userProvider.getUser(auth);
+        PayloadUtil.getPayloadAuthor(authUser.getId());
         ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
                 null);
         contactEventService.saveContactEvent(contactEventUpdate);
