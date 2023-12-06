@@ -6,13 +6,13 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -27,8 +27,8 @@ public class ContactEventServiceImpl implements ContactEventService {
     }
 
     @Override
-    public Optional<ContactEvent> findById(Long id) {
-        return contactEventRepository.findById(id);
+    public ContactEvent findById(Long id) {
+        return contactEventRepository.findById(id).orElseThrow(()->new NotFoundException(String.format("ContactEvent %s not found", id)));
     }
 
     @Override

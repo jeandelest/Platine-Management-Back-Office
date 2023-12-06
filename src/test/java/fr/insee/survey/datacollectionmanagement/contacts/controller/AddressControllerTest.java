@@ -42,7 +42,7 @@ public class AddressControllerTest {
     @Test
     public void getAddressOk() throws Exception {
         String identifier = "CONT1";
-        Contact contact = contactService.findByIdentifier(identifier).get();
+        Contact contact = contactService.findByIdentifier(identifier);
         String json = createJsonAddress(contact);
         this.mockMvc.perform(get(Constants.API_CONTACTS_ID_ADDRESS , identifier)).andDo(print()).andExpect(status().isOk()).andExpect(content().json(json, false));
     }
@@ -58,7 +58,7 @@ public class AddressControllerTest {
     public void putAddressCreateUpdate() throws Exception {
 
         String identifier = "CONT5";
-        Contact contact = contactService.findByIdentifier(identifier).get();
+        Contact contact = contactService.findByIdentifier(identifier);
         Address addressBefore = contact.getAddress();
 
         // Before: delete existing address
@@ -74,7 +74,7 @@ public class AddressControllerTest {
         String jsonCreate = createJsonAddress(contact);
         this.mockMvc.perform(put(Constants.API_CONTACTS_ID_ADDRESS , identifier).content(jsonCreate).contentType(MediaType.APPLICATION_JSON)).andDo(print())
             .andExpect(status().isCreated()).andExpect(content().json(jsonCreate.toString(), false));
-        Contact contactAfterCreate = contactService.findByIdentifier(identifier).get();
+        Contact contactAfterCreate = contactService.findByIdentifier(identifier);
         assertEquals(contactAfterCreate.getAddress().getCityName(), addressCreated.getCityName());
         assertEquals(contactAfterCreate.getAddress().getStreetName(), addressCreated.getStreetName());
         assertEquals(contactAfterCreate.getAddress().getCountryName(), addressCreated.getCountryName());
@@ -85,7 +85,7 @@ public class AddressControllerTest {
         String jsonUpdate = createJsonAddress(contact);
         this.mockMvc.perform(put(Constants.API_CONTACTS_ID_ADDRESS , identifier).content(jsonUpdate).contentType(MediaType.APPLICATION_JSON)).andDo(print())
             .andExpect(status().isOk()).andExpect(content().json(jsonUpdate.toString(), false));
-        Contact contactAfterUpdate = contactService.findByIdentifier(identifier).get();
+        Contact contactAfterUpdate = contactService.findByIdentifier(identifier);
         assertEquals(contactAfterUpdate.getAddress().getCityName(), addressUpdated.getCityName());
         assertEquals(contactAfterUpdate.getAddress().getStreetName(), addressUpdated.getStreetName());
         assertEquals(contactAfterUpdate.getAddress().getCountryName(), addressUpdated.getCountryName());

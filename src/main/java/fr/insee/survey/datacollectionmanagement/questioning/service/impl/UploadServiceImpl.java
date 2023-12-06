@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.RessourceNotValidatedException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -59,18 +60,15 @@ public class UploadServiceImpl implements UploadService {
             try {
                 QuestioningEvent qe = new QuestioningEvent();
 
-                Optional<Campaign> campaign = campaignService.findById(idCampaign);
-                if (campaign.isEmpty()) {
-                    throw new RessourceNotValidatedException("Campaign", idCampaign);
-                }
-                Set<Partitioning> setParts = campaign.get().getPartitionings();
+                Campaign campaign = campaignService.findById(idCampaign);
+                Set<Partitioning> setParts = campaign.getPartitionings();
                 if (setParts.isEmpty()) {
                     throw new RessourceNotValidatedException("No partitionings found for campaign ", idCampaign);
                 }
 
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
 
-                List<String> listIdParts = campaignService.findById(idCampaign).get().getPartitionings().stream().map(Partitioning::getId).toList();
+                List<String> listIdParts = campaignService.findById(idCampaign).getPartitionings().stream().map(Partitioning::getId).toList();
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning()) && q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact)
                         .toList().contains(mmDto.getIdContact())).findFirst();
 
@@ -105,25 +103,23 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public Optional<Upload> findById(long id) {
-        return uploadRepository.findById(id);
+    public Upload findById(long id) {
+        return uploadRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("Upload %s not found", id)));
     }
 
     @Override
     public List<Upload> findAllByIdCampaign(String idCampaign) {
 
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        if (campaign.isPresent()) {
+        Campaign campaign = campaignService.findById(idCampaign);
 
-            List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).toList();
+        List<String> partitioningIds = campaign.getPartitionings().stream().map(Partitioning::getId).toList();
 
-            // Keeps the uploads which first managementMonitoringInfo belongs to the survey
-            return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
-                    .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
-                    ))
-                    .toList();
-        }
-        return Collections.emptyList();
+        // Keeps the uploads which first managementMonitoringInfo belongs to the survey
+        return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
+                .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
+                ))
+                .toList();
+
     }
 
 
@@ -139,21 +135,19 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public boolean checkUploadDate(String idCampaign, Date date) {
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.findById(idCampaign);
         long timestamp = date.getTime();
-        if (campaign.isPresent()) {
-            Optional<Date> openingDate = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
-                    .toList().stream()
-                    .min(Comparator.comparing(Date::getTime));
-            Optional<Date> closingDate = campaign.get().getPartitionings().stream().map(Partitioning::getClosingDate)
-                    .toList().stream()
-                    .max(Comparator.comparing(Date::getTime));
-            if(openingDate.isPresent() && closingDate.isPresent()){
-                long start = openingDate.get().getTime();
-                long end = closingDate.get().getTime();
-                return (start < timestamp && timestamp < end);
+        Optional<Date> openingDate = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
+                .toList().stream()
+                .min(Comparator.comparing(Date::getTime));
+        Optional<Date> closingDate = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
+                .toList().stream()
+                .max(Comparator.comparing(Date::getTime));
+        if (openingDate.isPresent() && closingDate.isPresent()) {
+            long start = openingDate.get().getTime();
+            long end = closingDate.get().getTime();
+            return (start < timestamp && timestamp < end);
 
-            }
 
         }
         return false;

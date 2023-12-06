@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SupportDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -62,13 +61,8 @@ public class SupportController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getSupport(@PathVariable("id") String id) {
-        Optional<Support> support = supportService.findById(id);
-        if (!support.isPresent()) {
-            log.warn("Support {} does not exist", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("support does not exist");
-        }
-        support = supportService.findById(id);
-        return ResponseEntity.ok().body(convertToDto(support.orElse(null)));
+        Support support = supportService.findById(id);
+        return ResponseEntity.ok().body(convertToDto(support));
 
     }
 
@@ -88,15 +82,17 @@ public class SupportController {
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(supportDto.getId()).toUriString());
         HttpStatus httpStatus;
+        Support supportBase;
+        try {
+            supportBase = supportService.findById(id);
+            log.info("Update support with the id {}", supportDto.getId());
+            httpStatus = HttpStatus.OK;
 
-        log.warn("Update support with the id {}", supportDto.getId());
-        Optional<Support> supportBase = supportService.findById(id);
-        httpStatus = HttpStatus.OK;
-
-        if (!supportBase.isPresent()) {
+        } catch (NotFoundException e) {
             log.info("Create support with the id {}", supportDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
+
 
         Support support = supportService.insertOrUpdateSupport(convertToEntity(supportDto));
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(support));

@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -34,7 +35,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -80,13 +80,9 @@ public class SourceController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getSource(@PathVariable("id") String id) {
-        Optional<Source> source = sourceService.findById(StringUtils.upperCase(id));
-        if (!source.isPresent()) {
-            log.warn("Source {} does not exist", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("source does not exist");
-        }
+        Source source = sourceService.findById(StringUtils.upperCase(id));
         source = sourceService.findById(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToDto(source.orElse(null)));
+        return ResponseEntity.ok().body(convertToDto(source));
 
     }
 
@@ -107,21 +103,22 @@ public class SourceController {
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(SourceCompleteDto.getId()).toUriString());
         HttpStatus httpStatus;
-
-        if (sourceService.findById(id).isPresent()) {
+        try {
+            sourceService.findById(id);
             log.warn("Update source with the id {}", SourceCompleteDto.getId());
             httpStatus = HttpStatus.OK;
-        } else {
+        } catch (NotFoundException e) {
             log.info("Create source with the id {}", SourceCompleteDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
 
+
         source = sourceService.insertOrUpdateSource(convertToEntity(SourceCompleteDto));
         if (source.getOwner() != null && httpStatus.equals(HttpStatus.CREATED))
             ownerService.addSourceFromOwner(source.getOwner(), source);
-        if (source.getSupport()!=null&& httpStatus.equals(HttpStatus.CREATED))
+        if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
             supportService.addSourceFromSupport(source.getSupport(), source);
-        
+
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(source));
     }
 
@@ -135,24 +132,21 @@ public class SourceController {
     @Transactional
     public ResponseEntity<?> deleteSource(@PathVariable("id") String id) {
         int nbQuestioningDeleted = 0, nbViewDeleted = 0;
-        try {
-            Optional<Source> source = sourceService.findById(id);
-            if (!source.isPresent()) {
-                log.warn("Source {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("source does not exist");
-            }
-            if (source.get().getOwner() != null)
-                ownerService.removeSourceFromOwner(source.get().getOwner(), source.get());
+        Source source = sourceService.findById(id);
 
-            if (source.get().getSupport()!=null)
-                supportService.removeSourceFromSupport(source.get().getSupport(), source.get());
+        try {
+            if (source.getOwner() != null)
+                ownerService.removeSourceFromOwner(source.getOwner(), source);
+
+            if (source.getSupport() != null)
+                supportService.removeSourceFromSupport(source.getSupport(), source);
 
             sourceService.deleteSourceById(id);
             List<Campaign> listCampaigns = new ArrayList<>();
             List<Partitioning> listPartitionings = new ArrayList<>();
 
-            source.get().getSurveys().stream().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
-            source.get().getSurveys().stream().forEach(
+            source.getSurveys().stream().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
+            source.getSurveys().stream().forEach(
                     su -> su.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings())));
 
             for (Campaign campaign : listCampaigns) {
@@ -178,14 +172,11 @@ public class SourceController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getSourcesByOwner(@PathVariable("id") String id) {
+        Owner owner = ownerService.findById(id);
 
         try {
-            Optional<Owner> owner = ownerService.findById(id);
-            if (!owner.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("owner does not exist");
-            }
             return ResponseEntity.ok()
-                    .body(owner.get().getSources().stream().map(this::convertToDto).toList());
+                    .body(owner.getSources().stream().map(this::convertToDto).toList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }

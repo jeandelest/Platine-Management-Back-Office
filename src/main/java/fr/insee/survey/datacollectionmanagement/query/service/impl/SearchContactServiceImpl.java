@@ -121,7 +121,7 @@ public class SearchContactServiceImpl implements SearchContactService {
 
                 listView = listView.stream()
                         .filter(v -> lastName
-                                .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getLastName()))
+                                .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).getLastName()))
                         .toList();
         }
 
@@ -136,7 +136,7 @@ public class SearchContactServiceImpl implements SearchContactService {
 
                 listView = listView.stream()
                         .filter(v -> firstName
-                                .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getFirstName()))
+                                .equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).getFirstName()))
                         .toList();
         }
 
@@ -150,7 +150,7 @@ public class SearchContactServiceImpl implements SearchContactService {
             } else if (!alwaysEmpty)
 
                 listView = listView.stream().filter(
-                        v -> email.equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).get().getEmail()))
+                        v -> email.equalsIgnoreCase(contactService.findByIdentifier(v.getIdentifier()).getEmail()))
                         .toList();
         }
 
@@ -198,7 +198,7 @@ public class SearchContactServiceImpl implements SearchContactService {
         for (View v : listView) {
 
             SearchContactDto searchContact = new SearchContactDto();
-            Contact c = contactService.findByIdentifier(v.getIdentifier()).get();
+            Contact c = contactService.findByIdentifier(v.getIdentifier());
             searchContact.setIdentifier(c.getIdentifier());
             searchContact.setFirstName(c.getFirstName());
             searchContact.setLastName(c.getLastName());

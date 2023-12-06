@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.controller.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent.UserEventType;
@@ -81,7 +82,8 @@ public class UserControllerTest {
                 put(Constants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonUser.toString(), false));
-        User userFound = userService.findByIdentifier(identifier).get();
+        assertDoesNotThrow(() -> userService.findByIdentifier(identifier));
+        User userFound = userService.findByIdentifier(identifier);
         assertEquals(user.getIdentifier(), userFound.getIdentifier());
         assertEquals(user.getRole(), userFound.getRole());
 
@@ -91,7 +93,7 @@ public class UserControllerTest {
         mockMvc.perform(put(Constants.API_USERS_ID, identifier).content(jsonUserUpdate)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonUserUpdate.toString(), false));
-        User userFoundAfterUpdate = userService.findByIdentifier(identifier).get();
+        User userFoundAfterUpdate = userService.findByIdentifier(identifier);
         assertEquals(User.UserRoleType.ASSISTANCE, userFoundAfterUpdate.getRole());
         List<UserEvent> listUpdate = new ArrayList<>(
                 userEventService.findUserEventsByUser(userFoundAfterUpdate));
@@ -101,7 +103,8 @@ public class UserControllerTest {
         // delete user
         mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertFalse(userService.findByIdentifier(identifier).isPresent());
+        assertThrows(NotFoundException.class,() -> userService.findByIdentifier(identifier));
+
         assertTrue(userEventService.findUserEventsByUser(userFoundAfterUpdate).isEmpty());
 
         // delete user not found

@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -37,8 +37,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Optional<Questioning> findbyId(Long id) {
-        return questioningRepository.findById(id);
+    public Questioning findbyId(Long id) {
+        return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
     @Override
@@ -80,14 +80,14 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public String getAccessUrl(Questioning questioning, String surveyUnitId) {
-            return applicationConfig.getQuestioningUrl() + "/questionnaire/" + questioning.getModelName()
-                    + "/unite-enquetee/" + surveyUnitId;
-        }
+        return applicationConfig.getQuestioningUrl() + "/questionnaire/" + questioning.getModelName()
+                + "/unite-enquetee/" + surveyUnitId;
+    }
 
 
     @Override
     public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
-            String surveyUnitIdSu) {
+                                                             String surveyUnitIdSu) {
         return questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 surveyUnitIdSu);
     }

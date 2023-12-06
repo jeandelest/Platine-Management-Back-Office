@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,16 +61,12 @@ public class SourceAccreditationController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> getSourceAccreditation(@PathVariable("id") String id) {
+        Source source = sourceService.findById(id);
 
         try {
-            Optional<Source> optSource = sourceService.findById(id);
-            if (optSource.isPresent())
-                return new ResponseEntity<>(
-                        optSource.get().getSourceAccreditations().stream().map(c -> convertToDto(c))
-                                .collect(Collectors.toList()),
-                        HttpStatus.OK);
-            else
-                return new ResponseEntity<>("Source does not exist", HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok().body(source.getSourceAccreditations().stream().map(c -> convertToDto(c))
+                    .collect(Collectors.toList()));
+
         } catch (Exception e) {
             return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -87,25 +82,11 @@ public class SourceAccreditationController {
     })
     @Transactional
     public ResponseEntity<?> postSourceAccreditation(@PathVariable("id") String id,
-                                                     @Valid @RequestBody  SourceAccreditationDto sourceAccreditationDto) {
+                                                     @Valid @RequestBody SourceAccreditationDto sourceAccreditationDto) {
 
-        Optional<Source> optSource = null;
-
+        Source source = sourceService.findById(id);;
         String idUser = sourceAccreditationDto.getIdUser();
-
-        // Check if questioning exists
-        try {
-            optSource = sourceService.findById(id);
-            if (!optSource.isPresent())
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Source does not exist");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
-        }
-        Source source = optSource.get();
-
-        // Check if contact exists
-        if (!userService.findByIdentifier(idUser).isPresent())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
+        userService.findByIdentifier(idUser);
 
         HttpHeaders responseHeaders = new HttpHeaders();
 

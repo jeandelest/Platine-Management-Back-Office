@@ -33,8 +33,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Optional<Contact> findByIdentifier(String identifier) {
-        return contactRepository.findById(identifier);
+    public Contact findByIdentifier(String identifier) {
+        return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ContactServiceImpl implements ContactService {
         boolean alwaysEmpty = true;
 
         if (!StringUtils.isEmpty(identifier)) {
-            listContactContact = Arrays.asList(findByIdentifier(identifier).get());
+            listContactContact = Arrays.asList(findByIdentifier(identifier));
             alwaysEmpty = false;
         }
 
@@ -119,22 +119,20 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException {
 
-        Optional<Contact> existingContact = findByIdentifier(contact.getIdentifier());
-        if (existingContact.isPresent()) {
-            if (contact.getAddress() != null) {
-                if (existingContact.get().getAddress() != null) {
-                    contact.getAddress().setId(existingContact.get().getAddress().getId());
-                }
-                addressService.saveAddress(contact.getAddress());
+        Contact existingContact = findByIdentifier(contact.getIdentifier());
+        if (contact.getAddress() != null) {
+            if (existingContact.getAddress() != null) {
+                contact.getAddress().setId(existingContact.getAddress().getId());
             }
+            addressService.saveAddress(contact.getAddress());
+        }
 
-            Set<ContactEvent> setContactEventsContact = existingContact.get().getContactEvents();
-            ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
-                    payload);
-            setContactEventsContact.add(contactEventUpdate);
-            contact.setContactEvents(setContactEventsContact);
-            return saveContact(contact);
-        } else throw new NotFoundException("Contact not found");
+        Set<ContactEvent> setContactEventsContact = existingContact.getContactEvents();
+        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
+                payload);
+        setContactEventsContact.add(contactEventUpdate);
+        contact.setContactEvents(setContactEventsContact);
+        return saveContact(contact);
     }
 
     @Override

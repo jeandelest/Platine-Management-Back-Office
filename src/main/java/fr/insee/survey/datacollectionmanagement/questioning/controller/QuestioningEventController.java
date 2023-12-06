@@ -30,7 +30,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,18 +58,12 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
-        try {
-            Optional<Questioning> questioning = questioningService.findbyId(id);
-            if (questioning.isPresent()) {
-                Set<QuestioningEvent> setQe = questioning.get().getQuestioningEvents();
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(setQe.stream()
-                                .map(this::convertToDto).toList());
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("questioning not found");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+        Questioning questioning = questioningService.findbyId(id);
+        Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(setQe.stream()
+                        .map(this::convertToDto).toList());
+
     }
 
     @Operation(summary = "Create a questioning event")
@@ -80,24 +73,22 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> postQuestioningEvent(@Parameter(description = "questioning id") Long id,
-            @RequestBody QuestioningEventDto questioningEventDto) {
+                                                  @RequestBody QuestioningEventDto questioningEventDto) {
+        Questioning questioning = questioningService.findbyId(id);
+
         try {
-            Optional<Questioning> optQuestioning = questioningService.findbyId(id);
-            if (optQuestioning.isPresent()) {
-                Questioning questioning = optQuestioning.get();
-                QuestioningEvent questioningEvent = convertToEntity(questioningEventDto);
-                QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
-                Set<QuestioningEvent> setQuestioningEvents = questioning.getQuestioningEvents();
-                setQuestioningEvents.add(newQuestioningEvent);
-                questioning.setQuestioningEvents(setQuestioningEvents);
-                questioningService.saveQuestioning(questioning);
-                HttpHeaders responseHeaders = new HttpHeaders();
-                responseHeaders.set(HttpHeaders.LOCATION,
-                        ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-                return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                        .body(convertToDto(newQuestioningEvent));
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            QuestioningEvent questioningEvent = convertToEntity(questioningEventDto);
+            QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
+            Set<QuestioningEvent> setQuestioningEvents = questioning.getQuestioningEvents();
+            setQuestioningEvents.add(newQuestioningEvent);
+            questioning.setQuestioningEvents(setQuestioningEvents);
+            questioningService.saveQuestioning(questioning);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set(HttpHeaders.LOCATION,
+                    ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+            return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
+                    .body(convertToDto(newQuestioningEvent));
+
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -112,21 +103,20 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> deleteQuestioningEvent(@PathVariable("id") Long id) {
+        QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
+
         try {
-            Optional<QuestioningEvent> questioningEvent = questioningEventService.findbyId(id);
-            if (questioningEvent.isPresent()) {
-                Upload upload = (questioningEvent.get().getUpload() != null ? questioningEvent.get().getUpload() : null);
-                Questioning quesitoning = questioningEvent.get().getQuestioning();
-                quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
-                        .filter(qe -> !qe.equals(questioningEvent.get())).collect(Collectors.toSet()));
-                questioningService.saveQuestioning(quesitoning);
-                questioningEventService.deleteQuestioningEvent(id);
-                if(upload!=null && questioningEventService.findbyIdUpload(upload.getId()).size()==0 ){
-                    uploadService.delete(upload);
-                }
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning event does not exist");
+            Upload upload = (questioningEvent.getUpload() != null ? questioningEvent.getUpload() : null);
+            Questioning quesitoning = questioningEvent.getQuestioning();
+            quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
+                    .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
+            questioningService.saveQuestioning(quesitoning);
+            questioningEventService.deleteQuestioningEvent(id);
+            if (upload != null && questioningEventService.findbyIdUpload(upload.getId()).size() == 0) {
+                uploadService.delete(upload);
+            }
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
+
         } catch (Exception e) {
             return new ResponseEntity<String>("Error", HttpStatus.BAD_REQUEST);
         }

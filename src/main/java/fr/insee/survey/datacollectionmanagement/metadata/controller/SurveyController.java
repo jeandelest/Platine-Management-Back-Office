@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -33,7 +34,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -62,14 +62,10 @@ public class SurveyController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getSurveysBySource(@PathVariable("id") String id) {
-
+        Source source = sourceService.findById(id);
         try {
-            Optional<Source> source = sourceService.findById(id);
-            if (!source.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("source does not exist");
-            }
             return ResponseEntity.ok()
-                    .body(source.get().getSurveys().stream().map(this::convertToDto).toList());
+                    .body(source.getSurveys().stream().map(this::convertToDto).toList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -84,13 +80,9 @@ public class SurveyController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getSurvey(@PathVariable("id") String id) {
+        Survey survey = surveyService.findById(StringUtils.upperCase(id));
         try {
-            Optional<Survey> survey = surveyService.findById(StringUtils.upperCase(id));
-            if (!survey.isPresent()) {
-                log.warn("Survey {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("survey does not exist");
-            }
-            return ResponseEntity.ok().body(convertToDto(survey.get()));
+            return ResponseEntity.ok().body(convertToDto(survey));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
@@ -115,11 +107,11 @@ public class SurveyController {
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(surveyDto.getId()).toUriString());
         HttpStatus httpStatus;
 
-        if (surveyService.findById(id).isPresent()) {
+        try {
+            surveyService.findById(id);
             log.info("Update survey with the id {}", surveyDto.getId());
             httpStatus = HttpStatus.OK;
-
-        } else {
+        } catch (NotFoundException e) {
             log.info("Creating survey with the id {}", surveyDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
@@ -140,26 +132,22 @@ public class SurveyController {
     })
     @Transactional
     public ResponseEntity<?> deleteSurvey(@PathVariable("id") String id) {
+        Survey survey = surveyService.findById(id);
 
         try {
-            Optional<Survey> survey = surveyService.findById(id);
-            if (!survey.isPresent()) {
-                log.warn("Survey {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Survey does not exist");
-            }
 
             int nbQuestioningDeleted = 0;
             int nbViewDeleted = 0;
 
-            Source source = survey.get().getSource();
-            source.getSurveys().remove(survey.get());
+            Source source = survey.getSource();
+            source.getSurveys().remove(survey);
             sourceService.insertOrUpdateSource(source);
             surveyService.deleteSurveyById(id);
             List<Partitioning> listPartitionings = new ArrayList<>();
 
-            survey.get().getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings()));
+            survey.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings()));
 
-            for (Campaign campaign : survey.get().getCampaigns()) {
+            for (Campaign campaign : survey.getCampaigns()) {
                 viewService.findViewByCampaignId(campaign.getId()).stream()
                         .forEach(v -> viewService.deleteView(v));
             }
@@ -168,7 +156,7 @@ public class SurveyController {
                         .forEach(q -> questioningService.deleteQuestioning(q.getId()));
             }
 
-            for (Campaign campaign : survey.get().getCampaigns()) {
+            for (Campaign campaign : survey.getCampaigns()) {
                 nbViewDeleted += viewService.deleteViewsOfOneCampaign(campaign);
             }
             for (Partitioning partitioning : listPartitionings) {

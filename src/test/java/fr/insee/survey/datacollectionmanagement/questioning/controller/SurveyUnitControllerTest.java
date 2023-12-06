@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -16,8 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -41,7 +41,7 @@ public class SurveyUnitControllerTest {
     @Test
     public void getSurveyUnitOk() throws Exception {
         String identifier = "100000000";
-        SurveyUnit surveyUnit = surveyUnitService.findbyId(identifier).get();
+        SurveyUnit surveyUnit = surveyUnitService.findbyId(identifier);
         String json = createJson(surveyUnit);
         this.mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
@@ -77,7 +77,7 @@ public class SurveyUnitControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurveyUnit.toString(), false));
-        SurveyUnit surveyUnitFound = surveyUnitService.findbyId(identifier).get();
+        SurveyUnit surveyUnitFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getIdSu(), surveyUnitFound.getIdSu());
         assertEquals(surveyUnit.getIdentificationCode(), surveyUnitFound.getIdentificationCode());
         assertEquals(surveyUnit.getIdentificationName(), surveyUnitFound.getIdentificationName());
@@ -88,15 +88,15 @@ public class SurveyUnitControllerTest {
         mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUnitUpdate.toString(), false));
-        SurveyUnit surveyUnitFoundAfterUpdate = surveyUnitService.findbyId(identifier).get();
+        SurveyUnit surveyUnitFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals("identificationNameUpdate", surveyUnitFoundAfterUpdate.getIdentificationName());
         assertEquals(surveyUnit.getIdSu(), surveyUnitFoundAfterUpdate.getIdSu());
         assertEquals(surveyUnit.getIdentificationName(), surveyUnitFoundAfterUpdate.getIdentificationName());
 
         // delete surveyUnit
         surveyUnitService.deleteSurveyUnit(identifier);
-        assertFalse(
-                surveyUnitService.findbyId(identifier).isPresent());
+        assertThrows(NotFoundException.class,()->surveyUnitService.findbyId(identifier));
+
 
     }
 
@@ -112,7 +112,7 @@ public class SurveyUnitControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurveyUnit.toString(), false));
-        SurveyUnit suFound = surveyUnitService.findbyId(identifier).get();
+        SurveyUnit suFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(), suFound.getSurveyUnitAddress().getCityName());
 
         // update surveyUnit - status ok
@@ -122,13 +122,13 @@ public class SurveyUnitControllerTest {
         mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUnitUpdate.toString(), false));
-        SurveyUnit countactFoundAfterUpdate = surveyUnitService.findbyId(identifier).get();
+        SurveyUnit countactFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(),
                 countactFoundAfterUpdate.getSurveyUnitAddress().getCityName());
 
         // delete surveyUnit
         surveyUnitService.deleteSurveyUnit(identifier);
-        assertFalse(surveyUnitService.findbyId(identifier).isPresent());
+        assertThrows(NotFoundException.class,()->surveyUnitService.findbyId(identifier));
 
     }
 

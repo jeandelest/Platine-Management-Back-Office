@@ -22,10 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -222,9 +221,10 @@ class CampaignControllerTest {
     @Rollback
     void getCampaignOk() throws Exception {
         String identifier = "SOURCE12023T01";
-        Optional<Campaign> campaign = campaignService.findById(identifier);
-        assertTrue(campaign.isPresent());
-        String json = createJson(campaign.get(), "SOURCE12023");
+
+        assertDoesNotThrow(()->campaignService.findById(identifier));
+        Campaign campaign = campaignService.findById(identifier);
+        String json = createJson(campaign, "SOURCE12023");
         this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }

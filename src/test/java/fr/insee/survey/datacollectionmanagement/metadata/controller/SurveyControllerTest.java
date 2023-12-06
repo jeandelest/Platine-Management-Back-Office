@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -14,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -60,11 +59,12 @@ public class SurveyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurvey.toString(), false));
-        Optional<Survey> surveyFound = surveyService.findById(identifier);
-        assertTrue(surveyFound.isPresent());
-        assertEquals(survey.getLongWording(), surveyFound.get().getLongWording());
-        assertEquals(survey.getShortWording(), surveyFound.get().getShortWording());
-        assertEquals(survey.getSampleSize(), surveyFound.get().getSampleSize());
+
+        assertDoesNotThrow(()->surveyService.findById(identifier));
+        Survey surveyFound = surveyService.findById(identifier);
+        assertEquals(survey.getLongWording(), surveyFound.getLongWording());
+        assertEquals(survey.getShortWording(), surveyFound.getShortWording());
+        assertEquals(survey.getSampleSize(), surveyFound.getSampleSize());
 
         // update survey - status ok
         survey.setLongWording("Long wording update");
@@ -72,15 +72,17 @@ public class SurveyControllerTest {
         mockMvc.perform(put(Constants.API_SURVEYS_ID, identifier).content(jsonSurveyUpdate)
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUpdate.toString(), false));
-        Optional<Survey> surveyFoundAfterUpdate = surveyService.findById(identifier);
-        assertTrue(surveyFoundAfterUpdate.isPresent());
-        assertEquals("Long wording update", surveyFoundAfterUpdate.get().getLongWording());
-        assertEquals(survey.getId(), surveyFoundAfterUpdate.get().getId());
+        assertDoesNotThrow(()->surveyService.findById(identifier));
+        Survey surveyFoundAfterUpdate = surveyService.findById(identifier);
+
+        assertEquals("Long wording update", surveyFoundAfterUpdate.getLongWording());
+        assertEquals(survey.getId(), surveyFoundAfterUpdate.getId());
 
         // delete survey
         mockMvc.perform(delete(Constants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertFalse(surveyService.findById(identifier).isPresent());
+
+        assertThrows(NotFoundException.class,()->surveyService.findById(identifier));
 
         // delete survey not found
         mockMvc.perform(delete(Constants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
@@ -124,9 +126,10 @@ public class SurveyControllerTest {
     @Test
     public void getSurveyOk() throws Exception {
         String identifier = "SOURCE12022";
-        Optional<Survey> survey = surveyService.findById(identifier);
-        assertTrue(survey.isPresent());
-        String json = createJson(survey.get(), "SOURCE1");
+        assertDoesNotThrow(()->surveyService.findById(identifier));
+        Survey survey = surveyService.findById(identifier);
+
+        String json = createJson(survey, "SOURCE1");
         this.mockMvc.perform(get(Constants.API_SURVEYS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }

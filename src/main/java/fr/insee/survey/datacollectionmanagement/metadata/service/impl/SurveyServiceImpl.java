@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
@@ -10,9 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -28,8 +27,9 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public Optional<Survey> findById(String id) {
-        return surveyRepository.findById(id);
+    public Survey findById(String id) {
+        return surveyRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Survey %s not found", id)));
     }
 
     @Override
@@ -39,14 +39,15 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public Survey insertOrUpdateSurvey(Survey survey) {
-        Optional<Survey> surveyBase = findById(survey.getId());
-        if (!surveyBase.isPresent()) {
+        try {
+            Survey surveyBase = findById(survey.getId());
+            log.info("Update survey with the id {}", survey.getId());
+            survey.setCampaigns(surveyBase.getCampaigns());
+        } catch (NotFoundException e) {
             log.info("Create survey with the id {}", survey.getId());
-            return surveyRepository.save(survey);
         }
-        log.info("Update survey with the id {}", survey.getId());
-        survey.setCampaigns(surveyBase.get().getCampaigns());
         return surveyRepository.save(survey);
+
     }
 
     @Override
@@ -57,20 +58,23 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public Survey addCampaignToSurvey(Survey survey, Campaign campaign) {
 
-        Optional<Survey> surveyBase = findById(survey.getId());
-        if (surveyBase.isPresent() && isCampaignPresent(campaign, surveyBase.get())) {
-            survey.setCampaigns(surveyBase.get().getCampaigns());
-
-        } else {
-
-            Set<Campaign> campaigns = (!surveyBase.isPresent()) ? new HashSet<>()
-                    : surveyBase.get().getCampaigns();
-            campaigns.add(campaign);
-            survey.setCampaigns(campaigns);
+        Set<Campaign> campaigns;
+        try {
+            Survey surveyBase = findById(survey.getId());
+            campaigns = surveyBase.getCampaigns();
+            if(!isCampaignPresent(campaign, surveyBase)) {
+                campaigns.add(campaign);
+            }
         }
+        catch (NotFoundException e){
+            campaigns = Set.of(campaign);
+
+        }
+        survey.setCampaigns(campaigns);
         return survey;
+
     }
-    
+
 
     private boolean isCampaignPresent(Campaign c, Survey s) {
         for (Campaign camp : s.getCampaigns()) {

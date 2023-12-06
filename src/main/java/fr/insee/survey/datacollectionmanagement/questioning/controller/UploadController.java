@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,11 +39,7 @@ public class UploadController {
     public ResponseEntity<?> deleteOneUpload(@PathVariable Long id) {
         log.info("Request DELETE for upload n° {}", id);
 
-        Optional<Upload> upOpt = moogUploadService.findById(id);
-        if(!upOpt.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Upload does not exist");
-        }
-        Upload up = upOpt.get();
+        Upload up = moogUploadService.findById(id);
         up.getQuestioningEvents().stream().forEach(q -> {
             Questioning quesitoning = q.getQuestioning();
             quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()

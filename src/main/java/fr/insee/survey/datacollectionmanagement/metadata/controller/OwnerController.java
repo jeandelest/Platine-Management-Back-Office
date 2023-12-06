@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OwnerDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -61,13 +61,8 @@ public class OwnerController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getOwner(@PathVariable("id") String id) {
-        Optional<Owner> owner = ownerService.findById(id);
-        if (!owner.isPresent()) {
-            log.warn("Owner {} does not exist", id);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("owner does not exist");
-        }
-        owner = ownerService.findById(id);
-        return ResponseEntity.ok().body(convertToDto(owner.orElse(null)));
+        Owner owner = ownerService.findById(id);
+        return ResponseEntity.ok().body(convertToDto(owner));
 
     }
 
@@ -88,14 +83,17 @@ public class OwnerController {
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(ownerDto.getId()).toUriString());
         HttpStatus httpStatus;
 
-        log.warn("Update owner with the id {}", ownerDto.getId());
-        Optional<Owner> ownerBase = ownerService.findById(id);
-        httpStatus = HttpStatus.OK;
+        try {
+            Owner ownerBase = ownerService.findById(id);
+            log.warn("Update owner with the id {}", ownerDto.getId());
+            httpStatus = HttpStatus.OK;
 
-        if (!ownerBase.isPresent()) {
+        }
+        catch (NotFoundException e){
             log.info("Create owner with the id {}", ownerDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
+
 
         Owner owner = ownerService.insertOrUpdateOwner(convertToEntity(ownerDto));
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(owner));

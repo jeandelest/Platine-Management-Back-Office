@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -80,9 +79,8 @@ public class MoogController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<?> getMoogMail(@PathVariable("id") String contactId) {
-        Optional<Contact> contact = contactService.findByIdentifier(contactId);
-        return contact.isPresent() ? ResponseEntity.ok().body(contact.get().getEmail())
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
+        Contact contact = contactService.findByIdentifier(contactId);
+        return ResponseEntity.ok().body(contact.getEmail());
     }
 
     @GetMapping(path = Constants.API_MOOG_EVENTS, produces = "application/json")

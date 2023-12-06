@@ -1,19 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
-import java.util.List;
-import java.util.Optional;
-
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import java.util.List;
 
 public interface SurveyService {
 
     List<Survey> findByYear(int year);
 
-    Optional<Survey> findById(String id);
+    Survey findById(String id);
 
     Page<Survey> findAll(Pageable pageable);
 

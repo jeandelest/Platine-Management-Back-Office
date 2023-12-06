@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -28,7 +27,7 @@ public interface UserService {
      * @param identifier
      * @return Optional user found
      */
-    public Optional<User> findByIdentifier(String identifier) ;
+    public User findByIdentifier(String identifier) ;
 
     /**
      * Update an existing user , or creates a new one

@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByIdentifier(String identifier) {
-        return userRepository.findByIdentifierIgnoreCase(identifier);
+    public User findByIdentifier(String identifier) {
+        return userRepository.findByIdentifierIgnoreCase(identifier).orElseThrow(()-> new NotFoundException(String.format("User %s not found", identifier)));
     }
 
     @Override
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(User user, JsonNode payload) throws NotFoundException {
+    public User updateUser(User user, JsonNode payload) {
 
-        User existingUser = findByIdentifier(user.getIdentifier()).orElseThrow(() -> new NotFoundException("user not found"));
+        User existingUser = findByIdentifier(user.getIdentifier());
 
         Set<UserEvent> setUserEventsUser = existingUser.getUserEvents();
         UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.UPDATE,

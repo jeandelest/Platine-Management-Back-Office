@@ -32,8 +32,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -71,21 +69,10 @@ public class UserController {
 
     @Operation(summary = "Search for a user by its id")
     @GetMapping(value = Constants.API_USERS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public ResponseEntity getUser(@PathVariable("id") String id) {
-        Optional<User> user = userService.findByIdentifier(id);
-        try {
-            if (user.isPresent())
-                return ResponseEntity.ok().body(convertToDto(user.get()));
-            else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user does not exist");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") String id) {
+        User user = userService.findByIdentifier(id);
+        return ResponseEntity.ok().body(convertToDto(user));
+
 
     }
 
@@ -110,7 +97,7 @@ public class UserController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse user");
 
-        } catch (NoSuchElementException e) {
+        } catch (NotFoundException e) {
             log.info("Creating user with the identifier {}", userDto.getIdentifier());
             user = convertToEntityNewUser(userDto);
 
@@ -119,12 +106,8 @@ public class UserController {
         }
 
         log.info("Updating user with the identifier {}", userDto.getIdentifier());
-        User userUpdate = null;
-        try {
-            userUpdate = userService.updateUser(user, null);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Problem when saving user");
-        }
+        User userUpdate = userService.updateUser(user, null);
+
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(userUpdate));
     }
 
@@ -138,25 +121,22 @@ public class UserController {
     })
     @Transactional
     public ResponseEntity deleteUser(@PathVariable("id") String id) {
+        User user = userService.findByIdentifier(id);
+
         try {
-            Optional<User> user = userService.findByIdentifier(id);
-            if (user.isPresent()) {
-                userService.deleteUserAndEvents(user.get());
+            userService.deleteUserAndEvents(user);
 
-                sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
-                    Source source = sourceService.findById(acc.getSource().getId()).get();
-                    Set<SourceAccreditation> newSet = source.getSourceAccreditations();
-                    newSet.removeIf(a -> a.getId().equals(acc.getId()));
-                    source.setSourceAccreditations(newSet);
-                    sourceService.insertOrUpdateSource(source);
-                    sourceAccreditationService.deleteAccreditation(acc);
+            sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
+                Source source = sourceService.findById(acc.getSource().getId());
+                Set<SourceAccreditation> newSet = source.getSourceAccreditations();
+                newSet.removeIf(a -> a.getId().equals(acc.getId()));
+                source.setSourceAccreditations(newSet);
+                sourceService.insertOrUpdateSource(source);
+                sourceAccreditationService.deleteAccreditation(acc);
 
-                });
-                log.info("Delete user {}", id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-            }
+            });
+            log.info("Delete user {}", id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -170,25 +150,18 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity getUserSources(@PathVariable("id") String id) {
-        Optional<User> user = userService.findByIdentifier(id);
-        if (user.isPresent()) {
-            List<String> accreditedSources = userService.findAccreditedSources(id);
-            return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-        }
+        userService.findByIdentifier(id);
+        List<String> accreditedSources = userService.findAccreditedSources(id);
+        return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
     }
 
 
-    private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException {
+    private User convertToEntity(UserDto userDto) throws ParseException {
 
-        Optional<User> oldUser = userService.findByIdentifier(userDto.getIdentifier());
-        if (!oldUser.isPresent()) {
-            throw new NoSuchElementException();
-        }
+        User oldUser = userService.findByIdentifier(userDto.getIdentifier());
         User user = modelMapper.map(userDto, User.class);
         user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
-        user.setUserEvents(oldUser.get().getUserEvents());
+        user.setUserEvents(oldUser.getUserEvents());
 
         return user;
     }

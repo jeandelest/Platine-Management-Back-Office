@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
         + "|| @AuthorizeMethodDecider.isWebClient() "
@@ -46,13 +43,10 @@ public class MonitoringController {
     @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/progress", produces = "application/json")
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgressTemp(@PathVariable String idCampaign) {
         log.info("Request GET for monitoring moog progress table for campaign : {}", idCampaign);
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        if (campaign.isEmpty()) {
-            throw new NoSuchElementException("campaign does not exist");
-        }
-        log.info("{} partitionings found", campaign.get().getPartitionings().stream().map(Partitioning::getId)
+        Campaign campaign = campaignService.findById(idCampaign);
+        log.info("{} partitionings found", campaign.getPartitionings().stream().map(Partitioning::getId)
                 .toList().size());
-        campaign.get().getPartitionings().forEach(part -> log.info("{} partitionig found", part.getId()));
+        campaign.getPartitionings().forEach(part -> log.info("{} partitionig found", part.getId()));
 
         return null;
     }

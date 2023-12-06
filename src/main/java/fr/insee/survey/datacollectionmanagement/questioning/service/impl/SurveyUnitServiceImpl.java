@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -23,8 +23,8 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     private final SurveyUnitAddressRepository surveyUnitAddressRepository;
 
     @Override
-    public Optional<SurveyUnit> findbyId(String idSu) {
-        return surveyUnitRepository.findById(idSu);
+    public SurveyUnit findbyId(String idSu) {
+        return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit %s not found", idSu)));
     }
 
     @Override
@@ -51,18 +51,20 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit) {
 
         if (surveyUnit.getSurveyUnitAddress() != null) {
-
-            Optional<SurveyUnit> existingSurveyUnit = findbyId(surveyUnit.getIdSu());
-            if (existingSurveyUnit.isPresent()) {
-                if (existingSurveyUnit.get().getSurveyUnitAddress() != null) {
-                    surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.get().getSurveyUnitAddress().getId());
+            try {
+                SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());
+                if (existingSurveyUnit.getSurveyUnitAddress() != null) {
+                    surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.getSurveyUnitAddress().getId());
                 }
-            } else
-                log.info("Survey unit does not exist");
-
+            }
+            catch (NotFoundException e){
+                log.debug("Survey unit does not exist");
+            }
             surveyUnitAddressRepository.save(surveyUnit.getSurveyUnitAddress());
+
         }
         return surveyUnitRepository.save(surveyUnit);
+
     }
 
     @Override

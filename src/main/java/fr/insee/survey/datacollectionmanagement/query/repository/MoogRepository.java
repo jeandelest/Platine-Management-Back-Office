@@ -2,9 +2,11 @@ package fr.insee.survey.datacollectionmanagement.query.repository;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -12,10 +14,10 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class MoogRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -101,7 +103,6 @@ public class MoogRepository {
                 MoogExtractionRowDto ev = new MoogExtractionRowDto();
 
                 ev.setAddress("addresse non connue");
-                Optional<Address> address = addressService.findById(rs.getLong("address"));
 
                 ev.setStatus(rs.getString("status"));
                 ev.setDateInfo(rs.getString("dateinfo"));
@@ -109,9 +110,14 @@ public class MoogRepository {
                 ev.setIdContact(rs.getString("id_contact"));
                 ev.setLastname(rs.getString("lastname"));
                 ev.setFirstname(rs.getString("firstname"));
-                if (address.isPresent()) {
-                    ev.setAddress(address.get().toStringMoog());
+                try {
+                    Address address = addressService.findById(rs.getLong("address"));
+                    ev.setAddress(address.toStringMoog());
                 }
+                catch (NotFoundException e){
+                    log.info("Address not found");
+                }
+
 
                 ev.setBatchNumber(rs.getString("batch_num"));
 

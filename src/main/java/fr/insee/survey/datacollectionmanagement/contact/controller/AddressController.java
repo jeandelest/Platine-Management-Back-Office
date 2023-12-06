@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -57,18 +56,15 @@ public class AddressController {
             + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
             + "|| @AuthorizeMethodDecider.isAdmin() ")
     public ResponseEntity<?> getContactAddress(@PathVariable("id") String id) {
+        Contact contact = contactService.findByIdentifier(id);
         try {
-            Optional<Contact> contact = contactService.findByIdentifier(id);
-            if (contact.isPresent()) {
-                if (contact.get().getAddress() != null)
-                    return ResponseEntity.status(HttpStatus.OK)
-                            .body(addressService.convertToDto(contact.get().getAddress()));
-                else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Address does not exist");
-                }
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
+            if (contact.getAddress() != null)
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(addressService.convertToDto(contact.getAddress()));
+            else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Address does not exist");
             }
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
         }
@@ -87,37 +83,32 @@ public class AddressController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<?> putAddress(@PathVariable("id") String id, @RequestBody AddressDto addressDto) {
-        Optional<Contact> optContact = contactService.findByIdentifier(id);
-        if (optContact.isPresent()) {
-            HttpStatus httpStatus;
-            Address addressUpdate;
-            Contact contact = optContact.get();
-            Address address = addressService.convertToEntity(addressDto);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+        Contact contact = contactService.findByIdentifier(id);
+        HttpStatus httpStatus;
+        Address addressUpdate;
+        Address address = addressService.convertToEntity(addressDto);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
 
-            if (contact.getAddress() != null) {
-                log.info("Update address for the contact {} ", id);
-                address.setId(contact.getAddress().getId());
-                addressUpdate = addressService.saveAddress(address);
-                httpStatus = HttpStatus.OK;
-            } else {
-                log.info("Create address for the contact {} ", id);
-                addressUpdate = addressService.saveAddress(address);
-                contact.setAddress(addressUpdate);
-                contactService.saveContact(contact);
-                httpStatus = HttpStatus.CREATED;
-            }
-
-            ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
-                    null);
-            contactEventService.saveContactEvent(contactEventUpdate);
-            return ResponseEntity.status(httpStatus).headers(responseHeaders)
-                    .body(addressService.convertToDto(addressUpdate));
-
+        if (contact.getAddress() != null) {
+            log.info("Update address for the contact {} ", id);
+            address.setId(contact.getAddress().getId());
+            addressUpdate = addressService.saveAddress(address);
+            httpStatus = HttpStatus.OK;
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
+            log.info("Create address for the contact {} ", id);
+            addressUpdate = addressService.saveAddress(address);
+            contact.setAddress(addressUpdate);
+            contactService.saveContact(contact);
+            httpStatus = HttpStatus.CREATED;
         }
+
+        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
+                null);
+        contactEventService.saveContactEvent(contactEventUpdate);
+        return ResponseEntity.status(httpStatus).headers(responseHeaders)
+                .body(addressService.convertToDto(addressUpdate));
+
 
     }
 

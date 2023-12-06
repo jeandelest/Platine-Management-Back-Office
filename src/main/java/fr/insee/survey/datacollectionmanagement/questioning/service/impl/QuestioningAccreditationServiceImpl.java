@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -69,8 +69,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public Optional<QuestioningAccreditation> findById(Long id) {
-        return questioningAccreditationRepository.findById(id);
+    public QuestioningAccreditation findById(Long id) {
+        return questioningAccreditationRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
     }
 
     @Override

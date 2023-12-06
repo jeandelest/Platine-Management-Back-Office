@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.CheckHabilitationsRoles;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
@@ -14,7 +15,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -56,15 +56,17 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }
-
-        Optional<User> user = userService.findByIdentifier(userId);
-        if (user.isEmpty()) {
+        User user;
+        try {
+            user = userService.findByIdentifier(userId);
+        } catch (NotFoundException e) {
             log.warn("User '{}' doesn't exists", userId);
             return false;
         }
 
+
         if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleInternalUser())) {
-            String userRole = user.get().getRole().toString();
+            String userRole = user.getRole().toString();
             if (userRole.equals(User.UserRoleType.ASSISTANCE.toString())) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
                 return false;

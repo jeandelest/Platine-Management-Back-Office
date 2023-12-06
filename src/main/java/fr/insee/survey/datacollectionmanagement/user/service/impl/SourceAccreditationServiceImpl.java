@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.repository.SourceAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +27,8 @@ public class SourceAccreditationServiceImpl implements SourceAccreditationServic
     }
 
     @Override
-    public Optional<SourceAccreditation> findById(Long id) {
-        return sourceAccreditationRepository.findById(id);
+    public SourceAccreditation findById(Long id) {
+        return sourceAccreditationRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("SourceAccreditation %s not found", id)));
     }
 
     @Override

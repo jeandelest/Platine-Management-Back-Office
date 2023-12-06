@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
@@ -15,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,9 +40,9 @@ public class SourceControllerTest {
     @Test
     public void getSourceOk() throws Exception {
         String identifier = "SOURCE1";
-        Optional<Source> source = sourceService.findById(identifier);
-        assertTrue(source.isPresent());
-        String json = createJson(source.get());
+        assertDoesNotThrow(() -> sourceService.findById(identifier));
+        Source source = sourceService.findById(identifier);
+        String json = createJson(source);
         this.mockMvc.perform(get(Constants.API_SOURCES_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
@@ -74,31 +73,32 @@ public class SourceControllerTest {
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
         mockMvc.perform(
-                put(Constants.API_SOURCES_ID, identifier).content(jsonSource)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        put(Constants.API_SOURCES_ID, identifier).content(jsonSource)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSource.toString(), false));
-        Optional<Source> sourceFound = sourceService.findById(identifier);
-        assertTrue(sourceFound.isPresent());
-        assertEquals(source.getLongWording(), sourceFound.get().getLongWording());
-        assertEquals(source.getShortWording(), sourceFound.get().getShortWording());
-        assertEquals(source.getPeriodicity(), sourceFound.get().getPeriodicity());
+        assertDoesNotThrow(() -> sourceService.findById(identifier));
+
+        Source sourceFound = sourceService.findById(identifier);
+        assertEquals(source.getLongWording(), sourceFound.getLongWording());
+        assertEquals(source.getShortWording(), sourceFound.getShortWording());
+        assertEquals(source.getPeriodicity(), sourceFound.getPeriodicity());
 
         // update source - status ok
         source.setLongWording("Long wording update");
         String jsonSourceUpdate = createJson(source);
         mockMvc.perform(put(Constants.API_SOURCES_ID, identifier).content(jsonSourceUpdate)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSourceUpdate.toString(), false));
-        Optional<Source> sourceFoundAfterUpdate = sourceService.findById(identifier);
-        assertTrue(sourceFoundAfterUpdate.isPresent());
-        assertEquals("Long wording update", sourceFoundAfterUpdate.get().getLongWording());
-        assertEquals(source.getId(), sourceFoundAfterUpdate.get().getId());
+        assertDoesNotThrow(() -> sourceService.findById(identifier));
+        Source sourceFoundAfterUpdate = sourceService.findById(identifier);
+        assertEquals("Long wording update", sourceFoundAfterUpdate.getLongWording());
+        assertEquals(source.getId(), sourceFoundAfterUpdate.getId());
 
         // delete source
         mockMvc.perform(delete(Constants.API_SOURCES_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertFalse(sourceService.findById(identifier).isPresent());
+        assertThrows(NotFoundException.class, ()->sourceService.findById(identifier));
 
         // delete source not found
         mockMvc.perform(delete(Constants.API_SOURCES + "/" + identifier).contentType(MediaType.APPLICATION_JSON))
@@ -113,7 +113,7 @@ public class SourceControllerTest {
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
         mockMvc.perform(put(Constants.API_SOURCES + "/" + otherIdentifier).content(jsonSource)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andExpect(content().string("id and source id don't match"));
 
     }

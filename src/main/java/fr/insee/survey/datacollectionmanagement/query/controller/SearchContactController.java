@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -113,12 +112,12 @@ public class SearchContactController {
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
         for (QuestioningAccreditation questioningAccreditation : accreditations) {
             Questioning questioning = questioningAccreditation.getQuestioning();
-            Optional<Partitioning> part = partitioningService.findById(questioning.getIdPartitioning());
+            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
 
-            listAccreditations.add(new AccreditationDetailDto(part.get().getCampaign().getSurvey().getSource().getId(),
-                    part.get().getCampaign().getSurvey().getSource().getShortWording(),
-                    part.get().getCampaign().getSurvey().getYear(), part.get().getCampaign().getPeriod(),
-                    part.get().getId(), questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
+            listAccreditations.add(new AccreditationDetailDto(part.getCampaign().getSurvey().getSource().getId(),
+                    part.getCampaign().getSurvey().getSource().getShortWording(),
+                    part.getCampaign().getSurvey().getYear(), part.getCampaign().getPeriod(),
+                    part.getId(), questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
                     questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
                     questioningAccreditation.isMain()));
 

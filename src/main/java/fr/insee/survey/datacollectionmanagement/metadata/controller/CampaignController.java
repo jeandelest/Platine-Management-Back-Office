@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -86,14 +85,12 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getCampaignsBySurvey(@PathVariable("id") String id) {
+
+        Survey survey = surveyService.findById(id);
+
         try {
-            Optional<Survey> survey = surveyService.findById(id);
-            if (!survey.isPresent()) {
-                log.warn("Survey {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("survey does not exist");
-            }
             return ResponseEntity.ok()
-                    .body(survey.get().getCampaigns().stream().map(s -> convertToDto(s)).toList());
+                    .body(survey.getCampaigns().stream().map(s -> convertToDto(s)).toList());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -107,13 +104,10 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getCampaign(@PathVariable("id") String id) {
+        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+
         try {
-            Optional<Campaign> campaign = campaignService.findById(StringUtils.upperCase(id));
-            if (!campaign.isPresent()) {
-                log.warn("campaign {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("campaign does not exist");
-            }
-            return ResponseEntity.ok().body(convertToDto(campaign.get()));
+            return ResponseEntity.ok().body(convertToDto(campaign));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -131,25 +125,21 @@ public class CampaignController {
         if (StringUtils.isBlank(campaignDto.getId()) || !campaignDto.getId().equalsIgnoreCase(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idCampaign don't match");
         }
-        Campaign campaign;
-        if (!surveyService.findById(campaignDto.getSurveyId()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Survey does not exist");
-        }
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(campaignDto.getId()).toUriString());
         HttpStatus httpStatus;
 
-        if (campaignService.findById(id).isPresent()) {
-            log.info("Update campaign with the id {}", campaignDto.getId());
+        try {
             campaignService.findById(id);
+            log.info("Update campaign with the id {}", campaignDto.getId());
             httpStatus = HttpStatus.OK;
-        } else {
+        } catch (NotFoundException e) {
             log.info("Create campaign with the id {}", campaignDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
 
-        campaign = campaignService.insertOrUpdateCampaign(convertToEntity(campaignDto));
+        Campaign campaign = campaignService.insertOrUpdateCampaign(convertToEntity(campaignDto));
         Survey survey = campaign.getSurvey();
         survey.getCampaigns().add(campaign);
         surveyService.insertOrUpdateSurvey(survey);
@@ -166,29 +156,22 @@ public class CampaignController {
     @Transactional
     public ResponseEntity<?> deleteCampaign(@PathVariable("id") String id) throws fr.insee.survey.datacollectionmanagement.exception.NotFoundException {
 
-        try {
-            if (campaignService.isCampaignOngoing(id)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
-            }
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Campaign does not exist");
+        if (campaignService.isCampaignOngoing(id)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
         }
 
+        Campaign campaign = campaignService.findById(id);
         try {
-            Optional<Campaign> campaign = campaignService.findById(id);
-            if (!campaign.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Campaign does not exist");
-            }
 
             int nbQuestioningDeleted = 0;
-            Survey survey = campaign.get().getSurvey();
-            survey.getCampaigns().remove(campaign.get());
+            Survey survey = campaign.getSurvey();
+            survey.getCampaigns().remove(campaign);
             surveyService.insertOrUpdateSurvey(survey);
             List<Upload> uploadsCamp = uploadService.findAllByIdCampaign(id);
             campaignService.deleteCampaignById(id);
-            Set<Partitioning> listPartitionings = campaign.get().getPartitionings();
+            Set<Partitioning> listPartitionings = campaign.getPartitionings();
 
-            int nbViewDeleted = viewService.deleteViewsOfOneCampaign(campaign.get());
+            int nbViewDeleted = viewService.deleteViewsOfOneCampaign(campaign);
 
             for (Partitioning partitioning : listPartitionings) {
                 nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
@@ -199,7 +182,6 @@ public class CampaignController {
                     nbQuestioningDeleted, nbViewDeleted, uploadsCamp.size());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Campaign deleted");
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
     }
@@ -211,12 +193,9 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public ResponseEntity<?> isOnGoingCampaign(@PathVariable("id") String id) {
-        try {
-            boolean isOnGoing = campaignService.isCampaignOngoing(id);
-            return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Campaign does not exist");
-        }
+        boolean isOnGoing = campaignService.isCampaignOngoing(id);
+        return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
+
     }
 
     private CampaignDto convertToDto(Campaign campaign) {

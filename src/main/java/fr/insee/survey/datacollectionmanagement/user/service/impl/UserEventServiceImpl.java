@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserEventRepository;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -27,8 +27,8 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
-    public Optional<UserEvent> findById(Long id) {
-        return userEventRepository.findById(id);
+    public UserEvent findById(Long id) {
+        return userEventRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
     }
 
     @Override

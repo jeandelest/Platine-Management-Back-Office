@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
@@ -21,8 +22,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final QuestioningEventRepository questioningEventRepository;
 
     @Override
-    public Optional<QuestioningEvent> findbyId(Long id) {
-        return questioningEventRepository.findById(id);
+    public QuestioningEvent findbyId(Long id) {
+        return questioningEventRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", id)));
     }
 
     @Override
@@ -38,7 +39,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning,
-            List<TypeQuestioningEvent> events) {
+                                                              List<TypeQuestioningEvent> events) {
 
         List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
                 .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
@@ -46,8 +47,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEvent> findbyIdUpload(Long id){
-        return questioningEventRepository.findAll().stream().filter(qe -> qe.getUpload()!= null && qe.getUpload().getId().equals(id)).toList();
+    public List<QuestioningEvent> findbyIdUpload(Long id) {
+        return questioningEventRepository.findAll().stream().filter(qe -> qe.getUpload() != null && qe.getUpload().getId().equals(id)).toList();
     }
 
 }

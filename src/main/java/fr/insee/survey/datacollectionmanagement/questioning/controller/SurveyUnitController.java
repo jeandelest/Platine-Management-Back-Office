@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
@@ -24,7 +25,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -63,16 +63,8 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> findSurveyUnit(@PathVariable("id") String id) {
-
-        try {
-            Optional<SurveyUnit> surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
-            if (surveyUnit.isPresent())
-                return ResponseEntity.status(HttpStatus.OK).body(convertToDto(surveyUnit.get()));
-            else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("survey unit not found");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+        SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
+        return ResponseEntity.status(HttpStatus.OK).body(convertToDto(surveyUnit));
 
     }
 
@@ -100,13 +92,16 @@ public class SurveyUnitController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse survey unit");
         }
-
-        if (surveyUnitService.findbyId(surveyUnitDto.getIdSu()).isPresent())
+        try{
+            surveyUnitService.findbyId(surveyUnitDto.getIdSu());
             responseStatus = HttpStatus.OK;
-        else {
+
+        }
+        catch (NotFoundException e){
             log.info("Creating survey with the id {}", surveyUnitDto.getIdSu());
             responseStatus = HttpStatus.CREATED;
         }
+
         return ResponseEntity.status(responseStatus)
                 .body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
 
@@ -120,18 +115,17 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> deleteSurveyUnit(@PathVariable("id") String id) {
+        SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
+
         try {
-            Optional<SurveyUnit> surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
-            if (surveyUnit.isPresent()) {
-                if (!surveyUnit.get().getQuestionings().isEmpty()) {
+                if (!surveyUnit.getQuestionings().isEmpty()) {
                     log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Some questionings exist for this survey unit, the survey unit can't be deleted");
                 }
                 surveyUnitService.deleteSurveyUnit(id);
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Survey unit deleted");
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("survey unit not found");
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }

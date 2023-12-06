@@ -37,7 +37,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.text.ParseException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -78,23 +77,15 @@ public class ContactController {
     }
 
     @Operation(summary = "Search for a contact by its id")
-    @GetMapping(value = Constants.API_CONTACTS_ID, produces = "application/json")
+    @GetMapping(value = Constants.API_CONTACTS_ID)
     @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
             + "|| @AuthorizeMethodDecider.isWebClient() "
             + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
             + "|| @AuthorizeMethodDecider.isAdmin() ")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = ContactFirstLoginDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
     public ResponseEntity<?> getContact(@PathVariable("id") String id) {
-        Optional<Contact> contact = contactService.findByIdentifier(StringUtils.upperCase(id));
+        Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
         try {
-            if (contact.isPresent())
-                return ResponseEntity.ok().body(convertToFirstLoginDto(contact.get()));
-            else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
+            return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -125,7 +116,7 @@ public class ContactController {
             contact = convertToEntity(contactDto);
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse contact");
-        } catch (NoSuchElementException e) {
+        } catch (NotFoundException e) {
             log.info("Creating contact with the identifier {}", contactDto.getIdentifier());
             contact = convertToEntityNewContact(contactDto);
             if (contactDto.getAddress() != null)
@@ -156,25 +147,22 @@ public class ContactController {
     @Transactional
     public ResponseEntity<?> deleteContact(@PathVariable("id") String id) {
         try {
-            Optional<Contact> contact = contactService.findByIdentifier(id);
-            if (contact.isPresent()) {
-                contactService.deleteContactAddressEvent(contact.get());
+            Contact contact = contactService.findByIdentifier(id);
+            contactService.deleteContactAddressEvent(contact);
 
-                viewService.findViewByIdentifier(id).stream().forEach(viewService::deleteView);
-                questioningAccreditationService.findByContactIdentifier(id).stream().forEach(acc -> {
-                    Questioning questioning = questioningService.findbyId(acc.getQuestioning().getId()).get();
-                    Set<QuestioningAccreditation> newSet = questioning.getQuestioningAccreditations();
-                    newSet.removeIf(a -> a.getId().equals(acc.getId()));
-                    questioning.setQuestioningAccreditations(newSet);
-                    questioningService.saveQuestioning(questioning);
-                    questioningAccreditationService.deleteAccreditation(acc);
+            viewService.findViewByIdentifier(id).stream().forEach(viewService::deleteView);
+            questioningAccreditationService.findByContactIdentifier(id).stream().forEach(acc -> {
+                Questioning questioning = questioningService.findbyId(acc.getQuestioning().getId());
+                Set<QuestioningAccreditation> newSet = questioning.getQuestioningAccreditations();
+                newSet.removeIf(a -> a.getId().equals(acc.getId()));
+                questioning.setQuestioningAccreditations(newSet);
+                questioningService.saveQuestioning(questioning);
+                questioningAccreditationService.deleteAccreditation(acc);
 
-                });
-                log.info("Delete contact {}", id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact deleted");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
-            }
+            });
+            log.info("Delete contact {}", id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact deleted");
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -197,13 +185,10 @@ public class ContactController {
     private Contact convertToEntity(ContactDto contactDto) throws ParseException, NoSuchElementException {
         Contact contact = modelMapper.map(contactDto, Contact.class);
         contact.setGender(Contact.Gender.valueOf(contactDto.getCivility()));
-        Optional<Contact> oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
-        if (oldContact.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        contact.setComment(oldContact.get().getComment());
-        contact.setAddress(oldContact.get().getAddress());
-        contact.setContactEvents(oldContact.get().getContactEvents());
+        Contact oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
+        contact.setComment(oldContact.getComment());
+        contact.setAddress(oldContact.getAddress());
+        contact.setContactEvents(oldContact.getContactEvents());
 
         return contact;
     }

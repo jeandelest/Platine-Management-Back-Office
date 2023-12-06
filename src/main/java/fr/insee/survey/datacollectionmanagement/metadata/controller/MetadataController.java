@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -37,18 +36,14 @@ public class MetadataController {
     @PutMapping(value = Constants.MOOG_API_CAMPAIGNS_ID)
     public void updateCampaignInProgressMoog(@PathVariable("id") String id, @RequestBody CampaignMoogDto campaignMoogDto) {
         log.info("Updating Moog campaign with id " + id);
-        Optional<Campaign> campaign = campaignService.findById(id);
-        if(!campaign.isPresent())
-        {
-
-        }
-        campaign.get().getPartitionings().stream().forEach(p->{
+        Campaign campaign = campaignService.findById(id);
+        campaign.getPartitionings().stream().forEach(p->{
             p.setClosingDate(new Date(campaignMoogDto.getCollectionEndDate()));
             p.setOpeningDate(new Date(campaignMoogDto.getCollectionStartDate()));
             partitioningService.insertOrUpdatePartitioning(p);
         });
-        campaign.get().setCampaignWording(campaignMoogDto.getLabel());
-        campaignService.insertOrUpdateCampaign(campaign.get());
+        campaign.setCampaignWording(campaignMoogDto.getLabel());
+        campaignService.insertOrUpdateCampaign(campaign);
     }
 
 }

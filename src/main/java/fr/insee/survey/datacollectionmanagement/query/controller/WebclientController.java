@@ -108,12 +108,8 @@ public class WebclientController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing fields");
         }
 
-        Optional<Partitioning> part = partitioningService.findById(idPartitioning);
+        Partitioning part = partitioningService.findById(idPartitioning);
 
-        if (!part.isPresent()) {
-            log.warn("Partitioning {} does not exist", idPartitioning);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partitioning does not exist");
-        }
 
         QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
         SurveyUnit su;
@@ -122,10 +118,12 @@ public class WebclientController {
         su = convertToEntity(questioningWebclientDto.getSurveyUnit());
 
         // Create su if not exists or update
-        Optional<SurveyUnit> optSuBase = surveyUnitService.findbyId(idSu);
-        if (optSuBase.isPresent()) {
-            su.setQuestionings(optSuBase.get().getQuestionings());
-        } else {
+        try{
+            SurveyUnit optSuBase = surveyUnitService.findbyId(idSu);
+            su.setQuestionings(optSuBase.getQuestionings());
+
+        }
+        catch (NotFoundException e){
             log.warn("survey unit {} does not exist - Creation of the survey unit",
                     idSu);
             su.setQuestionings(new HashSet<>());
@@ -152,7 +150,7 @@ public class WebclientController {
         }
 
 
-        for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()){
+        for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()) {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
         }
 
@@ -168,7 +166,7 @@ public class WebclientController {
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
         questioning.getQuestioningAccreditations().stream()
                 .forEach(acc -> listContactAccreditationDto
-                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()).get(), acc.isMain())));
+                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningReturn.setContacts(listContactAccreditationDto);
 
 
@@ -179,7 +177,7 @@ public class WebclientController {
 
     }
 
-    private void createContactAndAccreditations(String idSu, Optional<Partitioning> part, Questioning questioning, ContactAccreditationDto contactAccreditationDto) throws JsonProcessingException {
+    private void createContactAndAccreditations(String idSu, Partitioning part, Questioning questioning, ContactAccreditationDto contactAccreditationDto) throws JsonProcessingException {
         // Create contact if not exists or update
         JsonNode node = addWebclientAuthorNode();
 
@@ -201,12 +199,12 @@ public class WebclientController {
 
         Set<QuestioningAccreditation> setExistingAccreditations = (questioning
                 .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
-                        : new HashSet<>();
+                : new HashSet<>();
 
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(contactAccreditationDto.getIdentifier())
-                        && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
+                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
                         && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
                 .toList();
 
@@ -222,7 +220,7 @@ public class WebclientController {
 
             // create view
             viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
-                    part.get().getCampaign().getId());
+                    part.getCampaign().getId());
 
             questioning.getQuestioningAccreditations().add(questioningAccreditation);
         } else {
@@ -240,9 +238,8 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
     })
     public ResponseEntity<?> getQuestioning(@RequestParam(required = true) String modelName,
-            @RequestParam(required = true) String idPartitioning,
-            @RequestParam(required = true) String idSurveyUnit)
-            {
+                                            @RequestParam(required = true) String idPartitioning,
+                                            @RequestParam(required = true) String idSurveyUnit) {
 
         QuestioningWebclientDto questioningWebclientDto = new QuestioningWebclientDto();
 
@@ -260,7 +257,7 @@ public class WebclientController {
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
         questioning.getQuestioningAccreditations().stream()
                 .forEach(acc -> listContactAccreditationDto
-                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()).get(), acc.isMain())));
+                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningWebclientDto.setContacts(listContactAccreditationDto);
         return ResponseEntity.status(httpStatus).body(questioningWebclientDto);
 
@@ -275,18 +272,16 @@ public class WebclientController {
     })
     public ResponseEntity<?> getMetadata(@PathVariable("id") String id) {
         MetadataDto metadataDto = new MetadataDto();
+        Partitioning part = partitioningService.findById(StringUtils.upperCase(id));
+
         try {
-            Optional<Partitioning> part = partitioningService.findById(StringUtils.upperCase(id));
-            if (!part.isPresent()) {
-                log.warn("partitioning {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("partitioning does not exist");
-            }
-            metadataDto.setPartitioningDto(convertToDto(part.get()));
-            metadataDto.setCampaignDto(convertToDto(part.get().getCampaign()));
-            metadataDto.setSurveyDto(convertToDto(part.get().getCampaign().getSurvey()));
-            metadataDto.setSourceDto(convertToDto(part.get().getCampaign().getSurvey().getSource()));
-            metadataDto.setOwnerDto(convertToDto(part.get().getCampaign().getSurvey().getSource().getOwner()));
-            metadataDto.setSupportDto(convertToDto(part.get().getCampaign().getSurvey().getSource().getSupport()));
+
+            metadataDto.setPartitioningDto(convertToDto(part));
+            metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
+            metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
+            metadataDto.setSourceDto(convertToDto(part.getCampaign().getSurvey().getSource()));
+            metadataDto.setOwnerDto(convertToDto(part.getCampaign().getSurvey().getSource().getOwner()));
+            metadataDto.setSupportDto(convertToDto(part.getCampaign().getSurvey().getSource().getSupport()));
             return ResponseEntity.ok().body(metadataDto);
 
         } catch (Exception e) {
@@ -304,7 +299,7 @@ public class WebclientController {
     })
     @Transactional
     public ResponseEntity<?> putMetadata(@PathVariable("id") String id,
-            @RequestBody MetadataDto metadataDto) {
+                                         @RequestBody MetadataDto metadataDto) {
         try {
             if (StringUtils.isBlank(metadataDto.getPartitioningDto().getId())
                     || !metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
@@ -317,15 +312,16 @@ public class WebclientController {
                     ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(id).toUriString());
             HttpStatus httpStatus;
 
-            if (partitioningService.findById(id).isPresent()) {
-                log.info("Update partitioning with the id {}", id);
+            try {
                 partitioningService.findById(id);
+                log.info("Update partitioning with the id {}", id);
                 httpStatus = HttpStatus.OK;
 
-            } else {
+            } catch (NotFoundException e) {
                 log.info("Create partitioning with the id {}", id);
                 httpStatus = HttpStatus.CREATED;
             }
+
 
             Owner owner = convertToEntity(metadataDto.getOwnerDto());
             Support support = convertToEntity(metadataDto.getSupportDto());
@@ -401,11 +397,9 @@ public class WebclientController {
                 List<QuestioningAccreditation> listQa = questioning.getQuestioningAccreditations().stream()
                         .filter(qa -> qa.isMain()).toList();
                 if (listQa != null && !listQa.isEmpty()) {
-                    Optional<Contact> c = contactService.findByIdentifier(listQa.get(0).getIdContact());
-                    if(c.isPresent())
-                        return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c.get())));
-                    else
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No contact found");
+                    Contact c = contactService.findByIdentifier(listQa.get(0).getIdContact());
+                    return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c)));
+
 
                 }
             }
@@ -426,7 +420,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getState(@PathVariable("idPartitioning") String idPartitioning,
-            @PathVariable("idSu") String idSu) {
+                                      @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
@@ -513,7 +507,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
-            @PathVariable("idSu") String idSu) {
+                                         @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
@@ -560,12 +554,10 @@ public class WebclientController {
         Contact contact = modelMapper.map(contactAccreditationDto, Contact.class);
         contact.setGender(contactAccreditationDto.getCivility());
 
-        Optional<Contact> oldContact = contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
-        if (!oldContact.isPresent())
-            throw new NoSuchElementException();
-        contact.setComment(oldContact.get().getComment());
-        contact.setAddress(oldContact.get().getAddress());
-        contact.setContactEvents(oldContact.get().getContactEvents());
+        Contact oldContact = contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
+        contact.setComment(oldContact.getComment());
+        contact.setAddress(oldContact.getAddress());
+        contact.setContactEvents(oldContact.getContactEvents());
 
         return contact;
     }

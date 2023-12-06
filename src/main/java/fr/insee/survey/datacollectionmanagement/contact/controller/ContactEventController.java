@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,16 +53,12 @@ public class ContactEventController {
             @ApiResponse(responseCode = "400", description = "Internal servor error")
     })
     public ResponseEntity<?> getContactContactEvents(@PathVariable("id") String identifier) {
+        Contact contact = contactService.findByIdentifier(identifier);
         try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(contact.getContactEvents().stream().map(this::convertToDto)
+                            .toList());
 
-            Optional<Contact> optContact = contactService.findByIdentifier(identifier);
-            if (optContact.isPresent()) {
-                return ResponseEntity.status(HttpStatus.OK)
-                        .body(optContact.get().getContactEvents().stream().map(this::convertToDto)
-                                .toList());
-
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -79,22 +74,19 @@ public class ContactEventController {
     })
     public ResponseEntity<?> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
-        Optional<Contact> optContact = contactService.findByIdentifier(contactEventDto.getIdentifier());
-        if (optContact.isPresent()) {
-            Contact contact = optContact.get();
-            ContactEvent contactEvent = convertToEntity(contactEventDto);
-            ContactEvent newContactEvent = contactEventService.saveContactEvent(contactEvent);
-            Set<ContactEvent> setContactEvents = contact.getContactEvents();
-            setContactEvents.add(newContactEvent);
-            contact.setContactEvents(setContactEvents);
-            contactService.saveContact(contact);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.LOCATION,
-                    ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-            return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                    .body(convertToDto(newContactEvent));
-        } else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
+        Contact contact = contactService.findByIdentifier(contactEventDto.getIdentifier());
+        ContactEvent contactEvent = convertToEntity(contactEventDto);
+        ContactEvent newContactEvent = contactEventService.saveContactEvent(contactEvent);
+        Set<ContactEvent> setContactEvents = contact.getContactEvents();
+        setContactEvents.add(newContactEvent);
+        contact.setContactEvents(setContactEvents);
+        contactService.saveContact(contact);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.LOCATION,
+                ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
+        return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
+                .body(convertToDto(newContactEvent));
+
     }
 
 
@@ -106,18 +98,15 @@ public class ContactEventController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public ResponseEntity<?> deleteContactEvent(@PathVariable("id") Long id) {
+        ContactEvent contactEvent = contactEventService.findById(id);
+
         try {
-            Optional<ContactEvent> optContactEvent = contactEventService.findById(id);
-            if (optContactEvent.isPresent()) {
-                ContactEvent contactEvent = optContactEvent.get();
-                Contact contact = contactEvent.getContact();
-                contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
-                        .collect(Collectors.toSet()));
-                contactService.saveContact(contact);
-                contactEventService.deleteContactEvent(id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact event deleted");
-            } else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact event does not exist");
+            Contact contact = contactEvent.getContact();
+            contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
+                    .collect(Collectors.toSet()));
+            contactService.saveContact(contact);
+            contactEventService.deleteContactEvent(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact event deleted");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
 

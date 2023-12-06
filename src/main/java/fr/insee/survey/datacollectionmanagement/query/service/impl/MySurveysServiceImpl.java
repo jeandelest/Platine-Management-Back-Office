@@ -43,29 +43,28 @@ public class MySurveysServiceImpl implements MySurveysService {
         for (QuestioningAccreditation questioningAccreditation : accreditations) {
             MyQuestioningDto surveyDto = new MyQuestioningDto();
             Questioning questioning = questioningAccreditation.getQuestioning();
-            Optional<Partitioning> part = partitioningService.findById(questioning.getIdPartitioning());
-            if (part.isPresent()) {
-                Survey survey = part.get().getCampaign().getSurvey();
-                String surveyUnitId = questioning.getSurveyUnit().getIdSu();
-                surveyDto.setSurveyWording(survey.getLongWording());
-                surveyDto.setSurveyObjectives(survey.getLongObjectives());
-                surveyDto.setAccessUrl(
-                        questioningService.getAccessUrl(questioning, surveyUnitId));
-                surveyDto.setIdentificationCode(surveyUnitId);
-                surveyDto.setOpeningDate(new Timestamp(part.get().getOpeningDate().getTime()));
-                surveyDto.setClosingDate(new Timestamp(part.get().getClosingDate().getTime()));
-                surveyDto.setReturnDate(new Timestamp(part.get().getReturnDate().getTime()));
-                surveyDto.setMandatoryMySurveys(part.get().getCampaign().getSurvey().getSource().getMandatoryMySurveys());
+            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            Survey survey = part.getCampaign().getSurvey();
+            String surveyUnitId = questioning.getSurveyUnit().getIdSu();
+            surveyDto.setSurveyWording(survey.getLongWording());
+            surveyDto.setSurveyObjectives(survey.getLongObjectives());
+            surveyDto.setAccessUrl(
+                    questioningService.getAccessUrl(questioning, surveyUnitId));
+            surveyDto.setIdentificationCode(surveyUnitId);
+            surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
+            surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));
+            surveyDto.setReturnDate(new Timestamp(part.getReturnDate().getTime()));
+            surveyDto.setMandatoryMySurveys(part.getCampaign().getSurvey().getSource().getMandatoryMySurveys());
 
-                Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(
-                        questioning, TypeQuestioningEvent.MY_QUESTIONINGS_EVENTS);
-                if (questioningEvent.isPresent()) {
-                    surveyDto.setQuestioningStatus(questioningEvent.get().getType().name());
-                    surveyDto.setQuestioningDate(new Timestamp(questioningEvent.get().getDate().getTime()));
-                } else {
-                    log.debug("No questioningEvents found for questioning {} for identifier {}",
-                            questioning.getId(), id);
-                }
+            Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(
+                    questioning, TypeQuestioningEvent.MY_QUESTIONINGS_EVENTS);
+            if (questioningEvent.isPresent()) {
+                surveyDto.setQuestioningStatus(questioningEvent.get().getType().name());
+                surveyDto.setQuestioningDate(new Timestamp(questioningEvent.get().getDate().getTime()));
+            } else {
+                log.debug("No questioningEvents found for questioning {} for identifier {}",
+                        questioning.getId(), id);
+
 
             }
             listSurveys.add(surveyDto);
@@ -74,7 +73,6 @@ public class MySurveysServiceImpl implements MySurveysService {
         log.info("Get my questionings for id {} - nb results: {}", id, listSurveys.size());
         return listSurveys;
     }
-
 
 
 }
