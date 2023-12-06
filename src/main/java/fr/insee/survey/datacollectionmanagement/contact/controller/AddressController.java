@@ -69,7 +69,6 @@ public class AddressController {
             + "|| @AuthorizeMethodDecider.isWebClient() "
             + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
             + "|| @AuthorizeMethodDecider.isAdmin() ")
-
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id, @RequestBody AddressDto addressDto, Authentication auth) {
         Contact contact = contactService.findByIdentifier(id);
         HttpStatus httpStatus;

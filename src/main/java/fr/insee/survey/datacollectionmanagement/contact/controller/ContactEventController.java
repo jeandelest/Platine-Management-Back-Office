@@ -7,11 +7,6 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +42,6 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ContactEventDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Internal servor error")
-    })
     public ResponseEntity<?> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
@@ -63,11 +53,6 @@ public class ContactEventController {
 
     @Operation(summary = "Create a contactEvent")
     @PostMapping(value = Constants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = ContactEventDto.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
     public ResponseEntity<?> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
         Contact contact = contactService.findByIdentifier(contactEventDto.getIdentifier());
@@ -88,11 +73,6 @@ public class ContactEventController {
 
     @Operation(summary = "Delete a contact event")
     @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
     public ResponseEntity<?> deleteContactEvent(@PathVariable("id") Long id) {
         ContactEvent contactEvent = contactEventService.findById(id);
         Contact contact = contactEvent.getContact();
