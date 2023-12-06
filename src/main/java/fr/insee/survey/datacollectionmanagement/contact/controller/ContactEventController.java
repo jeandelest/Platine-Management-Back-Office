@@ -42,7 +42,7 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
-    public ResponseEntity<?> getContactContactEvents(@PathVariable("id") String identifier) {
+    public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contact.getContactEvents().stream().map(this::convertToDto)
@@ -53,7 +53,7 @@ public class ContactEventController {
 
     @Operation(summary = "Create a contactEvent")
     @PostMapping(value = Constants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<?> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
+    public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
         Contact contact = contactService.findByIdentifier(contactEventDto.getIdentifier());
         ContactEvent contactEvent = convertToEntity(contactEventDto);
@@ -73,14 +73,14 @@ public class ContactEventController {
 
     @Operation(summary = "Delete a contact event")
     @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
-    public ResponseEntity<?> deleteContactEvent(@PathVariable("id") Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContactEvent(@PathVariable("id") Long id) {
         ContactEvent contactEvent = contactEventService.findById(id);
         Contact contact = contactEvent.getContact();
         contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
                 .collect(Collectors.toSet()));
         contactService.saveContact(contact);
         contactEventService.deleteContactEvent(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Contact event deleted");
 
     }
 
