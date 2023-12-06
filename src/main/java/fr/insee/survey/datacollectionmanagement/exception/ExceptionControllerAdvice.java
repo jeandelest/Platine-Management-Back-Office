@@ -27,9 +27,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @RequiredArgsConstructor
 public class ExceptionControllerAdvice {
 
-    private final ApiExceptionComponent errorComponent;
-
     private static final String ERROR_OCCURRED_LABEL = "An error has occurred";
+    private final ApiExceptionComponent errorComponent;
 
     /**
      * Global method to process the catched exception
@@ -63,44 +62,41 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    public void noHandlerFoundException(NoHandlerFoundException e, WebRequest request) {
+    public ResponseEntity<ApiError> noHandlerFoundException(NoHandlerFoundException e, WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.NOT_FOUND, request);
+        return processException(e, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public void accessDeniedException(AccessDeniedException e, WebRequest request) {
+    public ResponseEntity<ApiError> accessDeniedException(AccessDeniedException e, WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.FORBIDDEN, request);
+        return processException(e, HttpStatus.FORBIDDEN, request);
     }
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseBody
-    public void handleMethodArgumentNotValid(
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(
             MethodArgumentNotValidException e,
             WebRequest request) {
-        log.error(e.getMessage(), e);
-        processException(e, HttpStatus.BAD_REQUEST, request, "Invalid parameters");
+
+        String defaultMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        log.error(defaultMessage, e);
+        return processException(e, HttpStatus.BAD_REQUEST, request, defaultMessage);
     }
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseBody
-    public void handleConstraintViolation(
+    public ResponseEntity<ApiError> handleConstraintViolation(
             ConstraintViolationException e,
             WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public void handleHttpMessageNotReadableException(
+    public ResponseEntity<ApiError> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException e, WebRequest request) {
         log.error(e.getMessage(), e);
 
@@ -115,30 +111,43 @@ public class ExceptionControllerAdvice {
             String location = mappingException.getLocation() != null ? "[line: " + mappingException.getLocation().getLineNr() + ", column: " + mappingException.getLocation().getColumnNr() + "]" : "";
             errorMessage = "Error when deserializing JSON. Check that your JSON properties are of the expected types " + location;
         }
-        processException(e, HttpStatus.BAD_REQUEST, request, errorMessage);
+        return processException(e, HttpStatus.BAD_REQUEST, request, errorMessage);
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    public void notFoundException(NotFoundException e, WebRequest request) {
+    public ResponseEntity<ApiError> notFoundException(NotFoundException e, WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.NOT_FOUND, request);
+        return processException(e, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(NotMatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> notMatchException(NotMatchException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(ImpossibleToDeleteException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> impossibleToDeleteException(ImpossibleToDeleteException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request);
     }
 
 
     @ExceptionHandler(HttpClientErrorException.class)
     @ResponseBody
-    public void exceptions(HttpClientErrorException e, WebRequest request) {
+    public ResponseEntity<ApiError> exceptions(HttpClientErrorException e, WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.valueOf(e.getStatusCode().value()), request, ERROR_OCCURRED_LABEL);
+        return processException(e, HttpStatus.valueOf(e.getStatusCode().value()), request, ERROR_OCCURRED_LABEL);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public void exceptions(Exception e, WebRequest request) {
+    public ResponseEntity<ApiError> exceptions(Exception e, WebRequest request) {
         log.error(e.getMessage(), e);
-        processException(e, HttpStatus.INTERNAL_SERVER_ERROR, request, ERROR_OCCURRED_LABEL);
+        return processException(e, HttpStatus.INTERNAL_SERVER_ERROR, request, ERROR_OCCURRED_LABEL);
     }
 }

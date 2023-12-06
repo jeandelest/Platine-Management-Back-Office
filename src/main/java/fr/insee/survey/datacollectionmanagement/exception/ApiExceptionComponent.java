@@ -24,16 +24,15 @@ public class ApiExceptionComponent {
     }
 
     /**
-     *
-     * @param request origin request
-     * @param status status from exception
+     * @param request      origin request
+     * @param status       status from exception
      * @param errorMessage error message
      * @return error object used for JSON response
      */
     public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage) {
         String path = getPath(request);
         Date timestamp = getTimeStamp(request);
-        return new ApiError(status, path, timestamp,  errorMessage);
+        return new ApiError(status, path, timestamp, errorMessage);
     }
 
     /**
@@ -46,7 +45,6 @@ public class ApiExceptionComponent {
     }
 
     /**
-     *
      * @param request origin request
      * @return get path from origin request
      */

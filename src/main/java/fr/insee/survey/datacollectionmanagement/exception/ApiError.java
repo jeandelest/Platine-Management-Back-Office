@@ -21,12 +21,12 @@ public class ApiError {
     private Date timestamp;
 
     /**
-     * @param status http status for this error
-     * @param path origin request path
-     * @param timestamp timestamp of the generated error
+     * @param status       http status for this error
+     * @param path         origin request path
+     * @param timestamp    timestamp of the generated error
      * @param errorMessage error message
      */
-    public ApiError (HttpStatus status, String path, Date timestamp, String errorMessage) {
+    public ApiError(HttpStatus status, String path, Date timestamp, String errorMessage) {
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = status.getReasonPhrase();
         }
