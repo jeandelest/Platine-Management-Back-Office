@@ -7,10 +7,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SupportDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +40,7 @@ public class SupportController {
 
     @Operation(summary = "Search for supports, paginated")
     @GetMapping(value = Constants.API_SUPPORTS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SupportPage.class)))
-    })
-    public ResponseEntity<?> getSupports(
+    public ResponseEntity<SupportPage> getSupports(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -59,12 +52,7 @@ public class SupportController {
 
     @Operation(summary = "Search for a support by its id")
     @GetMapping(value = Constants.API_SUPPORTS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SupportDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getSupport(@PathVariable("id") String id) {
+    public ResponseEntity<SupportDto> getSupport(@PathVariable("id") String id) {
         Support support = supportService.findById(id);
         return ResponseEntity.ok().body(convertToDto(support));
 
@@ -72,12 +60,7 @@ public class SupportController {
 
     @Operation(summary = "Update or create a support")
     @PutMapping(value = Constants.API_SUPPORTS_ID, produces = "application/json", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SupportDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SupportDto.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> putSupport(@PathVariable("id") String id, @RequestBody @Valid SupportDto supportDto) {
+    public ResponseEntity<SupportDto> putSupport(@PathVariable("id") String id, @RequestBody @Valid SupportDto supportDto) {
         if (!supportDto.getId().equals(id)) {
             throw new NotMatchException("id and support id don't match");
         }
@@ -86,9 +69,8 @@ public class SupportController {
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(supportDto.getId()).toUriString());
         HttpStatus httpStatus;
-        Support supportBase;
         try {
-            supportBase = supportService.findById(id);
+            supportService.findById(id);
             log.info("Update support with the id {}", supportDto.getId());
             httpStatus = HttpStatus.OK;
 

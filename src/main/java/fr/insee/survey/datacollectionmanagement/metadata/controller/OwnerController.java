@@ -7,10 +7,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OwnerDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +40,7 @@ public class OwnerController {
 
     @Operation(summary = "Search for owners, paginated")
     @GetMapping(value = Constants.API_OWNERS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OwnerPage.class)))
-    })
-    public ResponseEntity<?> getOwners(
+    public ResponseEntity<OwnerPage> getOwners(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -59,12 +52,7 @@ public class OwnerController {
 
     @Operation(summary = "Search for a owner by its id")
     @GetMapping(value = Constants.API_OWNERS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OwnerDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getOwner(@PathVariable("id") String id) {
+    public ResponseEntity<OwnerDto> getOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return ResponseEntity.ok().body(convertToDto(owner));
 
@@ -72,12 +60,7 @@ public class OwnerController {
 
     @Operation(summary = "Update or create a owner")
     @PutMapping(value = Constants.API_OWNERS_ID, produces = "application/json", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OwnerDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = OwnerDto.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
+    public ResponseEntity<OwnerDto> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
         if (!ownerDto.getId().equals(id)) {
             throw new NotMatchException("id and owner id don't match");
         }
@@ -92,8 +75,7 @@ public class OwnerController {
             log.warn("Update owner with the id {}", ownerDto.getId());
             httpStatus = HttpStatus.OK;
 
-        }
-        catch (NotFoundException e){
+        } catch (NotFoundException e) {
             log.info("Create owner with the id {}", ownerDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
@@ -102,7 +84,7 @@ public class OwnerController {
         Owner owner = ownerService.insertOrUpdateOwner(convertToEntity(ownerDto));
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(owner));
     }
-    
+
 
     private OwnerDto convertToDto(Owner owner) {
         return modelmapper.map(owner, OwnerDto.class);

@@ -10,7 +10,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,38 +50,21 @@ public class PartitioningController {
 
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = Constants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = PartitioningDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getPartitioningsByCampaign(@PathVariable("id") String id) {
+    public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(id);
-        try {
-            return ResponseEntity.ok()
-                    .body(campaign.getPartitionings().stream().map(this::convertToDto)
-                            .toList());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+        return ResponseEntity.ok()
+                .body(campaign.getPartitionings().stream().map(this::convertToDto)
+                        .toList());
+
 
     }
 
     @Operation(summary = "Search for a partitioning by its id")
     @GetMapping(value = Constants.API_PARTITIONINGS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getPartitioning(@PathVariable("id") String id) {
+    public ResponseEntity<PartitioningDto> getPartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(StringUtils.upperCase(id));
-        try {
-            return ResponseEntity.ok().body(convertToDto(partitioning));
+        return ResponseEntity.ok().body(convertToDto(partitioning));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -93,8 +75,8 @@ public class PartitioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putPartitioning(@PathVariable("id") String id,
-                                             @RequestBody PartitioningDto partitioningDto) {
+    public ResponseEntity<PartitioningDto> putPartitioning(@PathVariable("id") String id,
+                                                           @RequestBody PartitioningDto partitioningDto) {
         if (!partitioningDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and owner id don't match");
         }
@@ -124,28 +106,17 @@ public class PartitioningController {
 
     @Operation(summary = "Delete a partitioning, its partitionings, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_PARTITIONINGS_ID)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
     @Transactional
-    public ResponseEntity<?> deletePartitioning(@PathVariable("id") String id) {
+    public void deletePartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(id);
+        Campaign campaign = partitioning.getCampaign();
+        campaign.getPartitionings().remove(partitioning);
+        campaignService.insertOrUpdateCampaign(campaign);
+        partitioningService.deletePartitioningById(id);
 
-        try {
+        int nbQuestioningDeleted = questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
+        log.info("Partitioning {} deleted - {} questionings deleted", id, nbQuestioningDeleted);
 
-            Campaign campaign = partitioning.getCampaign();
-            campaign.getPartitionings().remove(partitioning);
-            campaignService.insertOrUpdateCampaign(campaign);
-            partitioningService.deletePartitioningById(id);
-
-            int nbQuestioningDeleted = questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
-            log.info("Partitioning {} deleted - {} questionings deleted", id, nbQuestioningDeleted);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Partitioning deleted");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
     }
 
     private PartitioningDto convertToDto(Partitioning partitioning) {

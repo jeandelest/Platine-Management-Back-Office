@@ -13,11 +13,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,29 +53,16 @@ public class SurveyController {
 
     @Operation(summary = "Search for surveys by the source id")
     @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SurveyDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getSurveysBySource(@PathVariable("id") String id) {
+    public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {
         Source source = sourceService.findById(id);
-        try {
-            return ResponseEntity.ok()
-                    .body(source.getSurveys().stream().map(this::convertToDto).toList());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+        return ResponseEntity.ok()
+                .body(source.getSurveys().stream().map(this::convertToDto).toList());
+
 
     }
 
     @Operation(summary = "Search for a survey by its id")
     @GetMapping(value = Constants.API_SURVEYS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
     public ResponseEntity<SurveyDto> getSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(survey));
@@ -90,11 +72,6 @@ public class SurveyController {
 
     @Operation(summary = "Update or create a survey")
     @PutMapping(value = Constants.API_SURVEYS_ID, produces = "application/json", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyDto.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
     public ResponseEntity<SurveyDto> putSurvey(@PathVariable("id") String id, @RequestBody @Valid SurveyDto surveyDto) {
         if (!surveyDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSurvey don't match");
@@ -125,50 +102,39 @@ public class SurveyController {
 
     @Operation(summary = "Delete a survey, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_SURVEYS_ID)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
     @Transactional
-    public ResponseEntity<String> deleteSurvey(@PathVariable("id") String id) {
+    public void deleteSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(id);
 
-        try {
+        int nbQuestioningDeleted = 0;
+        int nbViewDeleted = 0;
 
-            int nbQuestioningDeleted = 0;
-            int nbViewDeleted = 0;
+        Source source = survey.getSource();
+        source.getSurveys().remove(survey);
+        sourceService.insertOrUpdateSource(source);
+        surveyService.deleteSurveyById(id);
+        List<Partitioning> listPartitionings = new ArrayList<>();
 
-            Source source = survey.getSource();
-            source.getSurveys().remove(survey);
-            sourceService.insertOrUpdateSource(source);
-            surveyService.deleteSurveyById(id);
-            List<Partitioning> listPartitionings = new ArrayList<>();
+        survey.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings()));
 
-            survey.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings()));
-
-            for (Campaign campaign : survey.getCampaigns()) {
-                viewService.findViewByCampaignId(campaign.getId()).stream()
-                        .forEach(v -> viewService.deleteView(v));
-            }
-            for (Partitioning partitioning : listPartitionings) {
-                questioningService.findByIdPartitioning(partitioning.getId()).stream()
-                        .forEach(q -> questioningService.deleteQuestioning(q.getId()));
-            }
-
-            for (Campaign campaign : survey.getCampaigns()) {
-                nbViewDeleted += viewService.deleteViewsOfOneCampaign(campaign);
-            }
-            for (Partitioning partitioning : listPartitionings) {
-                nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
-            }
-            log.info("Source {} deleted and all its metadata children - {} questioning deleted - {} view deleted", id,
-                    nbQuestioningDeleted, nbViewDeleted);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Survey deleted");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
+        for (Campaign campaign : survey.getCampaigns()) {
+            viewService.findViewByCampaignId(campaign.getId()).stream()
+                    .forEach(v -> viewService.deleteView(v));
         }
+        for (Partitioning partitioning : listPartitionings) {
+            questioningService.findByIdPartitioning(partitioning.getId()).stream()
+                    .forEach(q -> questioningService.deleteQuestioning(q.getId()));
+        }
+
+        for (Campaign campaign : survey.getCampaigns()) {
+            nbViewDeleted += viewService.deleteViewsOfOneCampaign(campaign);
+        }
+        for (Partitioning partitioning : listPartitionings) {
+            nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
+        }
+        log.info("Source {} deleted and all its metadata children - {} questioning deleted - {} view deleted", id,
+                nbQuestioningDeleted, nbViewDeleted);
+
     }
 
     private SurveyDto convertToDto(Survey survey) {

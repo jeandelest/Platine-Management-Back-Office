@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -15,7 +16,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningS
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,7 +38,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -65,36 +64,24 @@ public class CampaignController {
 
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = Constants.API_CAMPAIGNS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignPage.class)))
-    })
-    public ResponseEntity<?> getSources(
+    public ResponseEntity<CampaignPage> getSources(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Campaign> pageCampaign = campaignService.findAll(pageable);
-        List<CampaignDto> listCampaigns = pageCampaign.stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+        List<CampaignDto> listCampaigns = pageCampaign.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new CampaignPage(listCampaigns, pageable, pageCampaign.getTotalElements()));
     }
 
     @Operation(summary = "Search for campaigns by the survey id")
     @GetMapping(value = Constants.API_SURVEYS_ID_CAMPAIGNS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CampaignDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> getCampaignsBySurvey(@PathVariable("id") String id) {
+    public ResponseEntity<List<CampaignDto>> getCampaignsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
+        return ResponseEntity.ok()
+                .body(survey.getCampaigns().stream().map(this::convertToDto).toList());
 
-        try {
-            return ResponseEntity.ok()
-                    .body(survey.getCampaigns().stream().map(s -> convertToDto(s)).toList());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
     }
 
     @Operation(summary = "Search for a campaign by its id")
@@ -104,14 +91,10 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> getCampaign(@PathVariable("id") String id) {
+    public ResponseEntity<CampaignDto> getCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        return ResponseEntity.ok().body(convertToDto(campaign));
 
-        try {
-            return ResponseEntity.ok().body(convertToDto(campaign));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -122,8 +105,8 @@ public class CampaignController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
-        if ( !campaignDto.getId().equalsIgnoreCase(id)) {
+    public ResponseEntity<CampaignDto> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
+        if (!campaignDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idCampaign don't match");
         }
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -149,42 +132,34 @@ public class CampaignController {
 
     @Operation(summary = "Delete a campaign, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = {Constants.API_CAMPAIGNS_ID, Constants.MOOG_API_CAMPAIGNS_ID})
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
+
     @Transactional
-    public ResponseEntity<?> deleteCampaign(@PathVariable("id") String id) throws fr.insee.survey.datacollectionmanagement.exception.NotFoundException {
+    public void deleteCampaign(@PathVariable("id") String id) throws fr.insee.survey.datacollectionmanagement.exception.NotFoundException {
 
         if (campaignService.isCampaignOngoing(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Campaign is still ongoing and can't be deleted");
+            throw new ImpossibleToDeleteException("Campaign is still ongoing and can't be deleted");
         }
 
         Campaign campaign = campaignService.findById(id);
-        try {
 
-            int nbQuestioningDeleted = 0;
-            Survey survey = campaign.getSurvey();
-            survey.getCampaigns().remove(campaign);
-            surveyService.insertOrUpdateSurvey(survey);
-            List<Upload> uploadsCamp = uploadService.findAllByIdCampaign(id);
-            campaignService.deleteCampaignById(id);
-            Set<Partitioning> listPartitionings = campaign.getPartitionings();
+        int nbQuestioningDeleted = 0;
+        Survey survey = campaign.getSurvey();
+        survey.getCampaigns().remove(campaign);
+        surveyService.insertOrUpdateSurvey(survey);
+        List<Upload> uploadsCamp = uploadService.findAllByIdCampaign(id);
+        campaignService.deleteCampaignById(id);
+        Set<Partitioning> listPartitionings = campaign.getPartitionings();
 
-            int nbViewDeleted = viewService.deleteViewsOfOneCampaign(campaign);
+        int nbViewDeleted = viewService.deleteViewsOfOneCampaign(campaign);
 
-            for (Partitioning partitioning : listPartitionings) {
-                nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
-            }
-            uploadsCamp.forEach(up -> uploadService.delete(up));
-            log.info("Campaign {} deleted with all its metadata children - {} questioning deleted - {} view deleted - {} uploads deleted",
-                    id,
-                    nbQuestioningDeleted, nbViewDeleted, uploadsCamp.size());
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Campaign deleted");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
+        for (Partitioning partitioning : listPartitionings) {
+            nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
         }
+        uploadsCamp.forEach(uploadService::delete);
+        log.info("Campaign {} deleted with all its metadata children - {} questioning deleted - {} view deleted - {} uploads deleted",
+                id,
+                nbQuestioningDeleted, nbViewDeleted, uploadsCamp.size());
+
     }
 
     @Operation(summary = "campaign is ongoing")
@@ -193,7 +168,7 @@ public class CampaignController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<?> isOnGoingCampaign(@PathVariable("id") String id) {
+    public ResponseEntity<OnGoingDto> isOnGoingCampaign(@PathVariable("id") String id) {
         boolean isOnGoing = campaignService.isCampaignOngoing(id);
         return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
 
