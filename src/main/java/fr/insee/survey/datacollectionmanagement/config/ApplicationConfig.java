@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-import java.util.Optional;
 
 @Configuration
 @Getter
@@ -35,8 +34,8 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.auth.mode}")
     private String authType;
 
-    @Value("${fr.insee.datacollectionmanagement.cors.allowedOrigin}")
-    private Optional<String> allowedOrigin;
+    @Value("${fr.insee.datacollectionmanagement.cors.allowedOrigins}")
+    private String[] allowedOrigins;
 
     @Value("${fr.insee.datacollectionmanagement.auth.realm}")
     private String keycloakRealm;
