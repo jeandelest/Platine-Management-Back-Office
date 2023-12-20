@@ -110,6 +110,7 @@ public class SourceController {
 
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_SOURCES_ID)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteSource(@PathVariable("id") String id) {
         int nbQuestioningDeleted = 0, nbViewDeleted = 0;

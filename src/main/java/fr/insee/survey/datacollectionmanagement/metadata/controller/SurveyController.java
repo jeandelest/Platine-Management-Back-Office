@@ -102,6 +102,7 @@ public class SurveyController {
 
     @Operation(summary = "Delete a survey, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_SURVEYS_ID)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(id);

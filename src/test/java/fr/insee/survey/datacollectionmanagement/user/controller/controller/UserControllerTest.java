@@ -109,7 +109,7 @@ class UserControllerTest {
         assertTrue(userEventService.findUserEventsByUser(userFoundAfterUpdate).isEmpty());
 
         // delete user not found
-        mockMvc.perform(delete("/users/" + identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }

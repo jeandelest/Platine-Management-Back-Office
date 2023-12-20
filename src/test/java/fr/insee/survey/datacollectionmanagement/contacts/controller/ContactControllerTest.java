@@ -118,7 +118,7 @@ public class ContactControllerTest {
         assertTrue(contactEventService.findContactEventsByContact(contactFoundAfterUpdate).isEmpty());
 
         // delete contact not found
-        mockMvc.perform(delete("/contacts/" + identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(Constants.API_CONTACTS + identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
