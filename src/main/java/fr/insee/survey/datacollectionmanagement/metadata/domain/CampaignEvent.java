@@ -1,9 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
@@ -15,7 +12,7 @@ import java.util.Date;
 public class CampaignEvent {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "campaign_event_seq")
     private Long id;
     @NonNull
     private String type;

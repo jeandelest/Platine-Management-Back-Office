@@ -14,7 +14,7 @@ import java.util.Set;
 public class Questioning {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_seq")
     private Long id;
 
     @NonNull

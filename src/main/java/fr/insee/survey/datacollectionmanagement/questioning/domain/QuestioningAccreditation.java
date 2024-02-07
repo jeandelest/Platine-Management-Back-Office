@@ -16,7 +16,7 @@ import java.util.Date;
 public class QuestioningAccreditation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_accreditation_seq")
     private Long id;
 
     private boolean isMain;

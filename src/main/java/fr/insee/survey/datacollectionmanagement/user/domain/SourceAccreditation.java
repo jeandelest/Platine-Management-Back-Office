@@ -2,10 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.domain;
 
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
@@ -17,7 +14,7 @@ import java.util.Date;
 public class SourceAccreditation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_accreditation_seq")
     private Long id;
 
     private Date creationDate;

@@ -1,9 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
@@ -14,7 +11,7 @@ import java.util.Set;
 public class OperatorService {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "operator_service_seq")
     private Long id;
     private String name;
     private String mail;

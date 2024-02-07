@@ -17,7 +17,7 @@ import java.util.Date;
 public class QuestioningEvent {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_event_seq")
     private Long id;
 
     private Date date;
