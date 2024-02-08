@@ -19,8 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +50,17 @@ public class SurveyController {
 
     private final QuestioningService questioningService;
 
+    @Operation(summary = "Search for surveys, paginated")
+    @GetMapping(value = Constants.API_SURVEYS, produces = "application/json")
+    public ResponseEntity<SurveyController.SurveyPage> getSurveys(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "id") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Survey> pageSurvey = surveyService.findAll(pageable);
+        List<SurveyDto> listSurveys = pageSurvey.stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(new SurveyController.SurveyPage(listSurveys, pageable, pageSurvey.getTotalElements()));
+    }
     @Operation(summary = "Search for surveys by the source id")
     @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")
     public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {
