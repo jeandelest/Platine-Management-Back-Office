@@ -6,10 +6,12 @@ import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioning
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@Profile("poc")
 @RequiredArgsConstructor
 public class Dataloader {
 
