@@ -45,8 +45,13 @@ public class Constants {
     public static final String API_SOURCES = "/api/sources";
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
+    public static final String API_SURVEYS = "/api/surveys";
+
+    public static final String API_SURVEYS_SEARCH = "/api/surveys/search";
     public static final String API_SURVEYS_ID = "/api/surveys/{id}";
     public static final String API_SURVEYS_ID_CAMPAIGNS = "/api/surveys/{id}/campaigns";
+
+    public static final String API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS = "/api/surveys/{id}/campaigns-partitionings";
     public static final String API_CAMPAIGNS = "/api/campaigns";
     public static final String API_CAMPAIGNS_ID = "/api/campaigns/{id}";
     public static final String CAMPAIGNS_ID_ONGOING = "/campaigns/{id}/ongoing";
@@ -60,7 +65,7 @@ public class Constants {
     public static final String API_SUPPORTS = "/api/supports";
     public static final String API_SUPPORTS_ID = "/api/supports/{id}";
     public static final String API_PERIODICITIES = "/api/periodicities";
-    public static final String API_PERIODICITIES_ID_PERIODS = "/api/periodicities/{id}/periods";
+    public static final String API_PERIODICITIES_ID_PERIODS = "/api/periodicities/{periodicity}/periods";
     public static final String API_PERIODS = "/api/periods";
 
 
