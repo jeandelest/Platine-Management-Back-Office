@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-@Profile("demo")
 @RequiredArgsConstructor
 public class DataloaderPoc {
 
@@ -292,12 +291,12 @@ public class DataloaderPoc {
         Date dateEndOfYear = calendar.getTime();
 
         Owner ownerInsee = new Owner();
-        ownerInsee.setId("insee");
+        ownerInsee.setId("insee"+sourceName);
         ownerInsee.setLabel("Insee");
         Set<Source> setSourcesInsee = new HashSet<>();
 
         Owner ownerAgri = new Owner();
-        ownerAgri.setId("agri");
+        ownerAgri.setId("agri"+sourceName);
         ownerAgri.setLabel("SSM Agriculture");
         Set<Source> setSourcesSsp = new HashSet<>();
 
