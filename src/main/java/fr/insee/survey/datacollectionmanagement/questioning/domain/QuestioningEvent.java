@@ -14,6 +14,9 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@Table(indexes = {
+        @Index(name = "idQuestioning_index", columnList = "questioning_id")
+})
 public class QuestioningEvent {
 
     @Id
