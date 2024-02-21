@@ -83,10 +83,10 @@ public class DataloaderPoc {
         initOrder();
         //initContact(faker);
 
-        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 1);
-        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 1);
-        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 1);
-        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 1);
+        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 2000);
+        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 10000);
+        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 80000);
+        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 10000);
     }
 
 
