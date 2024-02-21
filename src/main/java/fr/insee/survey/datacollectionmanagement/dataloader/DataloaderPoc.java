@@ -22,6 +22,7 @@ import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -82,10 +83,10 @@ public class DataloaderPoc {
         initOrder();
         //initContact(faker);
 
-        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 2000);
-        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 10000);
-        initDataForOneSource(faker, "DVA", 2, PeriodicityEnum.A, 1, 2, 80000);
-        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 10000);
+        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 1);
+        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 1);
+        initDataForOneSource(faker, "DVA", 2, PeriodicityEnum.A, 1, 2, 1);
+        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 1);
     }
 
 
@@ -290,14 +291,15 @@ public class DataloaderPoc {
         Date dateEndOfYear = calendar.getTime();
 
         Owner ownerInsee = new Owner();
-        ownerInsee.setId("insee"+sourceName);
+        ownerInsee.setId("insee");
         ownerInsee.setLabel("Insee");
         Set<Source> setSourcesInsee = new HashSet<>();
 
         Owner ownerAgri = new Owner();
-        ownerAgri.setId("agri"+sourceName);
+        ownerAgri.setId("agri");
         ownerAgri.setLabel("SSM Agriculture");
         Set<Source> setSourcesSsp = new HashSet<>();
+
 
         Support supportInseeHdf = new Support();
         supportInseeHdf.setId("inseehdf");
@@ -317,112 +319,108 @@ public class DataloaderPoc {
 
         String nameSource = sourceName;
 
-        /* if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {*/
+        if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {
 
-        source.setId(nameSource);
-        source.setLongWording("Have you ever heard about " + nameSource + " ?");
-        source.setShortWording("Source about " + nameSource);
-        source.setPeriodicity(periodicity);
-        source.setMandatoryMySurveys(false);
+            source.setId(nameSource);
+            source.setLongWording("Have you ever heard about " + nameSource + " ?");
+            source.setShortWording("Source about " + nameSource);
+            source.setPeriodicity(periodicity);
+            source.setMandatoryMySurveys(false);
 
-        sourceRepository.save(source);
-        Set<Survey> setSurveys = new HashSet<>();
-        Integer i = rnd.nextInt();
-        if (i % 2 == 0) {
-            setSourcesInsee.add(source);
-            source.setOwner(ownerInsee);
-            setSourcesSupportInsee.add(source);
-            source.setSupport(supportInseeHdf);
-        }
-        else {
-            setSourcesSsp.add(source);
-            source.setOwner(ownerAgri);
-            setSourcesSupportSsne.add(source);
-            source.setSupport(supportSsne);
-        }
-
-        for (int j = 0; j < nbSurveysBySource; j++) {
-
-            Survey survey = new Survey();
-            String id = nameSource + (year - j);
-            survey.setId(id);
-            survey.setYear(year - j);
-            survey.setLongObjectives("The purpose of this survey is to find out everything you can about "
-                    + nameSource
-                    + ". Your response is essential to ensure the quality and reliability of the results of this survey.");
-            survey.setShortObjectives("All about " + id);
-            survey.setCommunication("Communication around " + id);
-            survey.setSpecimenUrl("http://specimenUrl/" + id);
-            survey.setDiffusionUrl("http://diffusion/" + id);
-            survey.setCnisUrl("http://cnis/" + id);
-            survey.setNoticeUrl("http://notice/" + id);
-            survey.setVisaNumber(year + randomString(6).toUpperCase());
-            survey.setLongWording("Survey " + nameSource + " " + (year - j));
-            survey.setShortWording(id);
-            setSurveys.add(survey);
-            surveyRepository.save(survey);
-            Set<Campaign> setCampaigns = new HashSet<>();
-
-            for (int k = 0; k < nbCampaignsBySource; k++) {
-
-                Campaign campaign = new Campaign();
-                int periodValue = k + 1;
-                String period = periodValue < 10 ? periodicity + "0" + periodValue : periodicity + String.valueOf(periodValue);
-                campaign.setYear(year - j);
-                campaign.setPeriod(PeriodEnum.valueOf(period));
-                String idampaign = nameSource + (year - j) + period;
-                campaign.setId(idampaign);
-                campaign.setCampaignWording(
-                        "Campaign about " + nameSource + " in " + (year - j) + " and period " + period);
-
-                if (campaignRepository.findById(idampaign).isEmpty()) {
-
-                    campaignRepository.save(campaign);
-                    Set<Partitioning> setParts = new HashSet<>();
-
-                    for (int l = 0; l < nbPartByCampaign; l++) {
-
-                        Partitioning part = new Partitioning();
-                        part.setId(campaign.getId() + "0" + l);
-                        Date openingDate = faker.date().past(90, 0, TimeUnit.DAYS);
-                        Date closingDate = faker.date().between(openingDate, dateEndOfYear);
-                        Date returnDate = faker.date().between(openingDate, closingDate);
-
-                        part.setOpeningDate(openingDate);
-                        part.setClosingDate(closingDate);
-                        part.setReturnDate(returnDate);
-                        setParts.add(part);
-                        part.setCampaign(campaign);
-                        partitioningRepository.save(part);
-                        initQuestionning(faker, part, nbQuestioningsByPart);
-                    }
-                    campaign.setSurvey(survey);
-                    campaign.setPartitionings(setParts);
-                    setCampaigns.add(campaign);
-                    campaignRepository.save(campaign);
-                }
-
+            sourceRepository.save(source);
+            Set<Survey> setSurveys = new HashSet<>();
+            Integer i = rnd.nextInt();
+            if (i % 2 == 0) {
+                setSourcesInsee.add(source);
+                source.setOwner(ownerInsee);
+                setSourcesSupportInsee.add(source);
+                source.setSupport(supportInseeHdf);
+            } else {
+                setSourcesSsp.add(source);
+                source.setOwner(ownerAgri);
+                setSourcesSupportSsne.add(source);
+                source.setSupport(supportSsne);
             }
-            survey.setSource(source);
-            survey.setCampaigns(setCampaigns);
-            surveyRepository.save(survey);
+
+            for (int j = 0; j < nbSurveysBySource; j++) {
+
+                Survey survey = new Survey();
+                String id = nameSource + (year - j);
+                survey.setId(id);
+                survey.setYear(year - j);
+                survey.setLongObjectives("The purpose of this survey is to find out everything you can about "
+                        + nameSource
+                        + ". Your response is essential to ensure the quality and reliability of the results of this survey.");
+                survey.setShortObjectives("All about " + id);
+                survey.setCommunication("Communication around " + id);
+                survey.setSpecimenUrl("http://specimenUrl/" + id);
+                survey.setDiffusionUrl("http://diffusion/" + id);
+                survey.setCnisUrl("http://cnis/" + id);
+                survey.setNoticeUrl("http://notice/" + id);
+                survey.setVisaNumber(year + randomString(6).toUpperCase());
+                survey.setLongWording("Survey " + nameSource + " " + (year - j));
+                survey.setShortWording(id);
+                setSurveys.add(survey);
+                surveyRepository.save(survey);
+                Set<Campaign> setCampaigns = new HashSet<>();
+
+                for (int k = 0; k < nbCampaignsBySource; k++) {
+
+                    Campaign campaign = new Campaign();
+                    int periodValue = k + 1;
+                    String period = periodValue < 10 ? periodicity + "0" + periodValue : periodicity + String.valueOf(periodValue);
+                    campaign.setYear(year - j);
+                    campaign.setPeriod(PeriodEnum.valueOf(period));
+                    String idampaign = nameSource + (year - j) + period;
+                    campaign.setId(idampaign);
+                    campaign.setCampaignWording(
+                            "Campaign about " + nameSource + " in " + (year - j) + " and period " + period);
+
+                    if (campaignRepository.findById(idampaign).isEmpty()) {
+
+                        campaignRepository.save(campaign);
+                        Set<Partitioning> setParts = new HashSet<>();
+
+                        for (int l = 0; l < nbPartByCampaign; l++) {
+
+                            Partitioning part = new Partitioning();
+                            part.setId(campaign.getId() + "0" + l);
+                            Date openingDate = faker.date().past(90, 0, TimeUnit.DAYS);
+                            Date closingDate = faker.date().between(openingDate, dateEndOfYear);
+                            Date returnDate = faker.date().between(openingDate, closingDate);
+
+                            part.setOpeningDate(openingDate);
+                            part.setClosingDate(closingDate);
+                            part.setReturnDate(returnDate);
+                            setParts.add(part);
+                            part.setCampaign(campaign);
+                            partitioningRepository.save(part);
+                            initQuestionning(faker, part, nbQuestioningsByPart);
+                        }
+                        campaign.setSurvey(survey);
+                        campaign.setPartitionings(setParts);
+                        setCampaigns.add(campaign);
+                        campaignRepository.save(campaign);
+                    }
+
+                }
+                survey.setSource(source);
+                survey.setCampaigns(setCampaigns);
+                surveyRepository.save(survey);
+            }
+            source.setSurveys(setSurveys);
+            source.setSurveys(setSurveys);
+
+            sourceRepository.save(source);
+            ownerInsee.setSources(setSourcesInsee);
+            ownerAgri.setSources(setSourcesSsp);
+            ownerRepository.saveAll(Arrays.asList(ownerInsee, ownerAgri));
+
+            supportInseeHdf.setSources(setSourcesSupportInsee);
+            supportSsne.setSources(setSourcesSupportSsne);
+            supportRepository.saveAll(Arrays.asList(supportInseeHdf, supportSsne));
         }
-        source.setSurveys(setSurveys);
-        source.setSurveys(setSurveys);
-
-        sourceRepository.save(source);
-        ownerInsee.setSources(setSourcesInsee);
-        ownerAgri.setSources(setSourcesSsp);
-        ownerRepository.saveAll(Arrays.asList(ownerInsee, ownerAgri));
-
-        supportInseeHdf.setSources(setSourcesSupportInsee);
-        supportSsne.setSources(setSourcesSupportSsne);
-        supportRepository.saveAll(Arrays.asList(supportInseeHdf, supportSsne));
     }
-
-    //}
-
-    //}
 
     private void initQuestionning(Faker faker, Partitioning part, int nbQuestionings) {
 
