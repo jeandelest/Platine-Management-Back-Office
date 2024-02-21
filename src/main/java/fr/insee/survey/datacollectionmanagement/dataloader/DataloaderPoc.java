@@ -22,7 +22,6 @@ import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -82,14 +81,12 @@ public class DataloaderPoc {
 
         initOrder();
         //initContact(faker);
-        initDataForOneSource(faker, "DVM",2, 'M',
-        12,2, 10000);
-        initDataForOneSource(faker, "DVT",3, 'T',
-                4,2, 10000);
 
-
+        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 2000);
+        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 10000);
+        initDataForOneSource(faker, "DVA", 2, PeriodicityEnum.A, 1, 2, 80000);
+        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 10000);
     }
-
 
 
     private void initSurveyUnitAddressAndOperators(Faker faker) {
@@ -281,10 +278,10 @@ public class DataloaderPoc {
         return c;
     }
 
-    private void initDataForOneSource(Faker faker, String sourceName, int nbSurveysBySource, char periodType,
+    private void initDataForOneSource(Faker faker, String sourceName, int nbSurveysBySource, PeriodicityEnum periodicity,
                                       int nbCampaignsBySource, int nbPartByCampaign, int nbQuestioningsByPart) {
 
-        int year = 2024;
+        int year = Calendar.getInstance().get(Calendar.YEAR);
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, year);
@@ -320,53 +317,66 @@ public class DataloaderPoc {
 
         String nameSource = sourceName;
 
-        if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {
+        /* if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {*/
 
-            source.setId(nameSource);
-            source.setLongWording("Have you ever heard about " + nameSource + " ?");
-            source.setShortWording("Source about " + nameSource);
-            source.setPeriodicity(PeriodicityEnum.M);
-            sourceRepository.save(source);
-            Set<Survey> setSurveys = new HashSet<>();
-            Integer i = rnd.nextInt();
-            if (i % 2 == 0)
-                setSourcesInsee.add(source);
-            else {
-                setSourcesSsp.add(source);
-            }
+        source.setId(nameSource);
+        source.setLongWording("Have you ever heard about " + nameSource + " ?");
+        source.setShortWording("Source about " + nameSource);
+        source.setPeriodicity(periodicity);
+        source.setMandatoryMySurveys(false);
 
-            for (int j = 0; j < nbSurveysBySource; j++) {
+        sourceRepository.save(source);
+        Set<Survey> setSurveys = new HashSet<>();
+        Integer i = rnd.nextInt();
+        if (i % 2 == 0) {
+            setSourcesInsee.add(source);
+            source.setOwner(ownerInsee);
+            setSourcesSupportInsee.add(source);
+            source.setSupport(supportInseeHdf);
+        }
+        else {
+            setSourcesSsp.add(source);
+            source.setOwner(ownerAgri);
+            setSourcesSupportSsne.add(source);
+            source.setSupport(supportSsne);
+        }
 
-                Survey survey = new Survey();
-                String id = nameSource + (year - j);
-                survey.setId(id);
-                survey.setYear(year - j);
-                survey.setLongObjectives("The purpose of this survey is to find out everything you can about "
-                        + nameSource
-                        + ". Your response is essential to ensure the quality and reliability of the results of this survey.");
-                survey.setShortObjectives("All about " + id);
-                survey.setCommunication("Communication around " + id);
-                survey.setSpecimenUrl("http://specimenUrl/" + id);
-                survey.setDiffusionUrl("http://diffusion/" + id);
-                survey.setCnisUrl("http://cnis/" + id);
-                survey.setNoticeUrl("http://notice/" + id);
-                survey.setVisaNumber(year + randomString(6).toUpperCase());
-                survey.setLongWording("Survey " + nameSource + " " + (year - j));
-                survey.setShortWording(id);
-                setSurveys.add(survey);
-                surveyRepository.save(survey);
-                Set<Campaign> setCampaigns = new HashSet<>();
+        for (int j = 0; j < nbSurveysBySource; j++) {
 
-                for (int k = 0; k < nbCampaignsBySource; k++) {
-                    Campaign campaign = new Campaign();
-                    int periodValue = k + 1;
-                    String period = periodValue < 10 ? periodType + "0" + periodValue : String.valueOf(periodType + periodValue);
-                    campaign.setYear(year - j);
-                    campaign.setPeriod(PeriodEnum.valueOf(period));
-                    campaign.setId(nameSource + (year - j) + period);
-                    campaign.setCampaignWording(
-                            "Campaign about " + nameSource + " in " + (year - j) + " and period " + period);
-                    setCampaigns.add(campaign);
+            Survey survey = new Survey();
+            String id = nameSource + (year - j);
+            survey.setId(id);
+            survey.setYear(year - j);
+            survey.setLongObjectives("The purpose of this survey is to find out everything you can about "
+                    + nameSource
+                    + ". Your response is essential to ensure the quality and reliability of the results of this survey.");
+            survey.setShortObjectives("All about " + id);
+            survey.setCommunication("Communication around " + id);
+            survey.setSpecimenUrl("http://specimenUrl/" + id);
+            survey.setDiffusionUrl("http://diffusion/" + id);
+            survey.setCnisUrl("http://cnis/" + id);
+            survey.setNoticeUrl("http://notice/" + id);
+            survey.setVisaNumber(year + randomString(6).toUpperCase());
+            survey.setLongWording("Survey " + nameSource + " " + (year - j));
+            survey.setShortWording(id);
+            setSurveys.add(survey);
+            surveyRepository.save(survey);
+            Set<Campaign> setCampaigns = new HashSet<>();
+
+            for (int k = 0; k < nbCampaignsBySource; k++) {
+
+                Campaign campaign = new Campaign();
+                int periodValue = k + 1;
+                String period = periodValue < 10 ? periodicity + "0" + periodValue : periodicity + String.valueOf(periodValue);
+                campaign.setYear(year - j);
+                campaign.setPeriod(PeriodEnum.valueOf(period));
+                String idampaign = nameSource + (year - j) + period;
+                campaign.setId(idampaign);
+                campaign.setCampaignWording(
+                        "Campaign about " + nameSource + " in " + (year - j) + " and period " + period);
+
+                if (campaignRepository.findById(idampaign).isEmpty()) {
+
                     campaignRepository.save(campaign);
                     Set<Partitioning> setParts = new HashSet<>();
 
@@ -388,27 +398,31 @@ public class DataloaderPoc {
                     }
                     campaign.setSurvey(survey);
                     campaign.setPartitionings(setParts);
+                    setCampaigns.add(campaign);
                     campaignRepository.save(campaign);
-
                 }
-                survey.setSource(source);
-                survey.setCampaigns(setCampaigns);
-                surveyRepository.save(survey);
+
             }
-            source.setSurveys(setSurveys);
-            sourceRepository.save(source);
-            ownerInsee.setSources(setSourcesInsee);
-            ownerAgri.setSources(setSourcesSsp);
-            ownerRepository.saveAll(Arrays.asList(ownerInsee, ownerAgri));
-
-            supportInseeHdf.setSources(setSourcesSupportInsee);
-            supportSsne.setSources(setSourcesSupportSsne);
-            supportRepository.saveAll(Arrays.asList(supportInseeHdf, supportSsne));
+            survey.setSource(source);
+            survey.setCampaigns(setCampaigns);
+            surveyRepository.save(survey);
         }
+        source.setSurveys(setSurveys);
+        source.setSurveys(setSurveys);
 
-        //}
+        sourceRepository.save(source);
+        ownerInsee.setSources(setSourcesInsee);
+        ownerAgri.setSources(setSourcesSsp);
+        ownerRepository.saveAll(Arrays.asList(ownerInsee, ownerAgri));
 
+        supportInseeHdf.setSources(setSourcesSupportInsee);
+        supportSsne.setSources(setSourcesSupportSsne);
+        supportRepository.saveAll(Arrays.asList(supportInseeHdf, supportSsne));
     }
+
+    //}
+
+    //}
 
     private void initQuestionning(Faker faker, Partitioning part, int nbQuestionings) {
 
@@ -437,11 +451,11 @@ public class DataloaderPoc {
 
             qu = new Questioning();
             qe = new QuestioningEvent();
-            List<QuestioningEvent> qeList = new ArrayList<>();
+            Set<QuestioningEvent> questioningEvents = new HashSet<>();
             questioningAccreditations = new HashSet<>();
 
             setQuestioning = new HashSet<>();
-            qu.setModelName("m"+randomNumeric(2));
+            qu.setModelName("m" + randomNumeric(2));
             qu.setIdPartitioning(part.getId());
             qu.setSurveyUnit(su);
             questioningRepository.save(qu);
@@ -454,72 +468,74 @@ public class DataloaderPoc {
             qe.setType(TypeQuestioningEvent.INITLA);
             qe.setDate(eventDate);
             qe.setQuestioning(qu);
-            qeList.add(qe);
+            questioningEvents.add(qe);
 
             int qeProfile = rnd.nextInt(10);
 
             switch (qeProfile) {
                 case 0:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.REFUSAL, qu));
                     break;
                 case 1:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.PND, qu));
                     break;
                 case 2:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.FOLLOWUP, qu));
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.FOLLOWUP, qu));
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.PARTIELINT, qu));
                     break;
                 case 3, 4:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.FOLLOWUP, qu));
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.FOLLOWUP, qu));
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.VALINT, qu));
                     break;
                 case 5, 6, 7:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.PARTIELINT, qu));
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.VALINT, qu));
                     break;
                 default:
-                    qeList.add(new QuestioningEvent(
+                    questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
                             TypeQuestioningEvent.PARTIELINT, qu));
                     break;
 
             }
 
-            qeList.stream().forEach(questioningEventRepository::save);
+            questioningEvents.stream().forEach(questioningEventRepository::save);
 
             //for (int j = 0; j < 4; j++) {
             accreditation = new QuestioningAccreditation();
             accreditation.setIdContact(initOneContact(faker).getIdentifier());
             accreditation.setQuestioning(qu);
 
+            int randomDoubleContact = rnd.nextInt(300);
 
-            if (i % 300 == 0) {
+            if (randomDoubleContact == 1) {
                 QuestioningAccreditation accreditation2 = new QuestioningAccreditation();
                 accreditation2.setIdContact(contactRepository.findRandomIdentifierContact());
                 accreditation2.setQuestioning(qu);
                 questioningAccreditations.add(accreditation2);
+                initOneView(accreditation);
 
             }
 
@@ -527,6 +543,7 @@ public class DataloaderPoc {
             questioningAccreditationRepository.save(accreditation);
             initOneView(accreditation);
             // }
+            qu.setQuestioningEvents(questioningEvents);
             qu.setQuestioningAccreditations(questioningAccreditations);
             questioningRepository.save(qu);
             if (i % 10000 == 0) {
