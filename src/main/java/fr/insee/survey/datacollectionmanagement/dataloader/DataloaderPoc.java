@@ -85,7 +85,7 @@ public class DataloaderPoc {
 
         initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 1);
         initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 1);
-        initDataForOneSource(faker, "DVA", 2, PeriodicityEnum.A, 1, 2, 1);
+        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 1);
         initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 1);
     }
 
