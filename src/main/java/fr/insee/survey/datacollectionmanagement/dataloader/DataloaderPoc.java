@@ -23,6 +23,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
+@Profile(("demo"))
 @RequiredArgsConstructor
 public class DataloaderPoc {
 
@@ -83,10 +85,10 @@ public class DataloaderPoc {
         initOrder();
         //initContact(faker);
 
-        initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 2000);
-        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 10000);
-        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 80000);
-        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 10000);
+        /*initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 1);
+        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 1);
+        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 1);
+        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 1);*/
     }
 
 
@@ -558,9 +560,7 @@ public class DataloaderPoc {
         if (viewRepository.count() == 0) {
 
             List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findAll();
-            listAccreditations.stream().forEach(a -> {
-                initOneView(a);
-            });
+            listAccreditations.stream().forEach(this::initOneView);
 
             Iterable<Contact> listContacts = contactRepository.findAll();
             for (Contact contact : listContacts) {
@@ -596,11 +596,6 @@ public class DataloaderPoc {
         for (int i = 0; i < len; i++)
             sb.append(NUMBERS.charAt(rnd.nextInt(NUMBERS.length())));
         return sb.toString();
-    }
-
-    public int getRandomNumber(int min, int max) {
-        Random random = new Random();
-        return random.nextInt(max - min) + min;
     }
 
 
