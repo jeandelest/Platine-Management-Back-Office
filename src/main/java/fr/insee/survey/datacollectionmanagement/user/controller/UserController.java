@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -65,6 +66,17 @@ public class UserController {
         Page<User> pageC = userService.findAll(pageable);
         List<UserDto> listC = pageC.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new UserController.UserPage(listC, pageable, pageC.getTotalElements()));
+    }
+
+    @Operation(summary = "Search for users, without pagination")
+    @GetMapping(value = Constants.API_USERS_ALL_NO_PAGINATION, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class ))))
+    })
+    public ResponseEntity getUsersNotPaginated() {
+        List<User> users = userService.findAll();
+        List<UserDto> listUsers = users.stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(listUsers);
     }
 
     @Operation(summary = "Search for a user by its id")
@@ -160,7 +172,7 @@ public class UserController {
 
         User oldUser = userService.findByIdentifier(userDto.getIdentifier());
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
         user.setUserEvents(oldUser.getUserEvents());
 
         return user;
@@ -168,12 +180,16 @@ public class UserController {
 
     private User convertToEntityNewUser(UserDto userDto) {
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
         return user;
     }
 
     private UserDto convertToDto(User user) {
-        return modelMapper.map(user, UserDto.class);
+
+        List<String> accreditedSources = userService.findAccreditedSources(user.getIdentifier());
+        UserDto userDto= modelMapper.map(user, UserDto.class);
+        userDto.setAccreditedSources(accreditedSources);
+        return userDto;
     }
 
     class UserPage extends PageImpl<UserDto> {
