@@ -10,7 +10,9 @@ import java.util.Set;
 @Table(indexes = {
         @Index(name = "fn_index", columnList = "firstName"), @Index(name = "ln_index", columnList = "lastName"),
         @Index(name = "lnfn_index", columnList = "lastName, firstName"),
-        @Index(name = "email_index", columnList = "email")
+        @Index(name = "email_index", columnList = "email"),
+        @Index(name = "contactAddress_index", columnList = "address_id")
+
 })
 @Getter
 @Setter

@@ -19,7 +19,7 @@ public class UserEvent {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_event_seq")
     private Long id;
 
     private Date eventDate;

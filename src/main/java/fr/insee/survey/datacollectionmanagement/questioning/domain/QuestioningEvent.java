@@ -14,10 +14,13 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@Table(indexes = {
+        @Index(name = "idQuestioning_index", columnList = "questioning_id")
+})
 public class QuestioningEvent {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_event_seq")
     private Long id;
 
     private Date date;

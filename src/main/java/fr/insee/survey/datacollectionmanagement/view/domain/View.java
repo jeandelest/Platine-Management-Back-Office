@@ -19,7 +19,7 @@ import lombok.Setter;
 public class View {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "view_seq")
     private Long id;
     @NonNull
     private String identifier;

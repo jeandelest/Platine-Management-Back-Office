@@ -19,7 +19,7 @@ public class ContactEvent {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_event_seq")
     private Long id;
     private Date eventDate;
 

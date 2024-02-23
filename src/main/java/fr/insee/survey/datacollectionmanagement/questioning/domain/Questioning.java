@@ -9,12 +9,14 @@ import java.util.Set;
 @Getter
 @Setter@NoArgsConstructor
 @Table(indexes = {
-        @Index(name = "idPartitioning_index", columnList = "idPartitioning")
+        @Index(name = "idPartitioning_index", columnList = "idPartitioning"),
+        @Index(name = "surveyUnitId_index", columnList = "survey_unit_id_su")
+
 })
 public class Questioning {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_seq")
     private Long id;
 
     @NonNull
