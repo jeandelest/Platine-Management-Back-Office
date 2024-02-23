@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +76,7 @@ public class DataloaderPoc {
 
     static final String NUMBERS = "0123456789";
 
-    static Random rnd = new Random();
+    static SecureRandom rnd = new SecureRandom();
 
     @PostConstruct
     public void init() {
