@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.validation;
 
-import fr.insee.survey.datacollectionmanagement.contact.validation.ContactGenderValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -14,7 +13,7 @@ import static java.lang.annotation.ElementType.*;
 @Target({FIELD, PARAMETER, METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = ContactGenderValidator.class)
+@Constraint(validatedBy = ParameterEnumValidator.class)
 public @interface ParameterEnumValid {
     //error message
     String message() default "Type missing or not recognized. Only URL_REDIRECTION,URL_TYPE are valid";

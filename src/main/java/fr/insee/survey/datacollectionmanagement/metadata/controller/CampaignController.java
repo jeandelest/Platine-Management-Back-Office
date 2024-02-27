@@ -39,6 +39,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -110,6 +111,7 @@ public class CampaignController {
 
 
     }
+
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
@@ -121,17 +123,26 @@ public class CampaignController {
 
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
-    public void  putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+    public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-       Parameters param = convertToEntity(paramsDto);
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
+                && !(paramsDto.getParamValue().equalsIgnoreCase("V1")
+                || paramsDto.getParamValue().equalsIgnoreCase("V2"))) {
+            throw new NotMatchException("Only V1 and V2 are valid values for URL_TYPE");
+        }
+        Parameters param = convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
-       Set<Parameters> setParams = campaign.getParams();
-       setParams.add(param);
-       campaign.setParams(setParams);
-       campaignService.insertOrUpdateCampaign(campaign);
-
-
+        Set<Parameters> setParams = new HashSet<>();
+        for (Parameters parameter : campaign.getParams()) {
+            if (!parameter.getParamId().equals(param.getParamId())) {
+                setParams.add(parameter);
+            }
+        }
+        setParams.add(param);
+        campaign.setParams(setParams);
+        campaignService.insertOrUpdateCampaign(campaign);
     }
+
     @Operation(summary = "Update or create a campaign")
     @PutMapping(value = Constants.API_CAMPAIGNS_ID, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
@@ -228,7 +239,6 @@ public class CampaignController {
 
         Parameters params = modelmapper.map(paramsDto, Parameters.class);
         params.setParamId(Parameters.ParameterEnum.valueOf(paramsDto.getParamId()));
-
         return params;
     }
 
