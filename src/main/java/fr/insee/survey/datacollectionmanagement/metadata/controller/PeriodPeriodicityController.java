@@ -9,17 +9,14 @@ import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @RestController
@@ -51,7 +48,7 @@ public class PeriodPeriodicityController {
 
     @Operation(summary = "Search for periods of a periodicity")
     @GetMapping(value = Constants.API_PERIODICITIES_ID_PERIODS, produces = "application/json")
-    public ResponseEntity<List<PeriodDto>> getPeriodsOfPeriodicity(String periodicity) {
+    public ResponseEntity<List<PeriodDto>> getPeriodsOfPeriodicity(@PathVariable("periodicity") String periodicity) {
         try {
             PeriodicityEnum.valueOf(periodicity);
             List<PeriodDto> periods = new ArrayList<>();
