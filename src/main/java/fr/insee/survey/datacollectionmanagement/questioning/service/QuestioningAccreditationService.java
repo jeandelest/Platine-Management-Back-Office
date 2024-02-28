@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface QuestioningAccreditationService {
 
-    public List<QuestioningAccreditation> findByContactIdentifier(String id);
+    List<QuestioningAccreditation> findByContactIdentifier(String id);
 
 
-    public Page<QuestioningAccreditation> findAll(Pageable pageable);
+    Page<QuestioningAccreditation> findAll(Pageable pageable);
 
-    public QuestioningAccreditation findById(Long id);
+    QuestioningAccreditation findById(Long id);
    
-    public QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
+    QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
-    public void deleteAccreditation(QuestioningAccreditation c);
+    void deleteAccreditation(QuestioningAccreditation c);
 
 }
