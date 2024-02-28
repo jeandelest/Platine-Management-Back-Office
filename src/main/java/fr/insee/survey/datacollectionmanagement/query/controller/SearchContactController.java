@@ -8,7 +8,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.SearchContactService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -46,6 +50,8 @@ public class SearchContactController {
     private final QuestioningAccreditationService questioningAccreditationService;
 
     private final PartitioningService partitioningService;
+
+    private final QuestioningEventService questioningEventService;
 
     @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
@@ -86,13 +92,20 @@ public class SearchContactController {
         for (QuestioningAccreditation questioningAccreditation : accreditations) {
             Questioning questioning = questioningAccreditation.getQuestioning();
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
-            listAccreditations.add(new AccreditationDetailDto(part.getCampaign().getSurvey().getSource().getId(),
+            listAccreditations.add(new AccreditationDetailDto(
+                    part.getCampaign().getSurvey().getSource().getId(),
                     part.getCampaign().getSurvey().getSource().getShortWording(),
-                    part.getCampaign().getSurvey().getYear(), part.getCampaign().getPeriod(),
-                    part.getId(), questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
+                    part.getCampaign().getSurvey().getYear(),
+                    part.getCampaign().getPeriod(),
+                    part.getId(),
+                    part.getClosingDate(),
+                    questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
                     questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
-                    questioningAccreditation.isMain()));
+                    questioningAccreditation.isMain(),
+                    questioningEvent.map(QuestioningEvent::getType).orElse(null)
+            ));
 
         }
 
