@@ -14,13 +14,13 @@ public interface ContactService {
 
     /**
      * Find all contacts
-     * 
-     * @param pageable
+     *
+     * @param pageable pageable
      * @return contact Page
      */
-    public Page<Contact> findAll(Pageable pageable);
+    Page<Contact> findAll(Pageable pageable);
 
-    public List<Contact> findAll();
+    List<Contact> findAll();
 
     /**
      * Find a contact by its identifier.
@@ -28,30 +28,30 @@ public interface ContactService {
      * @param identifier
      * @return contact found
      */
-    public Contact findByIdentifier(String identifier) ;
+    Contact findByIdentifier(String identifier) ;
 
     /**
      * Update an existing contact and its address, or creates a new one
-     * 
+     *
      * @param contact
      * @return contact updated
      */
-    public Contact saveContact(Contact contact);
+    Contact saveContact(Contact contact);
 
     /**
      * Delete a contact. Delete also the contact address.
-     * @param identifier
+     * @param identifier contact identifier
      */
-    public void deleteContact(String identifier);
+    void deleteContact(String identifier);
 
-    public Page<Contact> findByName(String name, Pageable pageable);
+    Page<Contact> findByName(String name, Pageable pageable);
 
-    public Page<Contact> findByEmail(String email, Pageable pageable);
+    Page<Contact> findByEmail(String email, Pageable pageable);
 
-    public Contact createContactAddressEvent(Contact contact, JsonNode payload);
+    Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
-    public Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
+    Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 
-    public void deleteContactAddressEvent(Contact contact);
+    void deleteContactAddressEvent(Contact contact);
 
 }

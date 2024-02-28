@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,11 +38,11 @@ public class SearchContactServiceImpl implements SearchContactService {
 
         List<SearchContactDto> listSearchContact = new ArrayList<>();
 
-        Page<Contact> pageContact = null;
+        Page<Contact> pageContact;
 
         if (!StringUtils.isEmpty(identifier)) {
             Contact c = contactService.findByIdentifier(identifier);
-            pageContact = new PageImpl<>(Arrays.asList(c),pageable,1);
+            pageContact = new PageImpl<>(Collections.singletonList(c),pageable,1);
         } else if (!StringUtils.isEmpty(email)) {
             pageContact = contactService.findByEmail(email, pageable);
 

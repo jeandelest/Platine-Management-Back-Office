@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface ContactRepository extends PagingAndSortingRepository<Contact, String>, JpaRepository<Contact, String> {
 
+    @Override
     Page<Contact> findAll(Pageable pageable);
 
     @Query(nativeQuery = true, value = "SELECT *  FROM contact ORDER BY random() LIMIT 1")
@@ -19,12 +20,12 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
 
     @Query(
             value = """ 
-                     select 
-                        * 
-                     from 
-                        contact c  
-                     where 
-                        upper(c.first_name) ||  ' ' || upper(c.last_name) like %:name%                            
+                     select
+                        *
+                     from
+                        contact c
+                     where
+                        upper(c.first_name) ||  ' ' || upper(c.last_name) like %:name%                        
                     """,
             nativeQuery = true)
     Page<Contact> findByNameIgnoreCase(String name, Pageable pageable);

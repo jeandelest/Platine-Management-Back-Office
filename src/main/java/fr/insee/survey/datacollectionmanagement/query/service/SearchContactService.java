@@ -8,9 +8,9 @@ public interface SearchContactService {
 
     /**
      * Search contact according to diffeent parameters
-     * @param identifier
+     * @param identifier contact identifier
      * @param name (first name or and lastName)
-     * @param email
+     * @param email contact email
 
      * @return
      */

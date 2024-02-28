@@ -15,10 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +72,7 @@ public class ContactServiceImpl implements ContactService {
         }
         ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventType.create,
                 payload);
-        contact.setContactEvents(new HashSet<>(Arrays.asList(newContactEvent)));
+        contact.setContactEvents(new HashSet<>(Collections.singletonList(newContactEvent)));
         return saveContact(contact);
     }
 
