@@ -1,30 +1,35 @@
 package fr.insee.survey.datacollectionmanagement.contact.repository;
 
-import java.util.List;
-
+import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+public interface ContactRepository extends PagingAndSortingRepository<Contact, String>, JpaRepository<Contact, String> {
 
-public interface ContactRepository extends PagingAndSortingRepository<Contact, String>,JpaRepository<Contact, String>  {
-       
     Page<Contact> findAll(Pageable pageable);
 
     @Query(nativeQuery = true, value = "SELECT *  FROM contact ORDER BY random() LIMIT 1")
-    public Contact findRandomContact();
+    Contact findRandomContact();
 
     @Query(nativeQuery = true, value = "SELECT identifier FROM contact TABLESAMPLE system_rows(1)")
-    public String findRandomIdentifierContact();
+    String findRandomIdentifierContact();
 
-    public List<Contact> findByLastNameIgnoreCase(String lastName);
+    @Query(
+            value = """ 
+                     select 
+                        * 
+                     from 
+                        contact c  
+                     where 
+                        upper(c.first_name) ||  ' ' || upper(c.last_name) like %:name%                            
+                    """,
+            nativeQuery = true)
+    Page<Contact> findByNameIgnoreCase(String name, Pageable pageable);
 
-    public List<Contact> findByFirstNameIgnoreCase(String firstName);
-
-    public List<Contact> findByEmailIgnoreCase(String email);
+    Page<Contact> findByEmailIgnoreCase(String email, Pageable pageable);
 
 
 }

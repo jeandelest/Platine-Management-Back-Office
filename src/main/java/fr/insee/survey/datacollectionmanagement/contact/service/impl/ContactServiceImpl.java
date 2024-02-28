@@ -10,13 +10,15 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventServ
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,11 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Page<Contact> findAll(Pageable pageable) {
         return contactRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Contact> findAll() {
+        return contactRepository.findAll();
     }
 
     @Override
@@ -49,62 +56,16 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<Contact> findByLastName(String lastName) {
-        return contactRepository.findByLastNameIgnoreCase(lastName);
+    public Page<Contact> findByName(String name, Pageable pageable) {
+        return contactRepository.findByNameIgnoreCase(name.toUpperCase(), pageable);
     }
+
 
     @Override
-    public List<Contact> findByFirstName(String firstName) {
-        return contactRepository.findByFirstNameIgnoreCase(firstName);
+    public Page<Contact> findByEmail(String email, Pageable pageable) {
+        return contactRepository.findByEmailIgnoreCase(email,pageable);
     }
 
-    @Override
-    public List<Contact> findByEmail(String email) {
-        return contactRepository.findByEmailIgnoreCase(email);
-    }
-
-    @Override
-    public List<Contact> searchListContactParameters(String identifier, String lastName, String firstName,
-                                                     String email) {
-
-        List<Contact> listContactContact = new ArrayList<>();
-        boolean alwaysEmpty = true;
-
-        if (!StringUtils.isEmpty(identifier)) {
-            listContactContact = Arrays.asList(findByIdentifier(identifier));
-            alwaysEmpty = false;
-        }
-
-        if (!StringUtils.isEmpty(lastName)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByLastName(lastName));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream().filter(c -> c.getLastName().equalsIgnoreCase(lastName))
-                        .toList();
-
-        }
-
-        if (!StringUtils.isEmpty(firstName)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByFirstName(firstName));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream()
-                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)).toList();
-        }
-
-        if (!StringUtils.isEmpty(email)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByEmail(email));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream().filter(c -> c.getEmail().equalsIgnoreCase(email))
-                        .toList();
-        }
-
-        return listContactContact;
-    }
 
     @Override
     @Transactional

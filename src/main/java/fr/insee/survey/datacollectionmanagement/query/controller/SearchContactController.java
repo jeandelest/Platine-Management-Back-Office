@@ -9,7 +9,6 @@ import fr.insee.survey.datacollectionmanagement.query.service.SearchContactServi
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -56,47 +53,23 @@ public class SearchContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> searchContacts(
+    public ResponseEntity<Page<SearchContactDto>> searchContacts(
             @RequestParam(required = false) String identifier,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
-            @RequestParam(required = false) String idSu,
-            @RequestParam(required = false) String identificationCode,
-            @RequestParam(required = false) String identificationName,
-            @RequestParam(required = false) String source,
-            @RequestParam(required = false) String year,
-            @RequestParam(required = false) String period,
             @RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize) {
 
         log.info(
-                "Search contact: identifier = {}, lastName= {}, firstName= {}, email= {}, idSu= {}, identificationCode= {}, identificationName= {}, source= {}, year= {}, period= {}, pageNo= {}, pageSize= {} ",
-                identifier, lastName, firstName, email, idSu, identificationCode, identificationName, source, year,
-                period, pageNo, pageSize);
+                "Search contact: identifier = {}, name= {}, email= {}, pageNo= {}, pageSize= {} ",
+                identifier, name, email, pageNo, pageSize);
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
 
-        List<View> listView = searchContactService.searchContactCrossDomain(identifier, lastName, firstName, email,
-                idSu, identificationCode, identificationName, source, year, period,
+        Page<SearchContactDto> page = searchContactService.searchContactCrossDomain(identifier, name, email,
                 pageable);
-        int start = (int) pageable.getOffset();
-        int end = (int) ((start + pageable.getPageSize()) > listView.size() ? listView.size()
-                : (start + pageable.getPageSize()));
+        return new ResponseEntity<>(page, HttpStatus.OK);
 
-        if (listView.isEmpty()) {
-            return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.NOT_FOUND);
-        }
-        if (start <= end) {
-            Page<SearchContactDto> page = new PageImpl<SearchContactDto>(
-                    searchContactService.transformListViewDaoToDto(listView.subList(start, end)), pageable,
-                    listView.size());
-            return new ResponseEntity<>(page, HttpStatus.OK);
-
-        }
-
-        else
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
     }
 
@@ -106,7 +79,7 @@ public class SearchContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccreditationDetailDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getContactAccreditations(@PathVariable("id") String id) {
+    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(@PathVariable("id") String id) {
 
         List<AccreditationDetailDto> listAccreditations = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);

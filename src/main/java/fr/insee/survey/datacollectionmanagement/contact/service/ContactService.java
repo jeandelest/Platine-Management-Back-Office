@@ -20,6 +20,8 @@ public interface ContactService {
      */
     public Page<Contact> findAll(Pageable pageable);
 
+    public List<Contact> findAll();
+
     /**
      * Find a contact by its identifier.
      *
@@ -42,14 +44,9 @@ public interface ContactService {
      */
     public void deleteContact(String identifier);
 
-    public List<Contact> findByLastName(String lastName);
+    public Page<Contact> findByName(String name, Pageable pageable);
 
-    public List<Contact> findByFirstName(String firstName);
-
-    public List<Contact> findByEmail(String email);
-
-    public List<Contact> searchListContactParameters(String identifier, String lastName, String firstName,
-            String email);
+    public Page<Contact> findByEmail(String email, Pageable pageable);
 
     public Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
