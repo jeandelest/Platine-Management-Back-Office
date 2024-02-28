@@ -67,10 +67,10 @@ public class SearchContactServiceImpl implements SearchContactService {
         searchContact.setEmail(c.getEmail());
         searchContact.setFunction(c.getFunction());
         List<QuestioningAccreditation> listAccreditations = questioningAccreditationService.findByContactIdentifier(c.getIdentifier());
-        searchContact.setListSurveyUnitNames(listAccreditations.stream().map(a -> a.getQuestioning().getSurveyUnit().getIdSu()).toList());
+        searchContact.setListSurveyUnitNames(listAccreditations.stream().map(a -> a.getQuestioning().getSurveyUnit().getIdSu()).distinct().toList());
         searchContact.setListSourcesId(listAccreditations.stream().
                 map(a ->
-                        partioningService.findById(a.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).toList());
+                        partioningService.findById(a.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).distinct().toList());
         return searchContact;
     }
 }
