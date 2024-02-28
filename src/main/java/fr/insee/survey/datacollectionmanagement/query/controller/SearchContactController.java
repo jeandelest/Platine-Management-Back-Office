@@ -86,7 +86,9 @@ public class SearchContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccreditationDetailDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(@PathVariable("id") String id, @RequestParam(defaultValue = "false") boolean isFilterOpened) {
+    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(
+            @PathVariable("id") String id,
+            @RequestParam(defaultValue = "false") boolean isFilterOpened) {
 
         List<AccreditationDetailDto> listAccreditations = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
@@ -95,7 +97,7 @@ public class SearchContactController {
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
-            if (isFilterOpened && partitioningService.isOnGoing(part, new Date()) || !isFilterOpened) {
+            if (!isFilterOpened || partitioningService.isOnGoing(part, new Date())) {
                 listAccreditations.add(new AccreditationDetailDto(
                         part.getCampaign().getSurvey().getSource().getId(),
                         part.getCampaign().getSurvey().getSource().getShortWording(),
@@ -106,7 +108,8 @@ public class SearchContactController {
                         questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
                         questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
                         questioningAccreditation.isMain(),
-                        questioningEvent.map(QuestioningEvent::getType).orElse(null)
+                        questioningEvent.map(QuestioningEvent::getType).orElse(null),
+                        questioning.getId().toString()
                 ));
             }
 

@@ -23,6 +23,7 @@ public class AccreditationDetailDto {
     private String identificationName;
     private boolean isMain;
     private TypeQuestioningEvent lastEvent;
+    private String questioningId;
 
 
 }
