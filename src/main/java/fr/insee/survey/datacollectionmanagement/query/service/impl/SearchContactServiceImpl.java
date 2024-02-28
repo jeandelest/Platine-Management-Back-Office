@@ -41,7 +41,7 @@ public class SearchContactServiceImpl implements SearchContactService {
         Page<Contact> pageContact;
 
         if (!StringUtils.isEmpty(identifier)) {
-            Contact c = contactService.findByIdentifier(identifier);
+            Contact c = contactService.findByIdentifier(identifier.toUpperCase());
             pageContact = new PageImpl<>(Collections.singletonList(c),pageable,1);
         } else if (!StringUtils.isEmpty(email)) {
             pageContact = contactService.findByEmail(email, pageable);
