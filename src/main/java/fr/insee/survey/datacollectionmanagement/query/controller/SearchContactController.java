@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,7 @@ public class SearchContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccreditationDetailDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(@PathVariable("id") String id) {
+    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(@PathVariable("id") String id, @RequestParam(defaultValue = "false") boolean isFilterOpened) {
 
         List<AccreditationDetailDto> listAccreditations = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
@@ -94,18 +95,20 @@ public class SearchContactController {
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
-            listAccreditations.add(new AccreditationDetailDto(
-                    part.getCampaign().getSurvey().getSource().getId(),
-                    part.getCampaign().getSurvey().getSource().getShortWording(),
-                    part.getCampaign().getSurvey().getYear(),
-                    part.getCampaign().getPeriod(),
-                    part.getId(),
-                    part.getClosingDate(),
-                    questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
-                    questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
-                    questioningAccreditation.isMain(),
-                    questioningEvent.map(QuestioningEvent::getType).orElse(null)
-            ));
+            if (isFilterOpened && partitioningService.isOnGoing(part, new Date()) || !isFilterOpened) {
+                listAccreditations.add(new AccreditationDetailDto(
+                        part.getCampaign().getSurvey().getSource().getId(),
+                        part.getCampaign().getSurvey().getSource().getShortWording(),
+                        part.getCampaign().getSurvey().getYear(),
+                        part.getCampaign().getPeriod(),
+                        part.getId(),
+                        part.getClosingDate(),
+                        questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
+                        questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
+                        questioningAccreditation.isMain(),
+                        questioningEvent.map(QuestioningEvent::getType).orElse(null)
+                ));
+            }
 
         }
 
