@@ -14,6 +14,8 @@ import java.util.Date;
 public class AccreditationDetailDto {
 
     private String sourceId;
+
+    private String surveyId;
     private String sourceWording;
     private int year;
     private PeriodEnum period;
@@ -24,6 +26,7 @@ public class AccreditationDetailDto {
     private boolean isMain;
     private TypeQuestioningEvent lastEvent;
     private String questioningId;
+    private String questioningUrl;
 
 
 }

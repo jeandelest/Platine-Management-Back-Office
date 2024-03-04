@@ -2,13 +2,16 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AccreditationDetailDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
 import fr.insee.survey.datacollectionmanagement.query.service.SearchContactService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
@@ -54,6 +57,8 @@ public class SearchContactController {
 
     private final QuestioningEventService questioningEventService;
 
+    private final MoogService moogService;
+
     @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
@@ -98,18 +103,22 @@ public class SearchContactController {
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
             if (!isFilterOpened || partitioningService.isOnGoing(part, new Date())) {
+                SurveyUnit su = questioningAccreditation.getQuestioning().getSurveyUnit();
+                Survey survey = part.getCampaign().getSurvey();
                 listAccreditations.add(new AccreditationDetailDto(
-                        part.getCampaign().getSurvey().getSource().getId(),
-                        part.getCampaign().getSurvey().getSource().getShortWording(),
-                        part.getCampaign().getSurvey().getYear(),
+                        survey.getSource().getId(),
+                        survey.getId(),
+                        survey.getSource().getShortWording(),
+                        survey.getYear(),
                         part.getCampaign().getPeriod(),
                         part.getId(),
                         part.getClosingDate(),
-                        questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu(),
-                        questioningAccreditation.getQuestioning().getSurveyUnit().getIdentificationName(),
+                        su.getIdSu(),
+                        su.getIdentificationName(),
                         questioningAccreditation.isMain(),
                         questioningEvent.map(QuestioningEvent::getType).orElse(null),
-                        questioning.getId().toString()
+                        questioning.getId().toString(),
+                        moogService.getReadOnlyUrl(part.getCampaign().getId(), su.getIdSu())
                 ));
             }
 
