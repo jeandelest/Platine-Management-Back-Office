@@ -86,8 +86,9 @@ public class Constants {
     public static final String API_CONTACTS_SEARCH = "/api/contacts/search";
     public static final String API_CONTACTS_ACCREDITATIONS = "/api/contacts/{id}/accreditations";
     public static final String API_MY_QUESTIONINGS_ID = "/api/contacts/questionings";
+    public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey_units/{id}/contacts";
+    public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey_units/{id}/partitionings";
 
-    public static final String API_SURVEYUNITS_CONTACTS = "/api/survey_units/{id}/contacts";
 
 
     // API WEBCLIENT
