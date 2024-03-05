@@ -44,7 +44,7 @@ public class SearchSurveyUnitController {
 
 
     @GetMapping(path = Constants.API_SURVEYUNITS_CONTACTS, produces = "application/json")
-    @Operation(summary = "Get contacts having accreditations to repond for a survey unit ")
+    @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
     public ResponseEntity<List<SearchSurveyUnitContactDto>> getSurveyUnitContacts(
             @PathVariable("id") String id) {
 
