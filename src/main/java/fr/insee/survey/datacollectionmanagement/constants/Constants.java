@@ -89,6 +89,9 @@ public class Constants {
     public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey_units/{id}/contacts";
     public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey_units/{id}/partitionings";
 
+    public static final String API_SURVEY_UNITS_SEARCH = "/api/survey_units/search";
+
+
 
 
     // API WEBCLIENT
