@@ -16,7 +16,7 @@ public class SurveyUnitPartitioningDto {
     private String sourceWording;
     private int year;
     private PeriodEnum period;
-    private String campaingWording;
+    private String campaignWording;
     private Date partioningClosingDate;
     private TypeQuestioningEvent lastEvent;
 
