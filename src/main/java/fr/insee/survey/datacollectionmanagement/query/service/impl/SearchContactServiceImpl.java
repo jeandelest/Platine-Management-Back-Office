@@ -42,7 +42,7 @@ public class SearchContactServiceImpl implements SearchContactService {
 
         if (!StringUtils.isEmpty(identifier)) {
             Contact c = contactService.findByIdentifier(identifier.toUpperCase());
-            pageContact = new PageImpl<>(Collections.singletonList(c),pageable,1);
+            pageContact = new PageImpl<>(Collections.singletonList(c), pageable, 1);
         } else if (!StringUtils.isEmpty(email)) {
             pageContact = contactService.findByEmail(email, pageable);
 
@@ -65,6 +65,8 @@ public class SearchContactServiceImpl implements SearchContactService {
         searchContact.setFirstName(c.getFirstName());
         searchContact.setLastName(c.getLastName());
         searchContact.setEmail(c.getEmail());
+        searchContact.setPhone(c.getPhone());
+        searchContact.setCity(c.getAddress() != null ? c.getAddress().getCityName() : "");
         searchContact.setFunction(c.getFunction());
         List<QuestioningAccreditation> listAccreditations = questioningAccreditationService.findByContactIdentifier(c.getIdentifier());
         searchContact.setListSurveyUnitNames(listAccreditations.stream().map(a -> a.getQuestioning().getSurveyUnit().getIdSu()).distinct().toList());

@@ -69,18 +69,18 @@ public class SearchContactController {
             @RequestParam(required = false) String identifier,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
-            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {
 
         log.info(
-                "Search contact: identifier = {}, name= {}, email= {}, pageNo= {}, pageSize= {} ",
-                identifier, name, email, pageNo, pageSize);
+                "Search contact: identifier = {}, name= {}, email= {}, page= {}, pageSize= {} ",
+                identifier, name, email, page, pageSize);
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<SearchContactDto> page = searchContactService.searchContactCrossDomain(identifier, name, email,
+        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email,
                 pageable);
-        return new ResponseEntity<>(page, HttpStatus.OK);
+        return new ResponseEntity<>(pageSearchContact, HttpStatus.OK);
 
 
     }
