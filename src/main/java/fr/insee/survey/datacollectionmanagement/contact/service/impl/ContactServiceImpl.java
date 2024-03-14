@@ -53,14 +53,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Page<Contact> findByName(String name, Pageable pageable) {
-        return contactRepository.findByNameIgnoreCase(name.toUpperCase(), pageable);
-    }
-
-
-    @Override
-    public Page<Contact> findByEmail(String email, Pageable pageable) {
-        return contactRepository.findByEmailIgnoreCase(email,pageable);
+    public Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable) {
+        return contactRepository.findByParameters(identifier,name,email,pageable);
     }
 
 

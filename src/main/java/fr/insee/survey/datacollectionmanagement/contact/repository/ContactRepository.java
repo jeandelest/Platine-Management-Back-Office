@@ -20,17 +20,20 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
 
     @Query(
             value = """ 
-                     select
-                        *
-                     from
-                        contact c
-                     where
-                        upper(c.first_name) ||  ' ' || upper(c.last_name) like %:name%                        
-                    """,
-            nativeQuery = true)
-    Page<Contact> findByNameIgnoreCase(String name, Pageable pageable);
-
-    Page<Contact> findByEmailIgnoreCase(String email, Pageable pageable);
+        SELECT
+            *
+        FROM
+            contact c
+        WHERE
+            (:identifier IS NULL OR UPPER(c.identifier) = UPPER(:identifier))
+            AND
+            (:name IS NULL OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE UPPER(CONCAT('%', :name, '%')))
+            AND
+            (:email IS NULL OR UPPER(c.email) = UPPER(:email))
+    """,
+            nativeQuery = true
+    )
+    Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable);
 
 
 }

@@ -8,14 +8,12 @@ import fr.insee.survey.datacollectionmanagement.query.service.SearchContactServi
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,20 +36,8 @@ public class SearchContactServiceImpl implements SearchContactService {
 
         List<SearchContactDto> listSearchContact = new ArrayList<>();
 
-        Page<Contact> pageContact;
+        Page<Contact> pageContact = contactService.findByParameters(identifier, name, email, pageable);
 
-        if (!StringUtils.isEmpty(identifier)) {
-            Contact c = contactService.findByIdentifier(identifier.toUpperCase());
-            pageContact = new PageImpl<>(Collections.singletonList(c), pageable, 1);
-        } else if (!StringUtils.isEmpty(email)) {
-            pageContact = contactService.findByEmail(email, pageable);
-
-        } else if (!StringUtils.isEmpty(name)) {
-            pageContact = contactService.findByName(name, pageable);
-        } else {
-            pageContact = contactService.findAll(pageable);
-        }
-        assert pageContact != null;
         for (Contact c : pageContact) {
             listSearchContact.add(transformContactTSearchContactDto(c));
         }
