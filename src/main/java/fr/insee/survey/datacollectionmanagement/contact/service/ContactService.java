@@ -25,7 +25,7 @@ public interface ContactService {
     /**
      * Find a contact by its identifier.
      *
-     * @param identifier
+     * @param identifier contact identifier
      * @return contact found
      */
     Contact findByIdentifier(String identifier) ;
@@ -33,7 +33,7 @@ public interface ContactService {
     /**
      * Update an existing contact and its address, or creates a new one
      *
-     * @param contact
+     * @param contact Contact to save
      * @return contact updated
      */
     Contact saveContact(Contact contact);
