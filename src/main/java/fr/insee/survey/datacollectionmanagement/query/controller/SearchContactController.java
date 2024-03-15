@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -70,13 +71,14 @@ public class SearchContactController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "identifier")  String sort) {
 
         log.info(
                 "Search contact: identifier = {}, name= {}, email= {}, page= {}, pageSize= {} ",
                 identifier, name, email, page, pageSize);
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
         Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email,
                 pageable);
