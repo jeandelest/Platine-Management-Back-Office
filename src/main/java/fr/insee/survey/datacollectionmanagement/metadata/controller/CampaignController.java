@@ -5,11 +5,13 @@ import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteExce
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
@@ -37,6 +39,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -107,6 +110,37 @@ public class CampaignController {
         return ResponseEntity.ok().body(convertToDto(campaign));
 
 
+    }
+
+    @Operation(summary = "Get campaign parameters")
+    @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
+    public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
+        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        List<ParamsDto> listParams = campaign.getParams().stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(listParams);
+    }
+
+
+    @Operation(summary = "Create a parameter for a campaign")
+    @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
+    public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
+                && !(paramsDto.getParamValue().equalsIgnoreCase("V1")
+                || paramsDto.getParamValue().equalsIgnoreCase("V2"))) {
+            throw new NotMatchException("Only V1 and V2 are valid values for URL_TYPE");
+        }
+        Parameters param = convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(id));
+        Set<Parameters> setParams = new HashSet<>();
+        for (Parameters parameter : campaign.getParams()) {
+            if (!parameter.getParamId().equals(param.getParamId())) {
+                setParams.add(parameter);
+            }
+        }
+        setParams.add(param);
+        campaign.setParams(setParams);
+        campaignService.insertOrUpdateCampaign(campaign);
     }
 
     @Operation(summary = "Update or create a campaign")
@@ -189,12 +223,23 @@ public class CampaignController {
         return modelmapper.map(campaign, CampaignDto.class);
     }
 
+    private ParamsDto convertToDto(Parameters params) {
+        return modelmapper.map(params, ParamsDto.class);
+    }
+
     private CampaignPartitioningsDto convertToCampaignPartitioningsDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignPartitioningsDto.class);
     }
 
     private Campaign convertToEntity(CampaignDto campaignDto) {
         return modelmapper.map(campaignDto, Campaign.class);
+    }
+
+    private Parameters convertToEntity(ParamsDto paramsDto) {
+
+        Parameters params = modelmapper.map(paramsDto, Parameters.class);
+        params.setParamId(Parameters.ParameterEnum.valueOf(paramsDto.getParamId()));
+        return params;
     }
 
     class CampaignPage extends PageImpl<CampaignDto> {
