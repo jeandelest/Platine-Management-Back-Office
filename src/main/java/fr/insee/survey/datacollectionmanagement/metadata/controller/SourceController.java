@@ -1,13 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.cache.CacheName;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceCompleteDto;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -55,6 +57,8 @@ public class SourceController {
 
     private final QuestioningService questioningService;
 
+    private final CampaignService campaignService;
+
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
     public ResponseEntity<SourcePage> getSources(
@@ -71,15 +75,15 @@ public class SourceController {
     @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
     public ResponseEntity<SourceCompleteDto> getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
-        source = sourceService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(source));
 
     }
 
     @Operation(summary = "Update or create a source")
+    @CacheEvict(CacheName.SOURCE_OPENED)
     @PutMapping(value = Constants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<SourceCompleteDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceCompleteDto SourceCompleteDto) {
-        if (!SourceCompleteDto.getId().equalsIgnoreCase(id)) {
+    public ResponseEntity<SourceCompleteDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceCompleteDto sourceCompleteDto) {
+        if (!sourceCompleteDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
 
         }
@@ -87,19 +91,19 @@ public class SourceController {
         Source source;
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(SourceCompleteDto.getId()).toUriString());
+                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(sourceCompleteDto.getId()).toUriString());
         HttpStatus httpStatus;
         try {
             sourceService.findById(id);
-            log.warn("Update source with the id {}", SourceCompleteDto.getId());
+            log.warn("Update source with the id {}", sourceCompleteDto.getId());
             httpStatus = HttpStatus.OK;
         } catch (NotFoundException e) {
-            log.info("Create source with the id {}", SourceCompleteDto.getId());
+            log.info("Create source with the id {}", sourceCompleteDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
 
 
-        source = sourceService.insertOrUpdateSource(convertToEntity(SourceCompleteDto));
+        source = sourceService.insertOrUpdateSource(convertToEntity(sourceCompleteDto));
         if (source.getOwner() != null && httpStatus.equals(HttpStatus.CREATED))
             ownerService.addSourceFromOwner(source.getOwner(), source);
         if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
@@ -111,9 +115,11 @@ public class SourceController {
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(CacheName.SOURCE_OPENED)
     @Transactional
     public void deleteSource(@PathVariable("id") String id) {
-        int nbQuestioningDeleted = 0, nbViewDeleted = 0;
+        int nbQuestioningDeleted = 0;
+        int nbViewDeleted = 0;
         Source source = sourceService.findById(id);
 
         if (source.getOwner() != null)
@@ -141,9 +147,40 @@ public class SourceController {
 
     }
 
+    @Operation(summary = "Check if a source is opened")
+    @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
+    @Cacheable(CacheName.SOURCE_OPENED)
+    public ResponseEntity<OpenDto> isSourceOpened(@PathVariable("id") String id) {
+
+
+        try {
+            Source source = sourceService.findById(id.toUpperCase());
+            if (Boolean.TRUE.equals(source.getForceClose())){
+                return ResponseEntity.ok().body(new OpenDto(false,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+
+            }
+
+            if(source.getSurveys().isEmpty())
+                return ResponseEntity.ok().body(new OpenDto(true,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+
+            for (Survey survey : source.getSurveys()) {
+                for (Campaign campaign : survey.getCampaigns()) {
+                    if (campaignService.isCampaignOngoing(campaign.getId())) {
+                        return ResponseEntity.ok().body(new OpenDto(true,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+                    }
+                }
+            }
+
+            return ResponseEntity.ok().body(new OpenDto(false,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+        } catch (NotFoundException e) {
+            return ResponseEntity.ok().body(new OpenDto(true,null,null));
+
+        }
+    }
+
     @Operation(summary = "Search for surveys by the owner id")
     @GetMapping(value = Constants.API_OWNERS_ID_SOURCES, produces = "application/json")
-    public ResponseEntity<?> getSourcesByOwner(@PathVariable("id") String id) {
+    public ResponseEntity<List<SourceCompleteDto>> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return ResponseEntity.ok()
                 .body(owner.getSources().stream().map(this::convertToDto).toList());
@@ -155,8 +192,8 @@ public class SourceController {
         return modelmapper.map(source, SourceCompleteDto.class);
     }
 
-    private Source convertToEntity(SourceCompleteDto SourceCompleteDto) {
-        return modelmapper.map(SourceCompleteDto, Source.class);
+    private Source convertToEntity(SourceCompleteDto sourceCompleteDto) {
+        return modelmapper.map(sourceCompleteDto, Source.class);
     }
 
     class SourcePage extends PageImpl<SourceCompleteDto> {
