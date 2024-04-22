@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceCompleteDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
@@ -64,7 +65,7 @@ public class SourceController {
             @RequestParam(defaultValue = "id") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Source> pageSource = sourceService.findAll(pageable);
-        List<SourceCompleteDto> listSources = pageSource.stream().map(this::convertToDto).toList();
+        List<SourceDto> listSources = pageSource.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new SourcePage(listSources, pageable, pageSource.getTotalElements()));
     }
 
@@ -72,7 +73,7 @@ public class SourceController {
     @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
     public ResponseEntity<SourceCompleteDto> getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToDto(source));
+        return ResponseEntity.ok().body(convertToCompleteDto(source));
 
     }
 
@@ -105,7 +106,7 @@ public class SourceController {
         if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
             supportService.addSourceFromSupport(source.getSupport(), source);
 
-        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(source));
+        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToCompleteDto(source));
     }
 
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
@@ -149,32 +150,32 @@ public class SourceController {
 
         try {
             Source source = sourceService.findById(id.toUpperCase());
-            if (Boolean.TRUE.equals(source.getForceClose())){
-                return ResponseEntity.ok().body(new OpenDto(false,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+            if (Boolean.TRUE.equals(source.getForceClose())) {
+                return ResponseEntity.ok().body(new OpenDto(false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
 
             }
 
-            if(source.getSurveys().isEmpty())
-                return ResponseEntity.ok().body(new OpenDto(true,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+            if (source.getSurveys().isEmpty())
+                return ResponseEntity.ok().body(new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
 
             for (Survey survey : source.getSurveys()) {
                 for (Campaign campaign : survey.getCampaigns()) {
                     if (campaignService.isCampaignOngoing(campaign.getId())) {
-                        return ResponseEntity.ok().body(new OpenDto(true,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+                        return ResponseEntity.ok().body(new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
                     }
                 }
             }
 
-            return ResponseEntity.ok().body(new OpenDto(false,source.getMessageSurveyOffline(),source.getMessageInfoSurveyOffline()));
+            return ResponseEntity.ok().body(new OpenDto(false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
         } catch (NotFoundException e) {
-            return ResponseEntity.ok().body(new OpenDto(true,null,null));
+            return ResponseEntity.ok().body(new OpenDto(true, null, null));
 
         }
     }
 
     @Operation(summary = "Search for surveys by the owner id")
     @GetMapping(value = Constants.API_OWNERS_ID_SOURCES, produces = "application/json")
-    public ResponseEntity<List<SourceCompleteDto>> getSourcesByOwner(@PathVariable("id") String id) {
+    public ResponseEntity<List<SourceDto>> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return ResponseEntity.ok()
                 .body(owner.getSources().stream().map(this::convertToDto).toList());
@@ -182,17 +183,22 @@ public class SourceController {
 
     }
 
-    private SourceCompleteDto convertToDto(Source source) {
+    private SourceDto convertToDto(Source source) {
+        return modelmapper.map(source, SourceDto.class);
+    }
+
+    private SourceCompleteDto convertToCompleteDto(Source source) {
         return modelmapper.map(source, SourceCompleteDto.class);
     }
+
 
     private Source convertToEntity(SourceCompleteDto sourceCompleteDto) {
         return modelmapper.map(sourceCompleteDto, Source.class);
     }
 
-    class SourcePage extends PageImpl<SourceCompleteDto> {
+    class SourcePage extends PageImpl<SourceDto> {
 
-        public SourcePage(List<SourceCompleteDto> content, Pageable pageable, long total) {
+        public SourcePage(List<SourceDto> content, Pageable pageable, long total) {
             super(content, pageable, total);
         }
     }

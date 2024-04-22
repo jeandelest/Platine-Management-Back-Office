@@ -16,9 +16,11 @@ public class SourceCompleteDto {
     private String shortWording;
     private PeriodicityEnum periodicity;
     @Schema(description = "Indicates whether or not you need to use the my surveys portal", defaultValue = "false")
-    private boolean mandatoryMySurveys;
+    private boolean mandatoryMySurveys = false;
     @Schema(description = "Indicates if the source should be force closed", defaultValue = "false")
     private boolean forceClose = false;
+    private String messageInfoSurveyOffline = "";
+    private String messageSurveyOffline = "";
     private String ownerId;
     private String supportId;
 
