@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SourceCompleteDto {
+public class SourceOnlineStatusDto {
 
     @NotBlank
     private String id;

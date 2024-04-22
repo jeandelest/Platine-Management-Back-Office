@@ -5,8 +5,8 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceCompleteDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
@@ -71,7 +71,7 @@ public class SourceController {
 
     @Operation(summary = "Search for a source by its id")
     @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
-    public ResponseEntity<SourceCompleteDto> getSource(@PathVariable("id") String id) {
+    public ResponseEntity<SourceOnlineStatusDto> getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToCompleteDto(source));
 
@@ -79,8 +79,8 @@ public class SourceController {
 
     @Operation(summary = "Update or create a source")
     @PutMapping(value = Constants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
-    public ResponseEntity<SourceCompleteDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceCompleteDto sourceCompleteDto) {
-        if (!sourceCompleteDto.getId().equalsIgnoreCase(id)) {
+    public ResponseEntity<SourceOnlineStatusDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOnlineStatusDto sourceOnlineStatusDto) {
+        if (!sourceOnlineStatusDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
 
         }
@@ -88,19 +88,19 @@ public class SourceController {
         Source source;
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(sourceCompleteDto.getId()).toUriString());
+                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(sourceOnlineStatusDto.getId()).toUriString());
         HttpStatus httpStatus;
         try {
             sourceService.findById(id);
-            log.warn("Update source with the id {}", sourceCompleteDto.getId());
+            log.warn("Update source with the id {}", sourceOnlineStatusDto.getId());
             httpStatus = HttpStatus.OK;
         } catch (NotFoundException e) {
-            log.info("Create source with the id {}", sourceCompleteDto.getId());
+            log.info("Create source with the id {}", sourceOnlineStatusDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
 
 
-        source = sourceService.insertOrUpdateSource(convertToEntity(sourceCompleteDto));
+        source = sourceService.insertOrUpdateSource(convertToEntity(sourceOnlineStatusDto));
         if (source.getOwner() != null && httpStatus.equals(HttpStatus.CREATED))
             ownerService.addSourceFromOwner(source.getOwner(), source);
         if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
@@ -158,15 +158,9 @@ public class SourceController {
             if (source.getSurveys().isEmpty())
                 return ResponseEntity.ok().body(new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
 
-            for (Survey survey : source.getSurveys()) {
-                for (Campaign campaign : survey.getCampaigns()) {
-                    if (campaignService.isCampaignOngoing(campaign.getId())) {
-                        return ResponseEntity.ok().body(new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
-                    }
-                }
-            }
+            boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId()));
 
-            return ResponseEntity.ok().body(new OpenDto(false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
+            return ResponseEntity.ok().body(new OpenDto(isOpened, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
         } catch (NotFoundException e) {
             return ResponseEntity.ok().body(new OpenDto(true, null, null));
 
@@ -187,13 +181,13 @@ public class SourceController {
         return modelmapper.map(source, SourceDto.class);
     }
 
-    private SourceCompleteDto convertToCompleteDto(Source source) {
-        return modelmapper.map(source, SourceCompleteDto.class);
+    private SourceOnlineStatusDto convertToCompleteDto(Source source) {
+        return modelmapper.map(source, SourceOnlineStatusDto.class);
     }
 
 
-    private Source convertToEntity(SourceCompleteDto sourceCompleteDto) {
-        return modelmapper.map(sourceCompleteDto, Source.class);
+    private Source convertToEntity(SourceOnlineStatusDto sourceOnlineStatusDto) {
+        return modelmapper.map(sourceOnlineStatusDto, Source.class);
     }
 
     class SourcePage extends PageImpl<SourceDto> {
