@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import fr.insee.survey.datacollectionmanagement.config.cache.CacheName;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
@@ -20,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -80,7 +77,6 @@ public class SourceController {
     }
 
     @Operation(summary = "Update or create a source")
-    @CacheEvict(CacheName.SOURCE_OPENED)
     @PutMapping(value = Constants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     public ResponseEntity<SourceCompleteDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceCompleteDto sourceCompleteDto) {
         if (!sourceCompleteDto.getId().equalsIgnoreCase(id)) {
@@ -115,7 +111,6 @@ public class SourceController {
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
     @DeleteMapping(value = Constants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @CacheEvict(CacheName.SOURCE_OPENED)
     @Transactional
     public void deleteSource(@PathVariable("id") String id) {
         int nbQuestioningDeleted = 0;
@@ -149,7 +144,6 @@ public class SourceController {
 
     @Operation(summary = "Check if a source is opened")
     @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
-    @Cacheable(CacheName.SOURCE_OPENED)
     public ResponseEntity<OpenDto> isSourceOpened(@PathVariable("id") String id) {
 
 
