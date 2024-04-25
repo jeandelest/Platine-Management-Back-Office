@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class OpenDto {
     private boolean opened;
-    private boolean isForceClose;
+    private boolean forceClose;
     private String messageSurveyOffline;
     private String messageInfoSurveyOffline;
 
