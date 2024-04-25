@@ -152,15 +152,15 @@ public class SourceController {
 
         Source source = sourceService.findById(id.toUpperCase());
         if (Boolean.TRUE.equals(source.getForceClose())) {
-            return new OpenDto(false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
+            return new OpenDto(false, true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
         }
 
         if (source.getSurveys().isEmpty())
-            return new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
+            return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
         boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId()));
 
-        return new OpenDto(isOpened, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
+        return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
     }
 
