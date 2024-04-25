@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OpenDto {
-    private boolean surveyOnline;
+    private boolean opened;
+    private boolean forceClose;
     private String messageSurveyOffline;
     private String messageInfoSurveyOffline;
 

@@ -3,7 +3,10 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
@@ -145,26 +148,20 @@ public class SourceController {
 
     @Operation(summary = "Check if a source is opened")
     @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
-    public ResponseEntity<OpenDto> isSourceOpened(@PathVariable("id") String id) {
+    public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
-
-        try {
-            Source source = sourceService.findById(id.toUpperCase());
-            if (Boolean.TRUE.equals(source.getForceClose())) {
-                return ResponseEntity.ok().body(new OpenDto(false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
-
-            }
-
-            if (source.getSurveys().isEmpty())
-                return ResponseEntity.ok().body(new OpenDto(true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
-
-            boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId()));
-
-            return ResponseEntity.ok().body(new OpenDto(isOpened, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline()));
-        } catch (NotFoundException e) {
-            return ResponseEntity.ok().body(new OpenDto(true, null, null));
-
+        Source source = sourceService.findById(id.toUpperCase());
+        if (Boolean.TRUE.equals(source.getForceClose())) {
+            return new OpenDto(false, true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
         }
+
+        if (source.getSurveys().isEmpty())
+            return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
+
+        boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId()));
+
+        return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
+
     }
 
     @Operation(summary = "Search for surveys by the owner id")
