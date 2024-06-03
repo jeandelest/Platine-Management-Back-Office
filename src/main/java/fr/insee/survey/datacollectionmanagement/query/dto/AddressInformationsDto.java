@@ -11,15 +11,29 @@ import lombok.Setter;
 @JsonRootName("Address")
 public class AddressInformationsDto {
 
-    @JsonProperty("L1")
-    private String lineOne;
-    @JsonProperty("L2")
-    private String lineTwo;
-    @JsonProperty("L3")
-    private String lineThree;
-    @JsonProperty("L4")
-    private String lineFour;
-    @JsonProperty("L5")
-    private String lineFive;
+    @JsonProperty("StreetNumber")
+    private String streetNumber;
+    @JsonProperty("RepetitionIndex")
+    private String repetitionIndex;
+    @JsonProperty("StreetType")
+    private String streetType;
+    @JsonProperty("StreetName")
+    private String streetName;
+    @JsonProperty("AddressSupplement")
+    private String addressSupplement;
+    @JsonProperty("CityName")
+    private String cityName;
+    @JsonProperty("ZipCode")
+    private String zipCode;
+    @JsonProperty("CedexCode")
+    private String cedexCode;
+    @JsonProperty("CedexName")
+    private String cedexName;
+    @JsonProperty("SpecialDistribution")
+    private String specialDistribution;
+    @JsonProperty("CountryCode")
+    private String countryCode;
+    @JsonProperty("CountryName")
+    private String countryName;
 
 }

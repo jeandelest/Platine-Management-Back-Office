@@ -526,7 +526,7 @@ public class WebclientController {
         ContactInformationsDto contactInformationsDto = new ContactInformationsDto();
         contactInformationsDto.setEmail("email");
         AddressInformationsDto addressInformationsDto = new AddressInformationsDto();
-        addressInformationsDto.setLineFive("FRANCE");
+        addressInformationsDto.setCountryName("FRANCE");
         contactInformationsDto.setAddressInformationsDto(addressInformationsDto);
         questioningInformationsDto.setContactInformationsDto(contactInformationsDto);
 
