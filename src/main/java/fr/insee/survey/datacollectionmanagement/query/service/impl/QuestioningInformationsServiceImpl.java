@@ -71,7 +71,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         return questioningInformationsDto;
     }
 
-    private String getFormattedPhone(String phone, String phone2) {
+    protected String getFormattedPhone(String phone, String phone2) {
         if (phone != null && StringUtils.isNotBlank(phone)) {
             return phone;
         }
