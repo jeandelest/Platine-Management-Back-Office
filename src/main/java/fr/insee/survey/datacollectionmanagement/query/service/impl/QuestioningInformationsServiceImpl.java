@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 
@@ -36,7 +38,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
                 stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu) != null).toList();
 
-        if(listParts.isEmpty()){
+        if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
         }
 
@@ -47,8 +49,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         questioningInformationsDto.setReturnDate(infos.getReturnDate());
         questioningInformationsDto.setLogo(infos.getLogo());
         questioningInformationsDto.setUrlLogout("/" + infos.getSourceId());
-        questioningInformationsDto.setUrlAssistance("/" + infos.getSourceId() + "/contacter-assistance/auth?questioningId=" + infos.getQuestioningId());
-
+        questioningInformationsDto.setUrlAssistance(URLEncoder.encode("/" + infos.getSourceId() + "/contacter-assistance/auth?questioningId=" + infos.getQuestioningId(), StandardCharsets.UTF_8));
         // Map ContactInformationsDto
         ContactInformationsDto contactDto = new ContactInformationsDto();
         contactDto.setIdentity(getFormattedCivility(infos.getGender(), infos.getFirstName(), infos.getLastName()));
