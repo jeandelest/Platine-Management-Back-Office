@@ -13,7 +13,10 @@ import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
-import fr.insee.survey.datacollectionmanagement.query.dto.*;
+import fr.insee.survey.datacollectionmanagement.query.dto.ContactAccreditationDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.EligibleDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningWebclientDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.StateDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -38,7 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -510,29 +512,6 @@ public class WebclientController {
         result.setEligible(questioningEvent.isPresent() ? "true" : "false");
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
-    @Operation(summary = "Informations to fill in an Orbeon questionnaire")
-    @GetMapping(value = Constants.API_WEBCLIENT_INFORMATIONS, produces = MediaType.APPLICATION_XML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<QuestioningInformationsDto> getQuestioningInformations(@PathVariable("idCampaign") String idCampaign,
-                                                                                 @PathVariable("idUE") String idUe) {
-
-        QuestioningInformationsDto questioningInformationsDto = new QuestioningInformationsDto();
-        questioningInformationsDto.setLogo("1");
-        ContactInformationsDto contactInformationsDto = new ContactInformationsDto();
-        contactInformationsDto.setEmail("email");
-        AddressInformationsDto addressInformationsDto = new AddressInformationsDto();
-        addressInformationsDto.setCountryName("FRANCE");
-        contactInformationsDto.setAddressInformationsDto(addressInformationsDto);
-        questioningInformationsDto.setContactInformationsDto(contactInformationsDto);
-
-        return ResponseEntity.status(HttpStatus.OK).body(questioningInformationsDto);
-    }
-
     private Support convertToEntity(SupportDto supportDto) {
         return modelMapper.map(supportDto, Support.class);
     }

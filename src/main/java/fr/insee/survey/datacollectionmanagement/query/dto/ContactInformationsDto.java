@@ -11,13 +11,16 @@ import lombok.Setter;
 public class ContactInformationsDto {
 
     @JsonProperty("Identity")
-    private String id;
+    private String identity;
 
     @JsonProperty("Email")
     private String email;
 
     @JsonProperty("PhoneNumber")
     private String phoneNumber;
+
+    @JsonProperty("UsualCompanyName")
+    private String usualCompanyName;
 
     @JsonProperty("Address")
     private AddressInformationsDto addressInformationsDto;

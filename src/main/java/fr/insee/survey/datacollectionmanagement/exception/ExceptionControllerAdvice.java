@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -121,6 +122,15 @@ public class ExceptionControllerAdvice {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.NOT_FOUND, request);
     }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ApiError> emptyResultDataAccessException(NotFoundException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.NOT_FOUND, request);
+    }
+
+
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

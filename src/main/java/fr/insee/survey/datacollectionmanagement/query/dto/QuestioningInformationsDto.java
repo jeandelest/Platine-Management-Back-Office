@@ -16,6 +16,12 @@ public class QuestioningInformationsDto {
     @JsonProperty("Logo")
     private String logo;
 
+    @JsonProperty("UrlLogout")
+    private String urlLogout;
+
+    @JsonProperty("UrlAssistance")
+    private String urlAssistance;
+
     @JsonProperty("Contact")
     private ContactInformationsDto  contactInformationsDto;
 
