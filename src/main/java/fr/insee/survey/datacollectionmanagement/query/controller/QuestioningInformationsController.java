@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
@@ -40,17 +42,25 @@ public class QuestioningInformationsController {
 
     private final UserProvider userProvider;
 
+    private final ContactService contactService;
+
 
     @Operation(summary = "Informations to fill in an Orbeon questionnaire")
     @GetMapping(value = Constants.API_WEBCLIENT_INFORMATIONS, produces = MediaType.APPLICATION_XML_VALUE)
     public QuestioningInformationsDto getQuestioningInformations(@PathVariable("idCampaign") String idCampaign,
                                                                  @PathVariable("idUE") String idsu,
-                                                                 @Valid @ValidUserRole @RequestParam("role") String role,
+                                                                 @Valid @ValidUserRole @RequestParam(value = "role", required = false) String role,
                                                                  Authentication authentication) {
         AuthUser authUser = userProvider.getUser(authentication);
         boolean habilitated = checkHabilitationService.checkHabilitation(role, idsu, idCampaign, authUser);
         if (habilitated) {
-            return questioningInformationsService.findQuestioningInformations(idCampaign, idsu);
+            String idContact = authUser.getId().toUpperCase();
+            if (role.equalsIgnoreCase(UserRoles.INTERVIEWER) && contactService.findByIdentifier(idContact) != null) {
+                log.info("Get orbeon questioning informations for interviewer {} : campaign = {} and survey unit = {}", idContact, idCampaign, idsu);
+                return questioningInformationsService.findQuestioningInformationsDtoInterviewer(idCampaign, idsu, idContact);
+            }
+            log.info("Get orbeon questioning informations for reviewer : campaign = {} and survey unit = {}", idCampaign, idsu);
+            return questioningInformationsService.findQuestioningInformationsDtoReviewer(idCampaign, idsu);
         }
         throw new ForbiddenAccessException(String.format("User %s not authorized", authUser.getId()));
     }

@@ -31,8 +31,9 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
 
     private final QuestioningService questioningService;
 
+
     @Override
-    public QuestioningInformationsDto findQuestioningInformations(String idCampaign, String idsu) {
+    public QuestioningInformationsDto findQuestioningInformationsDtoReviewer(String idCampaign, String idsu) {
 
 
         List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
@@ -41,8 +42,30 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
         }
+        String partId = listParts.getFirst().getId();
+        QuestioningInformations infos = informationsRepository.findQuestioningInformationsReviewer(partId, idsu);
+        return mapQuestioningInformationsDto(infos);
+    }
 
-        QuestioningInformations infos = informationsRepository.findQuestioningInformations(listParts.getFirst().getId(), idsu);
+    @Override
+    public QuestioningInformationsDto findQuestioningInformationsDtoInterviewer(String idCampaign, String idsu, String contactId) {
+
+
+        List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
+                stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu) != null).toList();
+
+        if (listParts.isEmpty()) {
+            throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
+        }
+        String partId = listParts.getFirst().getId();
+        QuestioningInformations infos = informationsRepository.findQuestioningInformationsInterviewer(partId, idsu, contactId);
+        return mapQuestioningInformationsDto(infos);
+    }
+
+
+
+
+    private QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
         QuestioningInformationsDto questioningInformationsDto = new QuestioningInformationsDto();
 
         // Map basic fields
@@ -50,6 +73,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         questioningInformationsDto.setLogo(infos.getLogo());
         questioningInformationsDto.setUrlLogout("/" + infos.getSourceId());
         questioningInformationsDto.setUrlAssistance(URLEncoder.encode("/" + infos.getSourceId() + "/contacter-assistance/auth?questioningId=" + infos.getQuestioningId(), StandardCharsets.UTF_8));
+
         // Map ContactInformationsDto
         ContactInformationsDto contactDto = new ContactInformationsDto();
         contactDto.setIdentity(getFormattedCivility(infos.getGender(), infos.getFirstName(), infos.getLastName()));
@@ -68,7 +92,6 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         surveyUnitDto.setSurveyUnitId(infos.getIdentificationCode());
         surveyUnitDto.setIdentificationName(infos.getIdentificationName());
         questioningInformationsDto.setSurveyUnitInformationsDto(surveyUnitDto);
-
         return questioningInformationsDto;
     }
 
