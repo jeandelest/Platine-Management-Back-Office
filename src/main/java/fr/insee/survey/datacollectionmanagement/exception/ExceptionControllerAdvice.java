@@ -126,7 +126,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiError> emptyResultDataAccessException(NotFoundException e, WebRequest request) {
+    public ResponseEntity<ApiError> emptyResultDataAccessException(EmptyResultDataAccessException e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.NOT_FOUND, request);
     }
@@ -135,7 +135,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiError> entityNotFoundException(NotFoundException e, WebRequest request) {
+    public ResponseEntity<ApiError> entityNotFoundException(EntityNotFoundException e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.NOT_FOUND, request);
     }

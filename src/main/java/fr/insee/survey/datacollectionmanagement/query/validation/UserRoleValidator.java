@@ -8,6 +8,8 @@ public class UserRoleValidator implements ConstraintValidator<ValidUserRole, Str
 
     @Override
     public void initialize(ValidUserRole constraintAnnotation) {
+        ConstraintValidator.super.initialize(constraintAnnotation);
+
     }
 
     @Override
