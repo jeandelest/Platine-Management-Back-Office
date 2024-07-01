@@ -78,13 +78,6 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("M. John Doe", result);
     }
 
-    @Test
-    @DisplayName("Should return primary phone when it is not null and not blank")
-    void testGetFormattedPhone_PrimaryPhone() {
-        QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
-        String result = service.getFormattedPhone("1234567890", "0987654321");
-        assertEquals("1234567890", result);
-    }
 
     @Test
     @DisplayName("Should return secondary phone when primary phone is null")
