@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -55,7 +56,7 @@ public class QuestioningInformationsController {
         boolean habilitated = checkHabilitationService.checkHabilitation(role, idsu, idCampaign, authUser);
         if (habilitated) {
             String idContact = authUser.getId().toUpperCase();
-            if (role.equalsIgnoreCase(UserRoles.INTERVIEWER) && contactService.findByIdentifier(idContact) != null) {
+            if (StringUtils.equalsIgnoreCase(role, UserRoles.INTERVIEWER) && contactService.findByIdentifier(idContact) != null) {
                 log.info("Get orbeon questioning informations for interviewer {} : campaign = {} and survey unit = {}", idContact, idCampaign, idsu);
                 return questioningInformationsService.findQuestioningInformationsDtoInterviewer(idCampaign, idsu, idContact);
             }
