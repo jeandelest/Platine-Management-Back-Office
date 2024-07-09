@@ -56,8 +56,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable) {
-        return contactRepository.findByParameters(identifier, name, email, city, function, pageable);
+    public Page<Contact> findByParameter(String param, Pageable pageable) {
+        return contactRepository.findByParameter(param, pageable);
     }
 
 

@@ -29,19 +29,15 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
         ON 
             c.address_id = a.id
         WHERE
-            (:identifier IS NULL OR UPPER(c.identifier) = UPPER(:identifier))
-            AND
-            (:name IS NULL OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE UPPER(CONCAT('%', :name, '%')))
-            AND
-            (:email IS NULL OR UPPER(c.email) = UPPER(:email))
-            AND
-            (:function IS NULL OR UPPER(c.function) LIKE UPPER(CONCAT('%', :function, '%')))
-            AND
-            (:city IS NULL OR UPPER(a.city_name) = UPPER(:city))
+            (:param IS NULL OR UPPER(c.identifier) = UPPER(:param))
+            OR
+            (:param IS NULL OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE UPPER(CONCAT('%', :param, '%')))
+            OR
+            (:param IS NULL OR UPPER(c.email) = UPPER(:param))
     """,
             nativeQuery = true
     )
-    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
+    Page<Contact> findByParameter(String param, Pageable pageable);
 
 
 }

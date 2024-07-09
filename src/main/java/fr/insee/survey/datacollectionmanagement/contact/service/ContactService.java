@@ -28,7 +28,7 @@ public interface ContactService {
      * @param identifier contact identifier
      * @return contact found
      */
-    Contact findByIdentifier(String identifier) ;
+    Contact findByIdentifier(String identifier);
 
     /**
      * Update an existing contact and its address, or creates a new one
@@ -40,11 +40,12 @@ public interface ContactService {
 
     /**
      * Delete a contact. Delete also the contact address.
+     *
      * @param identifier contact identifier
      */
     void deleteContact(String identifier);
 
-    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
+    Page<Contact> findByParameter(String param, Pageable pageable);
 
     Contact createContactAddressEvent(Contact contact, JsonNode payload);
 

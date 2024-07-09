@@ -7,20 +7,11 @@ import org.springframework.data.domain.Pageable;
 public interface SearchContactService {
 
     /**
-     * Search contact according to diffeent parameters
-     * @param identifier contact identifier
-     * @param name (first name or and lastName)
-     * @param email contact email
-     * @param city contact city
-     * @param function contact function
-
-     * @return
+     * Search contact according to different parameters
+     * @param param search contact parameter (mail or identifier or name
+     * @return Page SearchContactDto
      */
     Page<SearchContactDto> searchContactCrossDomain(
-        String identifier,
-        String name,
-        String email,
-        String city,
-        String function,
+        String param,
         Pageable pageable);
 }
