@@ -65,7 +65,7 @@ public class SearchContactController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public Page<SearchContactDto> searchContacts(
-            @RequestParam(required = true) String param,
+            @RequestParam(required = false) String param,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(defaultValue = "identifier") String sort) {
