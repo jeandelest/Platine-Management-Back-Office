@@ -3,8 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,20 +26,14 @@ class MoogControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
-    @Autowired
-    MoogService moogService;
-    @BeforeEach
-    void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
-    }
+    
     @Test
     void getMoogReadOnlyUrl() throws Exception {
         String idCampaign = "SOURCE12023T01";
         String surveyUnitId = "100000000";
         this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
 
-                .andExpect(content().string("http://localhost:8081/readonly/questionnaire/m0/unite-enquetee/100000000"));
+                .andExpect(content().string("http://localhost:8081/v3/review/questionnaire/m0/unite-enquetee/100000000"));
     }
 
 
