@@ -22,23 +22,17 @@ public class SearchContactServiceImpl implements SearchContactService {
 
     private final ContactService contactService;
 
-    private final PartitioningService partioningService;
+    private final PartitioningService partitioningService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
 
     @Override
-    public Page<SearchContactDto> searchContactCrossDomain(
-            String identifier,
-            String name,
-            String email,
-            String city,
-            String function,
-            Pageable pageable) {
+    public Page<SearchContactDto> searchContactCrossDomain(String param, Pageable pageable) {
 
         List<SearchContactDto> listSearchContact = new ArrayList<>();
 
-        Page<Contact> pageContact = contactService.findByParameters(identifier, name, email,city, function, pageable);
+        Page<Contact> pageContact = contactService.findByParameter(param, pageable);
 
         for (Contact c : pageContact) {
             listSearchContact.add(transformContactTSearchContactDto(c));
@@ -60,7 +54,7 @@ public class SearchContactServiceImpl implements SearchContactService {
         searchContact.setListSurveyUnitNames(listAccreditations.stream().map(a -> a.getQuestioning().getSurveyUnit().getIdSu()).distinct().toList());
         searchContact.setListSourcesId(listAccreditations.stream().
                 map(a ->
-                        partioningService.findById(a.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).distinct().toList());
+                        partitioningService.findById(a.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).distinct().toList());
         return searchContact;
     }
 }
