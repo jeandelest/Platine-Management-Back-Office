@@ -18,6 +18,7 @@ public class ContactFirstLoginDto{
     private String function;
     private String email;
     private String phone;
+    private String otherPhone;
     private String usualCompanyName;
     private boolean firstConnect;
     private AddressDto address;
