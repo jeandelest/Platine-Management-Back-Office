@@ -2,8 +2,7 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
@@ -38,9 +37,7 @@ import java.io.Serial;
 import java.util.List;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -57,9 +54,6 @@ public class ContactController {
 
     private final ModelMapper modelMapper;
 
-    private final UserProvider userProvider;
-
-
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
     public ResponseEntity<ContactPage> getContacts(
@@ -74,10 +68,7 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = Constants.API_CONTACTS_ID)
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<ContactFirstLoginDto> getContact(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
@@ -88,11 +79,10 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
-    public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id, @RequestBody @Valid ContactDto contactDto, Authentication auth) throws JsonProcessingException {
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
+                                                 @RequestBody @Valid ContactDto contactDto,
+                                                 Authentication auth) throws JsonProcessingException {
         if (!contactDto.getIdentifier().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and contact identifier don't match");
         }
@@ -100,9 +90,8 @@ public class ContactController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest()
                 .buildAndExpand(contactDto.getIdentifier()).toUriString());
-        AuthUser authUser = userProvider.getUser(auth);
 
-        JsonNode payload = PayloadUtil.getPayloadAuthor(authUser.getId());
+        JsonNode payload = PayloadUtil.getPayloadAuthor(auth.getName());
 
         try {
             contact = convertToEntity(contactDto);
