@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
@@ -28,8 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,9 +41,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "4 - Cross domain")
 @Slf4j
 @RequiredArgsConstructor
@@ -60,31 +57,25 @@ public class SearchContactController {
 
     private final MoogService moogService;
 
+
     @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<Page<SearchContactDto>> searchContacts(
-            @RequestParam(required = false) String identifier,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String function,
+    public Page<SearchContactDto> searchContacts(
+            @RequestParam(required = false) String param,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "identifier")  String sort) {
+            @RequestParam(defaultValue = "identifier") String sort) {
 
         log.info(
-                "Search contact: identifier = {}, name= {}, email= {}, page= {}, pageSize= {} ",
-                identifier, name, email, page, pageSize);
+                "Search contact: param = {} ", param, page, pageSize);
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
-        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email, city, function,
-                pageable);
-        return new ResponseEntity<>(pageSearchContact, HttpStatus.OK);
+        return searchContactService.searchContactCrossDomain(param, pageable);
 
 
     }
@@ -95,7 +86,7 @@ public class SearchContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccreditationDetailDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<List<AccreditationDetailDto>> getContactAccreditations(
+    public List<AccreditationDetailDto> getContactAccreditations(
             @PathVariable("id") String id,
             @RequestParam(defaultValue = "false") boolean isFilterOpened) {
 
@@ -115,6 +106,7 @@ public class SearchContactController {
                         survey.getSource().getShortWording(),
                         survey.getYear(),
                         part.getCampaign().getPeriod(),
+                        part.getCampaign().getId(),
                         part.getId(),
                         part.getClosingDate(),
                         su.getIdSu(),
@@ -128,7 +120,7 @@ public class SearchContactController {
 
         }
 
-        return new ResponseEntity<>(listAccreditations, HttpStatus.OK);
+        return listAccreditations;
 
     }
 
