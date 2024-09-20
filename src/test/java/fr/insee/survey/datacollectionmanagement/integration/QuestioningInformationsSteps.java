@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query;
+package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
@@ -136,7 +136,7 @@ public class QuestioningInformationsSteps {
         surveyUnitRepository.save(su);
     }
 
-    @Given("the contact {string} with firstname {string} and lastanme {string} and gender {string} and the streetnumber {string}")
+    @Given("the contact {string} with firstname {string} and lastname {string} and gender {string} and the streetnumber {string}")
     public void createContact(String contactId, String firstName, String lastName, String gender, String streetNumber) {
         Contact c = new Contact();
         c.setIdentifier(contactId);
