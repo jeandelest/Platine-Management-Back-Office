@@ -20,7 +20,7 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long>, 
                   v.campaign_id as campaign_id,
                   v.id_su as id_su
             from
-                  "view" v
+                  view v
             where
                  campaign_id =?1""";
 
@@ -28,7 +28,7 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long>, 
             select
                  distinct v.campaign_id
             from
-                 "view" v
+                 view v
             where
                  v.identifier = ?1""";
 
